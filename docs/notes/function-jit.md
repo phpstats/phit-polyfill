@@ -113,9 +113,14 @@ it exposed three more miscompiles (in `betaFrac`, `Dense::multiply`, and
   its variance on a fixed grid with no optimizer and is not refused. The
   mixed-model tests that fit a model skip themselves under a JIT, and
   `tests/Unit/MixedJitTest.php` checks the refusal in the JIT jobs.
-  Calling `ini_set('opcache.jit', 'off')` before a fit would satisfy the
-  check, but whether it also stops traces that are already compiled has not
-  been tested, so the message does not suggest it.
+  Calling `ini_set('opcache.jit', 'off')` before a fit satisfies the check:
+  on PHP 8.4.25 it returns the old mode and `jit.on` reads false afterwards.
+  Whether it also stops traces that are already compiled has not been shown,
+  so the message does not suggest it. `bin/jit-off-experiment` runs the
+  bobyqa reference with the JIT on, switches it off, and runs it again. The
+  `jit` CI jobs run it as an informational step. On this Mac it is
+  inconclusive, because the miscompile does not reproduce here. Its log on
+  the PHP 8.4 x86-64 runner decides whether the message can suggest it.
 - The NelderMead test closure computes its loop bound without assigning a
   temporary and iterates the quadratic case with `foreach`.
 - `Svd::reflectRows` moves its loops over rows into separate functions, so an

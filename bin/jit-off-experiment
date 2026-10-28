@@ -1,0 +1,78 @@
+#!/usr/bin/env php
+<?php
+
+// Does ini_set('opcache.jit', 'off') at run time make BOBYQA safe again after
+// the JIT has compiled it? Phit\fit_lmer and friends refuse to run while a JIT
+// compiles the process (src/Internal/Jit.php), and switching the JIT off this
+// way satisfies that check, so the error message may suggest it only if the
+// answer is yes. See docs/notes/function-jit.md.
+//
+// Run under a JIT, for example:
+//   php -d opcache.enable_cli=1 -d opcache.jit=tracing -d opcache.jit_buffer_size=64M bin/jit-off-experiment
+//
+// Phase 1 runs every reference case --passes times with the JIT on, so the
+// solver's traces compile and any miscompile shows up as a mismatch with the
+// crate. Phase 2 switches the JIT off and runs them again. The result means
+// something only where phase 1 reproduces the miscompile. The exit status is
+// 0 unless the script cannot run the experiment at all.
+
+declare(strict_types=1);
+
+require __DIR__.'/../vendor/autoload.php';
+require __DIR__.'/../tests/Support/bobyqa.php';
+
+use Phit\Polyfill\Internal\Jit;
+
+$options = getopt('', ['passes::']);
+$passes = (int) ($options['passes'] ?? 3);
+$cases = json_decode((string) file_get_contents(__DIR__.'/../tests/fixtures/bobyqa-reference.json'), true, flags: JSON_THROW_ON_ERROR);
+
+$mismatches = function () use ($cases): array {
+    $failed = [];
+    foreach ($cases as $row) {
+        [$outcome, $x, $trace, $solver] = bobyqaRun($row);
+        $exact = $outcome->nEval === $row['n_eval']
+            && bobyqaHex($outcome->f) === $row['f']
+            && array_map(bobyqaHex(...), $x) === $row['x']
+            && $solver->lastRestartCount() === $row['restarts']
+            && crc32($trace) === $row['trace_crc'];
+        if (! $exact) {
+            $failed[] = $row['name'];
+        }
+    }
+
+    return $failed;
+};
+
+printf("PHP %s, opcache.jit=%s\n", PHP_VERSION, ini_get('opcache.jit'));
+if (! Jit::compiling()) {
+    fwrite(STDERR, "no JIT is compiling this process; run it under one\n");
+    exit(1);
+}
+
+$on = [];
+for ($pass = 1; $pass <= $passes; $pass++) {
+    $on[$pass] = $mismatches();
+    printf("JIT on,  pass %d: %d of %d cases differ from the crate%s\n", $pass, count($on[$pass]), count($cases),
+        $on[$pass] === [] ? '' : ' ('.implode(', ', $on[$pass]).')');
+}
+
+$switched = ini_set('opcache.jit', 'off');
+$status = opcache_get_status(false);
+printf("ini_set('opcache.jit', 'off') returned %s; jit.on is now %s; Jit::compiling() is %s\n",
+    var_export($switched, true), var_export($status['jit']['on'] ?? null, true), var_export(Jit::compiling(), true));
+
+$off = [];
+for ($pass = 1; $pass <= $passes; $pass++) {
+    $off[$pass] = $mismatches();
+    printf("JIT off, pass %d: %d of %d cases differ from the crate%s\n", $pass, count($off[$pass]), count($cases),
+        $off[$pass] === [] ? '' : ' ('.implode(', ', $off[$pass]).')');
+}
+
+$reproduced = array_filter($on) !== [];
+$clean = array_filter($off) === [];
+echo match (true) {
+    ! $reproduced => "inconclusive: the miscompile did not reproduce with the JIT on\n",
+    $clean => "switching the JIT off at run time restored the crate's results\n",
+    default => "switching the JIT off at run time did NOT restore the crate's results\n",
+};
