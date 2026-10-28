@@ -30,8 +30,9 @@ PHP 8.4.** On GitHub's x86-64 runner that configuration returns a different
 minimum, not a differently rounded one: one reference case gives 3.3254 where
 the crate and every other mode give 4.0388. `Phit\fit_lmer` and
 `Phit\fit_glmer` default to that optimizer, so a mixed model fitted that way
-can be wrong by a wide margin and says nothing about it. The tracing JIT was
-recommended here until 2026-10-21.
+could be wrong by a wide margin and say nothing about it, so the mixed models
+that use an optimizer now refuse to run under any JIT (see below). The tracing
+JIT was recommended here until 2026-10-21.
 
 Avoid a function JIT with hot-counter triggers too, such as `opcache.jit=1235`,
 the value that setup-php's php.ini sets: under that setting the polyfill has
@@ -100,6 +101,21 @@ it exposed three more miscompiles (in `betaFrac`, `Dense::multiply`, and
 
 ## What the polyfill does
 
+- `Phit\fit_mixed`, `Phit\fit_lmer`, `Phit\fit_logistic_mixed`, and
+  `Phit\fit_glmer` throw an exception with code 1007 (`UNSUPPORTED`) when
+  OPcache reports a JIT compiling the process, on every PHP version.
+  `Internal\Jit::refuseMixedFit()` runs after input validation and
+  immediately before BOBYQA or Nelder-Mead starts, so invalid input still
+  reports its own code. PHP 8.5 passes under the tracing JIT in CI, but so did
+  PHP 8.4 until the runner above showed otherwise, so the refusal does not
+  depend on the version. If `opcache.restrict_api` hides OPcache's status, the
+  check reads the ini settings instead. `Phit\fit_mixed_intercept` profiles
+  its variance on a fixed grid with no optimizer and is not refused. The
+  mixed-model tests that fit a model skip themselves under a JIT, and
+  `tests/Unit/MixedJitTest.php` checks the refusal in the JIT jobs.
+  Calling `ini_set('opcache.jit', 'off')` before a fit would satisfy the
+  check, but whether it also stops traces that are already compiled has not
+  been tested, so the message does not suggest it.
 - The NelderMead test closure computes its loop bound without assigning a
   temporary and iterates the quadratic case with `foreach`.
 - `Svd::reflectRows` moves its loops over rows into separate functions, so an

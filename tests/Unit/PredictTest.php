@@ -57,6 +57,9 @@ $fixture = loadFixture('predict-r.json');
 
 foreach ($fixture['cases'] as $case) {
     it("matches R's predict() for {$case['name']}", function () use ($case, $fixture) {
+        if (in_array($case['function'], ['lmer', 'glmer'], true)) {
+            skipMixedFitsUnderJit();
+        }
         $fit = predictFit($case, $fixture['datasets'][$case['dataset']]);
         $options = [];
         foreach ($case['options'] as $option => $value) {
@@ -86,6 +89,7 @@ it('reproduces fitted values on the training data', function () use ($fixture) {
     predictCompare(pf('Phit\predict', $fit, $cars)['fit'], $fit['fitted'], 'lm training data', 1e-12, 1e-12);
     $fit = pf('Phit\fit_glm', 'am ~ wt + hp', $cars, family: 'binomial');
     predictCompare(pf('Phit\predict', $fit, $cars, type: 'response')['fit'], $fit['fitted'], 'glm training data', 1e-12, 1e-10);
+    skipMixedFitsUnderJit();
     $schools = $fixture['datasets']['schools'];
     $fit = pf('Phit\fit_lmer', 'score ~ study_hours + (1 | school)', $schools);
     predictCompare(pf('Phit\predict', $fit, $schools)['fit'], $fit['fitted'], 'lmer training data', 1e-10, 1e-10);
@@ -93,6 +97,7 @@ it('reproduces fitted values on the training data', function () use ($fixture) {
 });
 
 it("raises R's errors", function () use ($fixture) {
+    skipMixedFitsUnderJit();
     $cars = $fixture['datasets']['cars'];
     $schools = $fixture['datasets']['schools'];
     $fit = pf('Phit\fit_lm', 'mpg ~ wt + gear_label', $cars);

@@ -354,19 +354,22 @@ and 3 `glmer` fits.
 The mixed models are the slowest part of the polyfill. Measured on an Apple M5
 Ultra with PHP 8.5.10, in the same process as the extension:
 
-| Fit | Extension | Polyfill | Polyfill, tracing JIT |
-|---|---:|---:|---:|
-| `Phit\fit_mixed_intercept`, sleepstudy (n = 180) | 0.2 ms | 2.6 ms | 8.4 ms |
-| `Phit\fit_logistic_mixed`, n = 185, Laplace | 1.3 ms | 26 ms | 36 ms |
-| `Phit\fit_logistic_mixed`, n = 185, 9 quadrature points | 2.1 ms | 41 ms | 42 ms |
-| `Phit\fit_mixed`, random slopes, q = 24 | 0.7 ms | 37 ms | 163 ms |
-| `Phit\fit_mixed`, nested, q = 84 | 7.8 ms | 604 ms | 130 ms |
-| `Phit\fit_mixed`, four nested levels, q = 120 | 103 ms | 8.0 s | 1.4 s |
+| Fit | Extension | Polyfill |
+|---|---:|---:|
+| `Phit\fit_mixed_intercept`, sleepstudy (n = 180) | 0.2 ms | 2.6 ms |
+| `Phit\fit_logistic_mixed`, n = 185, Laplace | 1.3 ms | 26 ms |
+| `Phit\fit_logistic_mixed`, n = 185, 9 quadrature points | 2.1 ms | 41 ms |
+| `Phit\fit_mixed`, random slopes, q = 24 | 0.7 ms | 37 ms |
+| `Phit\fit_mixed`, nested, q = 84 | 7.8 ms | 604 ms |
+| `Phit\fit_mixed`, four nested levels, q = 120 | 103 ms | 8.0 s |
 
 Here q is the number of random coefficients. `Phit\fit_mixed` and `Phit\fit_lmer`
 repeat a dense QR of a matrix with about n + q rows and q + p columns at every
-optimizer step, so their cost grows roughly with q³. The JIT helps large fits
-and costs compilation time on small ones.
+optimizer step, so their cost grows roughly with q³. Every mixed model except
+`Phit\fit_mixed_intercept` throws an exception with code 1007 while a JIT
+compiles the process, because PHP's JIT has moved their optimizer to a wrong
+minimum without an error. See
+[docs/notes/function-jit.md](docs/notes/function-jit.md).
 
 ## Not provided
 

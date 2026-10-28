@@ -75,6 +75,7 @@ describe('Phit\fit_mixed against lme4 optimizers', function () {
     foreach (loadFixture('lmm-expanded-r.json')['cases'] as $c) {
         $slow = ! in_array($c['name'], LMM_EXPANDED_ALWAYS, true);
         it("matches lme4 on {$c['name']} with BOBYQA and Nelder-Mead", function () use ($c) {
+            skipMixedFitsUnderJit();
             $r = pf('Phit\fit_mixed', x: $c['x'], y: $c['y'], random: $c['terms'], reml: $c['reml'],
                 weights: $c['weights'], offset: $c['offset'], intercept: false);
             $r['terms'] = lmmExpandedTerms($r['random'], $c['terms']);
@@ -109,6 +110,7 @@ describe('Phit\fit_mixed against lme4 optimizers', function () {
 
 describe('Phit\fit_mixed inputs', function () {
     it('deletes the union of missing rows across all inputs with one warning', function () {
+        skipMixedFitsUnderJit();
         $c = lmmExpandedMissingCase();
         $warnings = warnings(fn () => pf('Phit\fit_mixed', $c['x'], $c['y'], $c['terms'],
             weights: $c['weights'], offset: $c['offset'], intercept: false), $r);
@@ -141,6 +143,7 @@ describe('Phit\fit_mixed inputs', function () {
     });
 
     it('keeps integer and string labels distinct', function () {
+        skipMixedFitsUnderJit();
         $typed = pf('Phit\fit_mixed', array_fill(0, 8, [1]), [-3, -2, -1, 1, 2, 3, 4, 5],
             [['z' => array_fill(0, 8, [1]), 'groups' => [1, 1, '1', '1', 'A', 'A', 'B', 'B']]], intercept: false);
         expect($typed['random'][0]['group_labels'])->toBe([1, '1', 'A', 'B']);

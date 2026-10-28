@@ -241,6 +241,7 @@ it('fits regressions exactly like the extension', function () {
 });
 
 it('fits mixed models exactly like the extension', function () {
+    skipMixedFitsUnderJit();
     randomParitySeed('mixed');
     for ($round = 0; $round < max(1, intdiv(randomParityIterations(), 3)); $round++) {
         $groups = mt_rand(2, 8);

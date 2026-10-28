@@ -213,12 +213,16 @@ In summary:
 - Scalar arguments of the wrong type follow PHP's userland rules (coercion in
   non-strict files, otherwise `TypeError`). The extension raises an
   `\Exception` instead.
+- `Phit\fit_mixed`, `Phit\fit_lmer`, `Phit\fit_logistic_mixed`, and
+  `Phit\fit_glmer` throw an exception with code 1007 while OPcache's JIT
+  compiles the process, on every PHP version. On PHP 8.4 the tracing JIT moved
+  their optimizer to a minimum 18% away from the correct one without an error.
+  Set `opcache.jit=disable` or install the extension to fit them.
+  `Phit\fit_mixed_intercept` uses no optimizer and still runs.
 - On PHP 8.4 and 8.5, use OPcache without the JIT. A function JIT with
   hot-counter triggers, such as `opcache.jit=1235`, can miscompile code that
   it enters partway through a loop (php-src #24214) and has produced wrong
-  results here, and on PHP 8.4 the tracing JIT moves the bobyqa optimizer to a
-  different minimum, which `Phit\fit_lmer` and `Phit\fit_glmer` use by
-  default. See [docs/notes/function-jit.md](docs/notes/function-jit.md).
+  results here. See [docs/notes/function-jit.md](docs/notes/function-jit.md).
 - On PHP 8.3, use OPcache without the JIT, which is PHP 8.3's default. Its
   tracing JIT computes wrong beta probabilities, and its function JIT with
   hot-counter triggers crashes. See

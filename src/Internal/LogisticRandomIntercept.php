@@ -184,6 +184,7 @@ final class LogisticRandomIntercept
         } catch (Bobyqa\BobyqaException $e) {
             throw ErrorCode::exception(ErrorCode::INVALID_INPUT, 'invalid binomial mixed control: '.$e->getMessage());
         }
+        Jit::refuseMixedFit();
         $outcome = $optimizer->minimize(function (array $t) use ($data): float {
             try {
                 return -$data->logLikelihood($t);

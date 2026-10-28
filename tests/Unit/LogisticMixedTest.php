@@ -56,6 +56,7 @@ function logisticMixedOffsetCase(): array
 describe('Phit\fit_logistic_mixed against lme4', function () {
     foreach (loadFixture('logistic-mixed-r.json')['cases'] as $case) {
         it("matches glmer on {$case['name']}", function () use ($case) {
+            skipMixedFitsUnderJit();
             $r = pf('Phit\fit_logistic_mixed', $case['x'], $case['y'], $case['groups'],
                 weights: $case['weights'], offset: $case['offset'],
                 quadraturePoints: $case['quadrature_points'], intercept: false);
@@ -79,6 +80,7 @@ describe('Phit\fit_logistic_mixed against lme4', function () {
 
 describe('Phit\fit_logistic_mixed inputs', function () {
     it('deletes the union of missing rows with one warning and keeps alignment', function () {
+        skipMixedFitsUnderJit();
         $c = logisticMixedOffsetCase();
         $warnings = warnings(fn () => pf('Phit\fit_logistic_mixed', $c['x'], $c['y'], $c['groups'],
             weights: $c['weights'], offset: $c['offset'], quadraturePoints: 9, intercept: false), $r);
@@ -116,6 +118,7 @@ describe('Phit\fit_logistic_mixed inputs', function () {
     });
 
     it('keeps typed IDs distinct and reports an exact boundary', function () {
+        skipMixedFitsUnderJit();
         $r = pf('Phit\fit_logistic_mixed', array_fill(0, 8, [1]), [0, 1, 0, 1, 0, 1, 0, 1], [1, 1, '1', '1', 'A', 'A', 'B', 'B'], intercept: false);
         expect($r['group_labels'])->toBe([1, '1', 'A', 'B'])
             ->and($r['boundary'])->toBeTruthy();

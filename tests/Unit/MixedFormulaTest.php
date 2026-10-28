@@ -62,6 +62,7 @@ describe('Phit\fit_lmer and Phit\fit_glmer against lme4', function () {
     $fixture = loadFixture('formula-lme4-r.json');
     foreach ($fixture['cases'] as $case) {
         it("matches {$case['function']} on {$case['name']}", function () use ($fixture, $case) {
+            skipMixedFitsUnderJit();
             $data = $fixture['datasets'][$case['dataset']];
             $name = $case['name'];
             warnings(fn () => $case['function'] === 'lmer'
@@ -105,6 +106,7 @@ describe('Phit\fit_lmer and Phit\fit_glmer against lme4', function () {
 
 describe('mixed formula interfaces', function () {
     it('fits Phit\fit_lmer exactly as the Phit\fit_mixed matrix interface it wraps', function () {
+        skipMixedFitsUnderJit();
         $schools = loadFixture('formula-lme4-r.json')['datasets']['schools'];
         $lmer = pf('Phit\fit_lmer', 'score ~ study_hours + (1 | school)', $schools, reml: false);
         $matrix = pf('Phit\fit_mixed', array_map(fn ($h) => [$h], $schools['study_hours']), $schools['score'],
@@ -125,6 +127,7 @@ describe('mixed formula interfaces', function () {
     });
 
     it('reports Phit\fit_glmer metadata', function () {
+        skipMixedFitsUnderJit();
         $panel = loadFixture('formula-lme4-r.json')['datasets']['panel'];
         warnings(fn () => pf('Phit\fit_glmer', 'yb ~ x + (1 | subject)', $panel), $glmer);
         expect($glmer['family'])->toBe('binomial')
@@ -158,6 +161,7 @@ describe('mixed formula interfaces', function () {
     });
 
     it('warns once when Phit\fit_lmer deletes rows', function () {
+        skipMixedFitsUnderJit();
         $panel = loadFixture('formula-lme4-r.json')['datasets']['panel'];
         $warnings = warnings(fn () => pf('Phit\fit_lmer', 'y ~ x + (1 | subject)', $panel), $r);
         expect($warnings)->toHaveCount(1)

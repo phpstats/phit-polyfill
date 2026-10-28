@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Phit\Polyfill\Internal\Jit;
 use Phit\Polyfill\Polyfill;
 
 /*
@@ -149,6 +150,18 @@ function warnings(callable $callback, mixed &$result = null): array
     }
 
     return $warnings;
+}
+
+/**
+ * Skip a test that fits Phit\fit_mixed, Phit\fit_lmer, Phit\fit_logistic_mixed
+ * or Phit\fit_glmer, which refuse to run while a JIT compiles the process.
+ * MixedJitTest checks the refusal itself.
+ */
+function skipMixedFitsUnderJit(): void
+{
+    if (Jit::compiling()) {
+        test()->markTestSkipped('mixed models do not run under the JIT (docs/notes/function-jit.md)');
+    }
 }
 
 /** The exception code thrown by $callback, or null. */
