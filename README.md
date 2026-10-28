@@ -235,22 +235,22 @@ In summary:
 
 Benchmarks compare the polyfill with the extension in the same process on an
 Apple M5 Ultra with PHP 8.5.10. Each design has 10 standard normal predictors
-plus an intercept. Times are the median of five runs with the tracing JIT on
-(`-d opcache.enable_cli=1 -d opcache.jit=tracing -d opcache.jit_buffer_size=64M`).
+plus an intercept. Times are the median of five runs with OPcache on and the
+JIT off (`-d opcache.enable_cli=1 -d opcache.jit=disable`), the configuration
+recommended above.
 
 | Model | n | Polyfill | Extension | Ratio |
 |---|---:|---:|---:|---:|
-| `Phit\fit_ols` | 10,000 | 7.3 ms | 2.6 ms | 2.8× |
-| `Phit\fit_ols` | 100,000 | 78 ms | 27 ms | 2.9× |
-| `Phit\fit_logistic` | 10,000 | 46 ms | 6.6 ms | 6.9× |
-| `Phit\fit_logistic` | 100,000 | 456 ms | 69 ms | 6.7× |
+| `Phit\fit_ols` | 10,000 | 26 ms | 2.9 ms | 8.9× |
+| `Phit\fit_ols` | 100,000 | 262 ms | 29 ms | 9.1× |
+| `Phit\fit_logistic` | 10,000 | 160 ms | 7.0 ms | 23× |
+| `Phit\fit_logistic` | 100,000 | 1.60 s | 72 ms | 22× |
 
 The logistic fit includes the null model that every intercept model fits for
-`null_deviance`. Without the JIT the polyfill is about three times slower:
-273 ms for OLS and 1.65 s for logistic regression at n = 100,000.
+`null_deviance`.
 
 For comparison, solving the normal equations (X'X)b = X'y in plain PHP took
-20 ms at n = 100,000. That baseline returns coefficients only, without
+87 ms at n = 100,000. That baseline returns coefficients only, without
 standard errors, rank detection, or the other results. Forming X'X also
 squares the condition number, so it loses accuracy on ill-conditioned designs.
 
@@ -261,8 +261,7 @@ times, the plain-PHP baseline for OLS, and the agreement check. Reproduce it
 with:
 
 ```bash
-php -d extension=/path/to/libphit.so -d opcache.enable_cli=1 \
-    -d opcache.jit=tracing -d opcache.jit_buffer_size=64M \
+php -d extension=/path/to/libphit.so -d opcache.enable_cli=1 -d opcache.jit=disable \
     benchmarks/run.php --sizes=10000,100000 --repeat=5 --seed=5 \
     --json=benchmarks/results.json
 ```

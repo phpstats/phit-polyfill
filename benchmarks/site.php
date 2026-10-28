@@ -3,9 +3,9 @@
 // Polyfill vs native phit timings for the package site: one file per area,
 // in the site's benchmark format, under site/benchmarks/.
 //
-// Run with the extension and the tracing JIT:
+// Run with the extension, OPcache, and no JIT, as the README recommends:
 //   php85 -d extension=.ext/libphit.dylib -d opcache.enable_cli=1 \
-//         -d opcache.jit=tracing -d opcache.jit_buffer_size=64M benchmarks/site.php
+//         -d opcache.jit=disable benchmarks/site.php
 // Options: --repeat=7 --seed=5 --out=site/benchmarks
 //
 // Each case is called once to warm up and then timed --repeat times. "value"

@@ -14,12 +14,18 @@ extension loaded.
 | PHP | Recommended | Avoid |
 |---|---|---|
 | 8.3 | OPcache without the JIT (PHP 8.3's default) | the tracing JIT; `opcache.jit=1215` and `1235` |
-| 8.4 | OPcache without the JIT, the tracing JIT, or `opcache.jit=function` | function JIT with hot-counter triggers, such as `opcache.jit=1235` |
-| 8.5 | OPcache without the JIT, the tracing JIT, or `opcache.jit=function` | function JIT with hot-counter triggers, such as `opcache.jit=1235` |
+| 8.4 | OPcache without the JIT | the tracing JIT; function JIT with hot-counter triggers, such as `opcache.jit=1235` |
+| 8.5 | OPcache without the JIT | function JIT with hot-counter triggers, such as `opcache.jit=1235` |
 
 The settings to avoid are PHP bugs, and they can affect any PHP code, not
 only this package. They are recorded here because the polyfill's numerical
 loops trigger them.
+
+`Phit\fit_mixed`, `Phit\fit_lmer`, `Phit\fit_logistic_mixed`, and
+`Phit\fit_glmer` throw an exception with code 1007 while any JIT compiles the
+process, on every PHP version. Their optimizer is the code the JIT has
+miscompiled most severely. `Phit\fit_mixed_intercept` uses no optimizer and
+still runs.
 
 ## PHP 8.4 and 8.5
 
@@ -28,8 +34,14 @@ running and enters the compiled code partway through a loop. In that case PHP
 can lose the value of a variable that is live across the loop entry
 (php-src #24214). The polyfill avoids the patterns that triggered the bug in
 its own code, and its full suite passes under `opcache.jit=1235` on both
-versions. Because the bug is in PHP, other code paths may still meet it, so
-the tracing JIT or `opcache.jit=function` is the safer choice.
+versions. Because the bug is in PHP, other code paths may still meet it.
+
+On PHP 8.4.26 on GitHub's x86-64 runner, the tracing JIT also miscompiles the
+BOBYQA optimizer behind the mixed models without any message. One reference
+case ends at a minimum 18% away from the correct one. The failure has not
+reproduced on other machines with the same PHP build. PHP 8.5 passes under
+the tracing JIT in CI, which was also true of PHP 8.4 before this runner, so
+OPcache without the JIT is the only setting recommended on either version.
 
 ## PHP 8.3
 

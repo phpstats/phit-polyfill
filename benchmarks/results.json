@@ -1,16 +1,16 @@
 {
-    "recorded_at": "2026-10-16T14:59:34Z",
+    "recorded_at": "2026-10-28T12:22:50Z",
     "cpu": "Apple M5 Ultra",
     "platform": "Darwin 27.0.0 arm64",
     "php_version": "8.5.10",
     "opcache": {
         "enabled": true,
-        "jit": true,
-        "jit_mode": "tracing",
+        "jit": false,
+        "jit_mode": "disable",
         "jit_buffer_size": "64M"
     },
-    "polyfill_commit": "04110a9",
-    "extension_reference_commit": "91ee538253e3ecf7b3f086441305c3f7237200fc",
+    "polyfill_commit": "ab803fd",
+    "extension_reference_commit": "3861d77d35b32c52154a2808da1d505c1056fb09",
     "extension_loaded": true,
     "design": "10 standard normal predictors plus an intercept; seed 5",
     "repeat": 5,
@@ -23,16 +23,16 @@
             "p": 10,
             "implementations": {
                 "polyfill": {
-                    "median_seconds": 0.00727325,
-                    "min_seconds": 0.007197667
+                    "median_seconds": 0.025542917,
+                    "min_seconds": 0.025244708
                 },
                 "extension": {
-                    "median_seconds": 0.002635333,
-                    "min_seconds": 0.002582708
+                    "median_seconds": 0.002863125,
+                    "min_seconds": 0.002699166
                 },
                 "plain_php_normal_equations": {
-                    "median_seconds": 0.002011542,
-                    "min_seconds": 0.001972584,
+                    "median_seconds": 0.00890475,
+                    "min_seconds": 0.008588167,
                     "note": "coefficients only, by Cholesky on X'X; no inference or rank checks"
                 }
             },
@@ -49,12 +49,12 @@
             "p": 10,
             "implementations": {
                 "polyfill": {
-                    "median_seconds": 0.045827167,
-                    "min_seconds": 0.044501083
+                    "median_seconds": 0.160269167,
+                    "min_seconds": 0.159243125
                 },
                 "extension": {
-                    "median_seconds": 0.006607917,
-                    "min_seconds": 0.00655975
+                    "median_seconds": 0.007027167,
+                    "min_seconds": 0.006869708
                 }
             },
             "agreement": {
@@ -70,16 +70,16 @@
             "p": 10,
             "implementations": {
                 "polyfill": {
-                    "median_seconds": 0.077674,
-                    "min_seconds": 0.077179042
+                    "median_seconds": 0.261766583,
+                    "min_seconds": 0.255674875
                 },
                 "extension": {
-                    "median_seconds": 0.027208709,
-                    "min_seconds": 0.026678792
+                    "median_seconds": 0.028626125,
+                    "min_seconds": 0.02840775
                 },
                 "plain_php_normal_equations": {
-                    "median_seconds": 0.020156125,
-                    "min_seconds": 0.019951041,
+                    "median_seconds": 0.0867455,
+                    "min_seconds": 0.086253667,
                     "note": "coefficients only, by Cholesky on X'X; no inference or rank checks"
                 }
             },
@@ -96,12 +96,12 @@
             "p": 10,
             "implementations": {
                 "polyfill": {
-                    "median_seconds": 0.45580425,
-                    "min_seconds": 0.452062042
+                    "median_seconds": 1.600951084,
+                    "min_seconds": 1.575708375
                 },
                 "extension": {
-                    "median_seconds": 0.068462125,
-                    "min_seconds": 0.068146792
+                    "median_seconds": 0.0720425,
+                    "min_seconds": 0.070769834
                 }
             },
             "agreement": {

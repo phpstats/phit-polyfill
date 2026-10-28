@@ -95,7 +95,7 @@ return [
             ['type' => 'text', 'content' => 'A library can require the polyfill and suggest the extension, so that it '
                 .'works everywhere and runs faster where phit is installed. When the extension is loaded, the polyfill '
                 .'defines nothing and adds no overhead to the calls.'],
-            ['type' => 'code', 'chain' => "{\n    \"require\": {\n        \"phpstats/phit-polyfill\": \"^0.1\"\n    },\n    \"suggest\": {\n        \"ext-phit\": \"Native implementation, several times faster\"\n    }\n}"],
+            ['type' => 'code', 'chain' => "{\n    \"require\": {\n        \"phpstats/phit-polyfill\": \"^0.1\"\n    },\n    \"suggest\": {\n        \"ext-phit\": \"Native implementation, about 10 to 20 times faster\"\n    }\n}"],
             ['type' => 'note', 'content' => 'On PHP 8.3, run the polyfill with OPcache and without the JIT, which is '
                 .'PHP 8.3\'s default. On PHP 8.4 and 8.5, avoid the function JIT with hot-counter triggers '
                 .'(`opcache.jit=1235`). See "PHP versions and the JIT" in the docs.'],
