@@ -274,8 +274,10 @@ composer test        # polyfill only
 composer test:ext    # with the extension loaded from .ext/libphit.dylib
 ```
 
-The composer scripts use Herd's `php85`. Run `vendor/bin/pest` with any PHP 8.3 or
-later binary otherwise.
+The composer scripts run the tests with the PHP that runs Composer, so
+`php85 "$(which composer)" test` picks a version. Any PHP 8.3 or later works.
+`composer test:ext` needs the PHP that `.ext/libphit.dylib` was built for;
+under another one the extension does not load and the parity tests skip.
 
 - `bin/fetch-fixtures [checkout]` copies the reference fixtures from the
   phit commit pinned in `tests/fixtures/REFERENCE`. The copies are
