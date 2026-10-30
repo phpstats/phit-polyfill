@@ -85,6 +85,9 @@ Requires PHP 8.3 or later.
 - Every polyfilled `Phit\` function throws an exception with code 1007 while
   OPcache's JIT compiles the process, on every PHP version, because the JIT
   has computed wrong results in the polyfill on PHP 8.3, 8.4, and 8.5. Use
-  OPcache with `opcache.jit=disable`.
+  OPcache with `opcache.jit=disable`. PHP 8.3's function JIT with hot-counter
+  triggers (`opcache.jit=1235`) also crashes PHP with a segmentation fault
+  when the test suite runs the implementations directly, so that one CI job
+  is informational; the `Phit\` functions refuse before any of that code runs.
 
 [0.1.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.1.0

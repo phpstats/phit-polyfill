@@ -226,7 +226,10 @@ In summary:
   under a function JIT with hot-counter triggers (php-src #24214). Run OPcache
   with `opcache.jit=disable`, or install the extension, which the JIT does not
   affect. `Phit\Polyfill\Polyfill::implementation()` returns the
-  implementation without the check, for tests and comparisons. See
+  implementation without the check, for tests and comparisons. Under PHP
+  8.3's function JIT with hot-counter triggers (`opcache.jit=1235`), the test
+  suite's direct calls crash PHP with a segmentation fault, so that CI job is
+  informational. See
   [docs/notes/function-jit.md](docs/notes/function-jit.md) and
   [docs/notes/php83-jit.md](docs/notes/php83-jit.md).
 - Matrix products above 5×5 follow the extension's aarch64 build, which uses
