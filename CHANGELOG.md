@@ -8,11 +8,11 @@ Each release states the phit commit it reproduces. The same commit is
 pinned in `tests/fixtures/REFERENCE`, and the reference fixtures are copied
 from it.
 
-## [0.1.0] - Unreleased
+## [0.1.0] - 2026-10-30
 
-Reproduces phit commit
-[`f4887a4`](https://github.com/phpstats/phit/commit/f4887a4a293a3aaa129910a6006d691777ecf06f).
-phit has no tagged release yet. Requires PHP 8.3 or later.
+Reproduces phit [v0.1.1](https://github.com/phpstats/phit/releases/tag/v0.1.1),
+commit [`f4887a4`](https://github.com/phpstats/phit/commit/f4887a4a293a3aaa129910a6006d691777ecf06f).
+Requires PHP 8.3 or later.
 
 ### Added
 
