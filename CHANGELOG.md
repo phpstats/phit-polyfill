@@ -11,7 +11,7 @@ from it.
 ## [0.1.0] - Unreleased
 
 Reproduces phit commit
-[`3dc8bb2`](https://github.com/phpstats/phit/commit/3dc8bb2de8bd5a8f6c4fb8ed471b7833f8fea95e).
+[`f4887a4`](https://github.com/phpstats/phit/commit/f4887a4a293a3aaa129910a6006d691777ecf06f).
 phit has no tagged release yet. Requires PHP 8.3 or later.
 
 ### Added
@@ -27,6 +27,8 @@ phit has no tagged release yet. Requires PHP 8.3 or later.
 - Smoothing: `Phit\stat_density` (R's `density()` with its seven kernels),
   `Phit\stat_bw_nrd0`, `Phit\stat_bw_nrd`, `Phit\stat_approx`, and
   `Phit\stat_ecdf`.
+- Optimization: `Phit\optimize` and `Phit\uniroot`, R's `optimize()` and
+  `uniroot()` (Brent_fmin and R_zeroin2) evaluated at the same points.
 - Regression: `Phit\fit_ols`, `Phit\fit_logistic`, `Phit\fit_probit`, and
   `Phit\fit_poisson`, with weights, offsets, the automatic intercept, listwise
   deletion, and the extension's result keys, diagnostics, and exception codes.

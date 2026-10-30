@@ -63,6 +63,7 @@ Polyfill::nativeLoaded();                 // whether phit is loaded
 |---|---|---|
 | Descriptive statistics | `Phit\stat_mean`, `Phit\stat_var`, `Phit\stat_sd`, `Phit\stat_median`, `Phit\stat_quantile`, `Phit\stat_quantile_array`, `Phit\stat_cov`, `Phit\stat_cor`, `Phit\stat_weighted_mean`, `Phit\stat_weighted_var` | Provided |
 | Smoothing | `Phit\stat_density`, `Phit\stat_bw_nrd0`, `Phit\stat_bw_nrd`, `Phit\stat_approx`, `Phit\stat_ecdf` | Provided |
+| Optimization | `Phit\optimize`, `Phit\uniroot` | Provided |
 | Regression | `Phit\fit_ols`, `Phit\fit_logistic`, `Phit\fit_probit`, `Phit\fit_poisson`, with weights, offsets, the automatic intercept, and both missing-value policies | Provided |
 | Formula interface | `Phit\model_matrix`, `Phit\fit_lm`, `Phit\fit_glm`, `Phit\predict` | Provided |
 | Distributions | 13 families × 14 functions; see [Distributions](#distributions) | Provided |
@@ -198,6 +199,8 @@ In summary:
   tested, including values offset by 10¹².
 - Kernel density, the bandwidths, `Phit\stat_approx`, and `Phit\stat_ecdf`
   are bit-identical to the extension and within 10⁻¹² of R 4.6.1.
+- `Phit\optimize` and `Phit\uniroot` evaluate f at the same points as the
+  extension and as R 4.6.1, and return the same bits.
 - OLS, logistic, probit, and Poisson regression return the same bits as the
   extension on every tested input, including designs with condition numbers
   up to 10¹⁰, extreme prior weights, separation, and extreme offsets.

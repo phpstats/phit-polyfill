@@ -2,7 +2,7 @@
 title: "Functions"
 ---
 
-The polyfill implements 226 of phit's 227 functions. `Phit\read_csv` needs the
+The polyfill implements 228 of phit's 229 functions. `Phit\read_csv` needs the
 extension. phibble's PHP CSV reader is the fallback for it. Functions the
 polyfill does not implement stay undefined without the extension, so
 `function_exists()` reports them correctly.
@@ -11,6 +11,7 @@ polyfill does not implement stay undefined without the extension, so
 |---|---|
 | Descriptive statistics | `stat_mean`, `stat_var`, `stat_sd`, `stat_median`, `stat_quantile`, `stat_quantile_array`, `stat_cov`, `stat_cor`, `stat_weighted_mean`, `stat_weighted_var` |
 | Smoothing | `stat_density`, `stat_bw_nrd0`, `stat_bw_nrd`, `stat_approx`, `stat_ecdf` |
+| Optimization | `optimize`, `uniroot` |
 | Regression | `fit_ols`, `fit_logistic`, `fit_probit`, `fit_poisson`, with weights, offsets, the automatic intercept, and both missing-value policies |
 | Formula interface | `model_matrix`, `fit_lm`, `fit_glm`, `predict` |
 | Mixed models | `fit_mixed_intercept`, `fit_mixed`, `fit_logistic_mixed`, `fit_lmer`, `fit_glmer` |

@@ -1900,6 +1900,15 @@ if (! function_exists('Phit\model_matrix')) {
     }
 }
 
+if (! function_exists('Phit\optimize')) {
+    function optimize(callable $f, float $lower, float $upper, ?float $tol = null, bool $maximum = false): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\Optimize::optimize($f, $lower, $upper, $tol, $maximum);
+    }
+}
+
 if (! function_exists('Phit\predict')) {
     function predict(array $fit, mixed $newdata, string $type = 'link', bool $seFit = false, string $interval = 'none', float $level = 0.95, bool $random = true, bool $allowNewLevels = false): array
     {
@@ -2041,5 +2050,14 @@ if (! function_exists('Phit\stat_weighted_var')) {
         \Phit\Polyfill\Internal\Jit::refuse();
 
         return \Phit\Polyfill\Descriptive::weightedVar($values, $weights, $type, $missing);
+    }
+}
+
+if (! function_exists('Phit\uniroot')) {
+    function uniroot(callable $f, float $lower, float $upper, ?float $tol = null, int $maxiter = 1000): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\Optimize::uniroot($f, $lower, $upper, $tol, $maxiter);
     }
 }

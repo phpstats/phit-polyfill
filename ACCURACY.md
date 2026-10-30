@@ -45,6 +45,15 @@ ties, signed zeros, and null, NaN, and infinite evaluation points), and on
 every invalid input tested. Against R 4.6.1 (smoothing-r.json) they agree to
 a relative 10⁻¹², with density heights measured against the peak.
 
+`Phit\optimize` and `Phit\uniroot` port R's Brent_fmin and R_zeroin2 as
+the extension does. Against R 4.6.1 (optimize-r.json) they return the same
+bits and evaluate f the same number of times. Against the extension they
+evaluate f at the same points in the same order, and return the same bits,
+warning texts, and exceptions, on the fixtures, on seeded random functions
+(nonfinite and integer-valued regions, tolerances, `maximum`, and small
+`maxiter`), and on invalid input and callables that throw or return
+non-numbers.
+
 ## Regression models
 
 `Phit\fit_ols` solves least squares by Householder QR of the column-scaled design,

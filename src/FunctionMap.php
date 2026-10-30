@@ -218,6 +218,7 @@ final class FunctionMap
         'Phit\fit_poisson' => [Poisson::class, 'fit'],
         'Phit\fit_probit' => [Probit::class, 'fit'],
         'Phit\model_matrix' => [ModelMatrix::class, 'build'],
+        'Phit\optimize' => [Optimize::class, 'optimize'],
         'Phit\predict' => [Predict::class, 'predict'],
         'Phit\stat_approx' => [Smoothing::class, 'approx'],
         'Phit\stat_bw_nrd' => [Smoothing::class, 'bwNrd'],
@@ -234,5 +235,6 @@ final class FunctionMap
         'Phit\stat_var' => [Descriptive::class, 'var'],
         'Phit\stat_weighted_mean' => [Descriptive::class, 'weightedMean'],
         'Phit\stat_weighted_var' => [Descriptive::class, 'weightedVar'],
+        'Phit\uniroot' => [Optimize::class, 'uniroot'],
     ];
 }
