@@ -81,7 +81,7 @@ jobs:
 
       # An experiment, not a check: whether ini_set('opcache.jit', 'off') at
       # run time stops the tracing JIT's BOBYQA miscompile on PHP 8.4. The
-      # mixed-model refusal's message suggests it only if this says so. Read
+      # polyfill's refusal message suggests it only if this says so. Read
       # the log; the step never fails the job. See docs/notes/function-jit.md.
       - name: Switch the JIT off at run time (experiment)
         if: matrix.mode == 'jit'

@@ -2,7 +2,7 @@
 <?php
 
 // Does ini_set('opcache.jit', 'off') at run time make BOBYQA safe again after
-// the JIT has compiled it? Phit\fit_lmer and friends refuse to run while a JIT
+// the JIT has compiled it? Every Phit\ function refuses to run while a JIT
 // compiles the process (src/Internal/Jit.php), and switching the JIT off this
 // way satisfies that check, so the error message may suggest it only if the
 // answer is yes. See docs/notes/function-jit.md.

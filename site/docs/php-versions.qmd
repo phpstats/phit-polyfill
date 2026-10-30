@@ -9,23 +9,24 @@ it runs the OPcache and `opcache.jit=1205` modes. The PHP versions and JIT
 modes verification lists the result of every combination with the phit
 extension loaded.
 
-## Recommended settings
+## The rule
 
-| PHP | Recommended | Avoid |
-|---|---|---|
-| 8.3 | OPcache without the JIT (PHP 8.3's default) | the tracing JIT; `opcache.jit=1215` and `1235` |
-| 8.4 | OPcache without the JIT | the tracing JIT; function JIT with hot-counter triggers, such as `opcache.jit=1235` |
-| 8.5 | OPcache without the JIT | function JIT with hot-counter triggers, such as `opcache.jit=1235` |
+Run the polyfill with OPcache and without the JIT (`opcache.jit=disable`,
+which is also PHP 8.3's default). Every `Phit\` function the polyfill defines
+throws an exception with code 1007 while any JIT compiles the process, on
+every PHP version, before it reads its arguments. The phit extension is not
+affected and runs under any setting.
 
-The settings to avoid are PHP bugs, and they can affect any PHP code, not
-only this package. They are recorded here because the polyfill's numerical
-loops trigger them.
+The JIT has computed wrong results in the polyfill without an error on all
+three versions, as described below. These are PHP bugs that can affect any
+PHP code; the polyfill's numerical loops trigger them. Refusing every
+function, rather than the ones that have failed so far, means a miscompile
+the tests have not found cannot produce a wrong number either.
 
-`Phit\fit_mixed`, `Phit\fit_lmer`, `Phit\fit_logistic_mixed`, and
-`Phit\fit_glmer` throw an exception with code 1007 while any JIT compiles the
-process, on every PHP version. Their optimizer is the code the JIT has
-miscompiled most severely. `Phit\fit_mixed_intercept` uses no optimizer and
-still runs.
+`Phit\Polyfill\Polyfill::implementation()` returns an implementation without
+the check. The test suite uses it, and CI still runs the suite under the
+tracing JIT, `opcache.jit=1205`, and `opcache.jit=1235` to record the
+miscompiles.
 
 ## PHP 8.4 and 8.5
 
@@ -40,8 +41,7 @@ On PHP 8.4.26 on GitHub's x86-64 runner, the tracing JIT also miscompiles the
 BOBYQA optimizer behind the mixed models without any message. One reference
 case ends at a minimum 18% away from the correct one. The failure has not
 reproduced on other machines with the same PHP build. PHP 8.5 passes under
-the tracing JIT in CI, which was also true of PHP 8.4 before this runner, so
-OPcache without the JIT is the only setting recommended on either version.
+the tracing JIT in CI, which was also true of PHP 8.4 before this runner.
 
 ## PHP 8.3
 
@@ -49,9 +49,7 @@ PHP 8.3 uses an older JIT backend, and that release line receives security
 fixes only. With the tracing JIT, one beta-distribution case in the stress
 suite returns a value that differs from the extension's in the 12th digit
 after certain functions have been compiled. With `opcache.jit=1215` or `1235`,
-the PHP process crashes in the test suite. OPcache without the JIT and
-`opcache.jit=function` (1205) pass every test, and PHP 8.3 disables the JIT by
-default.
+the PHP process crashes in the test suite.
 
 PHP 8.3's `round()` first rounds its argument to 15 significant digits, so
 `round(0.49999999999999994)` is 1.0 there. The polyfill uses its own exact

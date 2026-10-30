@@ -77,10 +77,9 @@ phit has no tagged release yet. Requires PHP 8.3 or later.
   raise `E_WARNING`. The text is identical.
 - Scalar arguments of the wrong type follow PHP's rules for userland
   functions.
-- On PHP 8.4 and 8.5, a function JIT with hot-counter triggers
-  (`opcache.jit=1235`) can miscompile the polyfill (php-src #24214). Use the
-  tracing JIT, `opcache.jit=function`, or no JIT.
-- On PHP 8.3, the tracing JIT computes wrong values and the function JIT with
-  hot-counter triggers crashes. Use OPcache without the JIT.
+- Every polyfilled `Phit\` function throws an exception with code 1007 while
+  OPcache's JIT compiles the process, on every PHP version, because the JIT
+  has computed wrong results in the polyfill on PHP 8.3, 8.4, and 8.5. Use
+  OPcache with `opcache.jit=disable`.
 
 [0.1.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.1.0

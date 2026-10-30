@@ -23,15 +23,16 @@ PHP 8.3 has a different JIT with different problems; see
 
 Run the polyfill without the JIT. `opcache.jit=disable` with OPcache's
 optimizer is the only configuration that has never produced a wrong number
-here.
+here. Since 2026-10-30 the polyfill enforces it: every `Phit\` function it
+defines throws code 1007 while a JIT compiles the process, on every PHP
+version (see below). The rest of this section explains why.
 
 **Do not fit anything through the bobyqa optimizer under the tracing JIT on
 PHP 8.4.** On GitHub's x86-64 runner that configuration returns a different
 minimum, not a differently rounded one: one reference case gives 3.3254 where
 the crate and every other mode give 4.0388. `Phit\fit_lmer` and
 `Phit\fit_glmer` default to that optimizer, so a mixed model fitted that way
-could be wrong by a wide margin and say nothing about it, so the mixed models
-that use an optimizer now refuse to run under any JIT (see below). The tracing
+could be wrong by a wide margin and say nothing about it. The tracing
 JIT was recommended here until 2026-10-21.
 
 Avoid a function JIT with hot-counter triggers too, such as `opcache.jit=1235`,
@@ -101,26 +102,28 @@ it exposed three more miscompiles (in `betaFrac`, `Dense::multiply`, and
 
 ## What the polyfill does
 
-- `Phit\fit_mixed`, `Phit\fit_lmer`, `Phit\fit_logistic_mixed`, and
-  `Phit\fit_glmer` throw an exception with code 1007 (`UNSUPPORTED`) when
-  OPcache reports a JIT compiling the process, on every PHP version.
-  `Internal\Jit::refuseMixedFit()` runs after input validation and
-  immediately before BOBYQA or Nelder-Mead starts, so invalid input still
-  reports its own code. PHP 8.5 passes under the tracing JIT in CI, but so did
-  PHP 8.4 until the runner above showed otherwise, so the refusal does not
-  depend on the version. If `opcache.restrict_api` hides OPcache's status, the
-  check reads the ini settings instead. `Phit\fit_mixed_intercept` profiles
-  its variance on a fixed grid with no optimizer and is not refused. The
-  mixed-model tests that fit a model skip themselves under a JIT, and
-  `tests/Unit/MixedJitTest.php` checks the refusal in the JIT jobs.
-  Calling `ini_set('opcache.jit', 'off')` before a fit satisfies the check:
-  on PHP 8.4.25 it returns the old mode and `jit.on` reads false afterwards.
-  Whether it also stops traces that are already compiled has not been shown,
-  so the message does not suggest it. `bin/jit-off-experiment` runs the
-  bobyqa reference with the JIT on, switches it off, and runs it again. The
-  `jit` CI jobs run it as an informational step. On this Mac it is
-  inconclusive, because the miscompile does not reproduce here. Its log on
-  the PHP 8.4 x86-64 runner decides whether the message can suggest it.
+- Every `Phit\` function the polyfill defines throws an exception with code
+  1007 (`UNSUPPORTED`) when OPcache reports a JIT compiling the process, on
+  every PHP version. `bin/generate-bootstrap` puts `Internal\Jit::refuse()`
+  first in each function, so the check runs before any argument is read and
+  no polyfill arithmetic runs under the JIT. It caches its verdict until
+  `opcache.enable`, `opcache.enable_cli`, or `opcache.jit` changes, and costs
+  about 60 ns a call. If `opcache.restrict_api` hides OPcache's status, the
+  check reads the ini settings instead. Until 2026-10-30 only the mixed
+  models that use an optimizer refused, and the other miscompiles in this
+  note and in [php83-jit.md](php83-jit.md) had no guard.
+  `Polyfill::implementation()` returns the implementation without the check,
+  so the CI JIT jobs still run the suite under the JIT and record miscompiles.
+  The mixed-model tests that fit a model skip themselves under a JIT, and
+  `tests/Unit/JitTest.php` checks the refusal in a child PHP under the
+  tracing JIT in every job.
+  Calling `ini_set('opcache.jit', 'off')` satisfies the check: on PHP 8.4.25
+  it returns the old mode and `jit.on` reads false afterwards. Whether it also
+  stops traces that are already compiled has not been shown, so the message
+  does not suggest it. `bin/jit-off-experiment` runs the bobyqa reference with
+  the JIT on, switches it off, and runs it again; the `jit` CI jobs run it as
+  an informational step. On 2026-10-28 it was inconclusive on 8.3, 8.4.27, and
+  8.5.12, because the miscompile did not reproduce with the JIT on.
 - The NelderMead test closure computes its loop bound without assigning a
   temporary and iterates the quadratic case with `foreach`.
 - `Svd::reflectRows` moves its loops over rows into separate functions, so an

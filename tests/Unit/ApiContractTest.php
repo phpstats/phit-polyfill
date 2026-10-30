@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Phit\Polyfill\Internal\Jit;
 use Phit\Polyfill\Polyfill;
 
 // The Phit functions the polyfill defines must have the extension's exact
@@ -61,6 +62,9 @@ it('defines no global stats_* aliases', function () {
 it('routes the Phit functions to the polyfill implementation', function () {
     if (extension_loaded('phit')) {
         $this->markTestSkipped('the extension provides the Phit functions');
+    }
+    if (Jit::compiling()) {
+        $this->markTestSkipped('the Phit functions refuse to run under the JIT; JitTest checks that');
     }
     $x = [[1.0], [2.0], [3.0], [4.0], [5.0]];
     $y = [2.1, 4.2, 5.8, 8.1, 10.2];

@@ -7,14 +7,20 @@ namespace Phit\Polyfill\Internal;
 use Phit\Polyfill\ErrorCode;
 
 /**
- * Whether OPcache's JIT is compiling this process. The mixed-model optimizers
- * refuse to run under it: PHP 8.4.26's tracing JIT moved BOBYQA to a minimum
- * 18% away from the true one without an error (docs/notes/function-jit.md).
+ * Whether OPcache's JIT is compiling this process. Every Phit\ function the
+ * polyfill defines refuses to run under it, on every PHP version: the JIT has
+ * computed wrong results in the polyfill without an error on PHP 8.3, 8.4 and
+ * 8.5 (docs/notes/function-jit.md, docs/notes/php83-jit.md).
  *
  * @internal
  */
 final class Jit
 {
+    /** The OPcache settings refuse() last judged, and its verdict. */
+    private static ?string $settings = null;
+
+    private static bool $refusing = false;
+
     public static function compiling(): bool
     {
         if (! function_exists('opcache_get_status')) {
@@ -35,13 +41,21 @@ final class Jit
             && (int) ini_get('opcache.jit_buffer_size') > 0;
     }
 
-    /** Throw before a mixed-model optimizer runs under the JIT. */
-    public static function refuseMixedFit(): void
+    /**
+     * Throw before a Phit\ function runs under the JIT. The verdict is cached
+     * until one of the settings that can change at run time changes.
+     */
+    public static function refuse(): void
     {
-        if (self::compiling()) {
+        $settings = ini_get('opcache.enable').'|'.ini_get('opcache.enable_cli').'|'.ini_get('opcache.jit');
+        if ($settings !== self::$settings) {
+            self::$refusing = self::compiling();
+            self::$settings = $settings;
+        }
+        if (self::$refusing) {
             throw ErrorCode::exception(
                 ErrorCode::UNSUPPORTED,
-                "mixed models do not run under OPcache's JIT, which can move their optimizer to a wrong minimum without an error; set opcache.jit=disable or install the phit extension",
+                "the phit polyfill does not run under OPcache's JIT, which has computed wrong results in it without an error; set opcache.jit=disable or install the phit extension",
             );
         }
     }

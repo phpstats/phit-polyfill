@@ -225,7 +225,6 @@ final class LinearMixed
             } catch (Bobyqa\BobyqaException $e) {
                 throw ErrorCode::exception(ErrorCode::INVALID_INPUT, 'invalid BOBYQA control: '.$e->getMessage());
             }
-            Jit::refuseMixedFit();
             $outcome = $optimizer->minimize($objective, $theta, $lower, array_fill(0, $nt, 1e4));
             if ($outcome->status !== Bobyqa\Status::Converged || $outcome->foundFinite() === false) {
                 throw ErrorCode::exception(ErrorCode::NONCONVERGENCE, 'mixed-model BOBYQA failed: '.$outcome->status->label());
@@ -261,7 +260,6 @@ final class LinearMixed
                     return INF;
                 }
             };
-            Jit::refuseMixedFit();
             try {
                 $result = $solver->run($cost, $budget);
             } catch (NelderMeadError $e) {

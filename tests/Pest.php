@@ -154,8 +154,10 @@ function warnings(callable $callback, mixed &$result = null): array
 
 /**
  * Skip a test that fits Phit\fit_mixed, Phit\fit_lmer, Phit\fit_logistic_mixed
- * or Phit\fit_glmer, which refuse to run while a JIT compiles the process.
- * MixedJitTest checks the refusal itself.
+ * or Phit\fit_glmer while a JIT compiles the process. The tests call the
+ * implementations, which do not refuse, and PHP 8.4's tracing JIT has moved
+ * their optimizer to a wrong minimum. JitTest checks the Phit\ functions'
+ * refusal.
  */
 function skipMixedFitsUnderJit(): void
 {

@@ -10,7 +10,7 @@ IR-based one, so fixes there are unlikely.
 
 On PHP 8.3, run the polyfill with OPcache and without the JIT
 (`opcache.jit=disable` or `opcache.jit_buffer_size=0`, which is PHP 8.3's
-default). `opcache.jit=function` (`1205`) passed every check below, but the
+default). The polyfill refuses to run under the JIT on every version. `opcache.jit=function` (`1205`) passed every check below, but the
 tracing JIT and the function JIT with hot-counter or first-call triggers did
 not. PHP 8.4 and 8.5 are not affected by the problems described here.
 
@@ -45,6 +45,10 @@ process passed under the tracing JIT on macOS and hid them.
 
 ## What the polyfill does
 
+- Every `Phit\` function the polyfill defines throws code 1007 while a JIT
+  compiles the process, on every PHP version, so neither the wrong beta CDF
+  nor the crashes below can reach a caller of the `Phit\` functions. See
+  [function-jit.md](function-jit.md#what-the-polyfill-does).
 - `Svd` assigns `$shift` from a cast, which fixes the SVD case above.
 - The bobyqa reference is split in two tests, and the bit-exact one skips
   itself wherever a JIT is compiling; see

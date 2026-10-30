@@ -365,10 +365,10 @@ Ultra with PHP 8.5.10, in the same process as the extension:
 
 Here q is the number of random coefficients. `Phit\fit_mixed` and `Phit\fit_lmer`
 repeat a dense QR of a matrix with about n + q rows and q + p columns at every
-optimizer step, so their cost grows roughly with q³. Every mixed model except
-`Phit\fit_mixed_intercept` throws an exception with code 1007 while a JIT
-compiles the process, because PHP's JIT has moved their optimizer to a wrong
-minimum without an error. See
+optimizer step, so their cost grows roughly with q³. Like every polyfilled
+function, they throw an exception with code 1007 while a JIT compiles the
+process; PHP's JIT has moved their optimizer to a wrong minimum without an
+error. See
 [docs/notes/function-jit.md](docs/notes/function-jit.md).
 
 ## Not provided
