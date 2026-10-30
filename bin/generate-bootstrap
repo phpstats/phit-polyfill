@@ -27,7 +27,9 @@ $formulas = ['model_matrix' => ['ModelMatrix', 'build'], 'fit_lm' => ['Lm', 'fit
     'draws_affine' => ['Draws', 'affine'],
     'fit_mixed_intercept' => ['MixedModels', 'lmm'], 'fit_mixed' => ['MixedModels', 'lmmFit'], 'fit_logistic_mixed' => ['MixedModels', 'logisticMixed'],
     'fit_lmer' => ['MixedFormula', 'lmer'], 'fit_glmer' => ['MixedFormula', 'glmer'],
-    'predict' => ['Predict', 'predict']];
+    'predict' => ['Predict', 'predict'],
+    'stat_density' => ['Smoothing', 'density'], 'stat_bw_nrd0' => ['Smoothing', 'bwNrd0'], 'stat_bw_nrd' => ['Smoothing', 'bwNrd'],
+    'stat_approx' => ['Smoothing', 'approx'], 'stat_ecdf' => ['Smoothing', 'ecdf']];
 
 function camel(string $name): string
 {

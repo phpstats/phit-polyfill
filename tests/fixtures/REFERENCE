@@ -1,3 +1,3 @@
 # Reference extension the fixtures are copied from. bin/fetch-fixtures reads this file.
 repository=https://github.com/phpstats/phit.git
-commit=e878e6507ad8333ca732bbb7e50be1f6a4ee4739
+commit=3dc8bb2de8bd5a8f6c4fb8ed471b7833f8fea95e

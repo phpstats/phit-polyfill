@@ -36,6 +36,15 @@ cancellation for a naive variance), integers, tiny values, n from 1 to 500,
 and null/NaN under both missing-value policies. Exception codes are identical
 for every invalid input tested.
 
+The smoothing functions (`Phit\stat_density`, `Phit\stat_bw_nrd0`,
+`Phit\stat_bw_nrd`, `Phit\stat_approx`, `Phit\stat_ecdf`) port the extension's
+binning, radix-2 FFT, and interpolation step for step. They agree with the
+extension to the bit on the R fixtures, on seeded random inputs (every
+kernel, fixed and rule-of-thumb bandwidths, weights, grids above 512 points,
+ties, signed zeros, and null, NaN, and infinite evaluation points), and on
+every invalid input tested. Against R 4.6.1 (smoothing-r.json) they agree to
+a relative 10⁻¹², with density heights measured against the peak.
+
 ## Regression models
 
 `Phit\fit_ols` solves least squares by Householder QR of the column-scaled design,

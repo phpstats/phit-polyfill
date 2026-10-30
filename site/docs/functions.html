@@ -252,7 +252,7 @@ interface</a></li>
 <li><a href="#exceptions" id="toc-exceptions">Exceptions</a></li>
 </ul>
 </nav>
-<p>The polyfill implements 222 of phit’s 223 functions.
+<p>The polyfill implements 226 of phit’s 227 functions.
 <code>Phit\read_csv</code> needs the extension. phibble’s PHP CSV reader
 is the fallback for it. Functions the polyfill does not implement stay
 undefined without the extension, so <code>function_exists()</code>
@@ -276,6 +276,12 @@ reports them correctly.</p>
 <code>stat_quantile_array</code>, <code>stat_cov</code>,
 <code>stat_cor</code>, <code>stat_weighted_mean</code>,
 <code>stat_weighted_var</code></td>
+</tr>
+<tr>
+<td>Smoothing</td>
+<td><code>stat_density</code>, <code>stat_bw_nrd0</code>,
+<code>stat_bw_nrd</code>, <code>stat_approx</code>,
+<code>stat_ecdf</code></td>
 </tr>
 <tr>
 <td>Regression</td>

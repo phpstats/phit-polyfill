@@ -1909,6 +1909,33 @@ if (! function_exists('Phit\predict')) {
     }
 }
 
+if (! function_exists('Phit\stat_approx')) {
+    function stat_approx(array $x, array $y, array $xout, string $method = 'linear', int $rule = 1, string $ties = 'mean', float $f = 0.0, string $missing = 'raise'): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\Smoothing::approx($x, $y, $xout, $method, $rule, $ties, $f, $missing);
+    }
+}
+
+if (! function_exists('Phit\stat_bw_nrd')) {
+    function stat_bw_nrd(array $x, string $missing = 'raise'): float
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\Smoothing::bwNrd($x, $missing);
+    }
+}
+
+if (! function_exists('Phit\stat_bw_nrd0')) {
+    function stat_bw_nrd0(array $x, string $missing = 'raise'): float
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\Smoothing::bwNrd0($x, $missing);
+    }
+}
+
 if (! function_exists('Phit\stat_cor')) {
     function stat_cor(array $x, array $y, string $missing = 'raise'): float
     {
@@ -1924,6 +1951,24 @@ if (! function_exists('Phit\stat_cov')) {
         \Phit\Polyfill\Internal\Jit::refuse();
 
         return \Phit\Polyfill\Descriptive::cov($x, $y, $type, $missing);
+    }
+}
+
+if (! function_exists('Phit\stat_density')) {
+    function stat_density(array $x, mixed $bw = 'nrd0', float $adjust = 1.0, string $kernel = 'gaussian', int $n = 512, ?float $from = null, ?float $to = null, float $cut = 3.0, ?array $weights = null, string $missing = 'raise'): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\Smoothing::density($x, $bw, $adjust, $kernel, $n, $from, $to, $cut, $weights, $missing);
+    }
+}
+
+if (! function_exists('Phit\stat_ecdf')) {
+    function stat_ecdf(array $x, array $q, string $missing = 'raise'): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\Smoothing::ecdf($x, $q, $missing);
     }
 }
 

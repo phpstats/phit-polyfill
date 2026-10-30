@@ -173,7 +173,8 @@ final class Descriptive
         return $value;
     }
 
-    private static function dropMissing(string $missing): bool
+    /** @internal Also Smoothing's missing-value policy. */
+    public static function dropMissing(string $missing): bool
     {
         return match ($missing) {
             'drop' => true,
@@ -187,8 +188,12 @@ final class Descriptive
         return self::error(ErrorCode::INVALID_INPUT, "missing values found with missing='raise'");
     }
 
-    /** @return list<float> */
-    private static function values(array $input, string $missing): array
+    /**
+     * @internal Also Smoothing's missing-value policy.
+     *
+     * @return list<float>
+     */
+    public static function values(array $input, string $missing): array
     {
         $drop = self::dropMissing($missing);
         $out = [];
@@ -204,8 +209,12 @@ final class Descriptive
         return $out;
     }
 
-    /** @return array{list<float>, list<float>} */
-    private static function pairs(array $x, array $y, string $missing): array
+    /**
+     * @internal Also Smoothing's missing-value policy.
+     *
+     * @return array{list<float>, list<float>}
+     */
+    public static function pairs(array $x, array $y, string $missing): array
     {
         $drop = self::dropMissing($missing);
         if (\count($x) !== \count($y)) {
