@@ -1472,13 +1472,6 @@ if (! function_exists('Phit\fit_probit')) {
     }
 }
 
-if (! function_exists('Phit\hello')) {
-    function hello(): string
-    {
-        return \Phit\Polyfill\Hello::hello();
-    }
-}
-
 if (! function_exists('Phit\model_matrix')) {
     function model_matrix(string $formula, mixed $data, string $missing = 'drop'): array
     {

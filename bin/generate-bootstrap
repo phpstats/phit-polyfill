@@ -24,7 +24,7 @@ $models = ['fit_ols' => 'Ols', 'fit_logistic' => 'Logistic', 'fit_probit' => 'Pr
 // Other entry points: name after Phit\ => [class, method].
 $formulas = ['model_matrix' => ['ModelMatrix', 'build'], 'fit_lm' => ['Lm', 'fit'], 'fit_glm' => ['Glm', 'fit'],
     'draws_moments' => ['Draws', 'moments'], 'draws_covariance_map' => ['Draws', 'covarianceMap'],
-    'draws_affine' => ['Draws', 'affine'], 'hello' => ['Hello', 'hello'],
+    'draws_affine' => ['Draws', 'affine'],
     'fit_mixed_intercept' => ['MixedModels', 'lmm'], 'fit_mixed' => ['MixedModels', 'lmmFit'], 'fit_logistic_mixed' => ['MixedModels', 'logisticMixed'],
     'fit_lmer' => ['MixedFormula', 'lmer'], 'fit_glmer' => ['MixedFormula', 'glmer'],
     'predict' => ['Predict', 'predict']];

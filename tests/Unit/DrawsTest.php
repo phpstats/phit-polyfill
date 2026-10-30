@@ -185,7 +185,3 @@ it('emulates a correctly rounded fused multiply-add', function () {
         ->and(Fma::fma(2.0, 3.0, 4.0))->toBe(10.0)
         ->and(Fma::fma(1e308, 10.0, -INF))->toBe(-INF);
 });
-
-it('says hello like the extension', function () {
-    expect(pf('Phit\hello'))->toBe('Hello from Rust!');
-});

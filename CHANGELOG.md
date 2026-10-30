@@ -11,7 +11,7 @@ from it.
 ## [0.1.0] - Unreleased
 
 Reproduces phit commit
-[`1bf73bd`](https://github.com/phpstats/phit/commit/1bf73bd3bdf66f825039713ac58157d0f9d6ddf9).
+[`e878e65`](https://github.com/phpstats/phit/commit/e878e6507ad8333ca732bbb7e50be1f6a4ee4739).
 phit has no tagged release yet. Requires PHP 8.3 or later.
 
 ### Added
@@ -48,7 +48,6 @@ phit has no tagged release yet. Requires PHP 8.3 or later.
   `Phit\fit_lmer`, and `Phit\fit_glmer`, with exact PHP ports of the extension's
   BOBYQA (bobyqa 0.3.2), Nelder–Mead (argmin 0.11.0), and nalgebra SVD,
   symmetric eigendecomposition, and matrix products.
-- `Phit\hello`.
 - A randomized differential parity suite that compares the polyfill with the
   loaded extension on seeded random inputs.
 - Test suites ported from the extension and run against the R, SciPy, and

@@ -177,7 +177,6 @@ it('computes draw kernels exactly like the extension', function () {
         }
         randomParityCompare('Phit\draws_affine', [$input, $matrix, $shift]);
     }
-    randomParityCompare('Phit\hello', []);
     expect(true)->toBeTrue();
 });
 

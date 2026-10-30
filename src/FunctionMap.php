@@ -217,7 +217,6 @@ final class FunctionMap
         'Phit\fit_ols' => [Ols::class, 'fit'],
         'Phit\fit_poisson' => [Poisson::class, 'fit'],
         'Phit\fit_probit' => [Probit::class, 'fit'],
-        'Phit\hello' => [Hello::class, 'hello'],
         'Phit\model_matrix' => [ModelMatrix::class, 'build'],
         'Phit\predict' => [Predict::class, 'predict'],
         'Phit\stat_cor' => [Descriptive::class, 'cor'],

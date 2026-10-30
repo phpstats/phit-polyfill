@@ -69,7 +69,6 @@ Polyfill::nativeLoaded();                 // whether phit is loaded
 | Random numbers | 13 seeded `*_rng` functions, one per distribution family | Provided |
 | Posterior draws | `Phit\draws_moments`, `Phit\draws_covariance_map`, `Phit\draws_affine` | Provided |
 | CSV reading | `Phit\read_csv` (phibble's PHP reader is the fallback) | Extension only |
-| Other | `Phit\hello` | Provided |
 
 Functions marked "Extension only" stay undefined without the extension, so
 `function_exists()` reports them correctly.

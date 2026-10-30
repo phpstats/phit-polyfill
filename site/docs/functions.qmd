@@ -16,7 +16,6 @@ polyfill does not implement stay undefined without the extension, so
 | Distributions | 13 families with 14 functions each, listed below |
 | Random numbers | `dist_<family>_rng` for each of the 13 families |
 | Posterior draws | `draws_moments`, `draws_covariance_map`, `draws_affine` |
-| Other | `hello` |
 
 All names are in the `Phit` namespace, for example `Phit\fit_ols`.
 
