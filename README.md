@@ -1,8 +1,9 @@
 # phit-polyfill
 
 A pure-PHP implementation of the [phit](https://github.com/phpstats/phit)
-extension's functions. When the extension is not loaded, the polyfill defines
-them in the `Phit` namespace with the extension's names, parameter names,
+extension's functions, except the CSV reader (`Phit\read_csv` and
+`Phit\CsvReader`), which needs the extension. When the extension is not
+loaded, the polyfill defines them in the `Phit` namespace with the extension's names, parameter names,
 defaults, result keys, warnings, and exception codes. Code written against
 phit runs on hosts where the extension cannot be installed. When the extension
 is loaded, the polyfill defines nothing.
@@ -34,7 +35,15 @@ polyfill runs. See [The JIT](site/docs/php-versions.qmd#the-jit).
 
 Import a function with `use function`, or call it by its qualified name.
 
+This script runs in a new Composer project after
+`composer require phpstats/phit-polyfill`. Save it as `fit.php` there and run
+`php fit.php`.
+
 ```php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
 use function Phit\fit_ols;
 
 $fit = fit_ols(
@@ -42,12 +51,13 @@ $fit = fit_ols(
     y: [2.1, 4.2, 5.8, 8.1, 10.2],
 );
 
-$fit['coefficients'];
-$fit['p_values'];
+foreach ($fit['coefficients'] as $j => $coefficient) {
+    printf("%d  %8.4f  p = %.4f\n", $j, $coefficient, $fit['p_values'][$j]);
+}
 ```
 
-`$fit['coefficients']` is `[-0.2843, 2.5864, -1.6819]` (rounded here), with
-the intercept first. The same code runs with the extension loaded.
+The coefficients are -0.2843, 2.5864, and -1.6819, with the intercept
+first. The same code runs with the extension loaded.
 
 `Phit\Polyfill\Polyfill` reports what is available:
 

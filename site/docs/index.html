@@ -253,8 +253,10 @@ id="toc-checking-what-is-available">Checking what is available</a></li>
 </ul>
 </nav>
 <p>phit-polyfill is a pure-PHP implementation of the <a
-href="https://github.com/phpstats/phit">phit</a> extension’s functions.
-When the extension is not loaded, it defines them in the
+href="https://github.com/phpstats/phit">phit</a> extension’s functions,
+except the CSV reader (<code>Phit\read_csv</code> and
+<code>Phit\CsvReader</code>), which needs the extension. When the
+extension is not loaded, the polyfill defines them in the
 <code>Phit</code> namespace with the extension’s names, parameter names,
 defaults, result keys, warnings, and exception codes. Code written
 against phit runs on hosts where the extension cannot be installed, such
@@ -285,19 +287,26 @@ where the polyfill runs.</p>
 <h2>Usage</h2>
 <p>Import functions with <code>use function</code>, or call them by
 their qualified names.</p>
+<p>This script runs in a new Composer project after
+<code>composer require phpstats/phit-polyfill</code>. Save it as
+<code>fit.php</code> there and run <code>php fit.php</code>.</p>
 <div class="sourceCode" id="cb2"><pre
-class="sourceCode php"><code class="sourceCode php"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\fit_ols<span class="ot">;</span></span>
+class="sourceCode php"><code class="sourceCode php"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;?php</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> fit_ols(</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    x<span class="ot">:</span> [[<span class="fl">1.2</span><span class="ot">,</span> <span class="fl">0.4</span>]<span class="ot">,</span> [<span class="fl">2.3</span><span class="ot">,</span> <span class="fl">1.1</span>]<span class="ot">,</span> [<span class="fl">3.1</span><span class="ot">,</span> <span class="fl">0.9</span>]<span class="ot">,</span> [<span class="fl">4.8</span><span class="ot">,</span> <span class="fl">2.2</span>]<span class="ot">,</span> [<span class="fl">5.0</span><span class="ot">,</span> <span class="fl">1.7</span>]]<span class="ot">,</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    y<span class="ot">:</span> [<span class="fl">2.1</span><span class="ot">,</span> <span class="fl">4.2</span><span class="ot">,</span> <span class="fl">5.8</span><span class="ot">,</span> <span class="fl">8.1</span><span class="ot">,</span> <span class="fl">10.2</span>]<span class="ot">,</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)<span class="ot">;</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span>[<span class="st">&#39;coefficients&#39;</span>]<span class="ot">;</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span>[<span class="st">&#39;p_values&#39;</span>]<span class="ot">;</span></span></code></pre></div>
-<p><code>$fit['coefficients']</code> is
-<code>[-0.2843, 2.5864, -1.6819]</code> (rounded here), with the
-intercept first. The same code runs with the extension loaded.</p>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">require</span> <span class="cn">__DIR__</span><span class="op">.</span><span class="st">&#39;/vendor/autoload.php&#39;</span><span class="ot">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\fit_ols<span class="ot">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> fit_ols(</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    x<span class="ot">:</span> [[<span class="fl">1.2</span><span class="ot">,</span> <span class="fl">0.4</span>]<span class="ot">,</span> [<span class="fl">2.3</span><span class="ot">,</span> <span class="fl">1.1</span>]<span class="ot">,</span> [<span class="fl">3.1</span><span class="ot">,</span> <span class="fl">0.9</span>]<span class="ot">,</span> [<span class="fl">4.8</span><span class="ot">,</span> <span class="fl">2.2</span>]<span class="ot">,</span> [<span class="fl">5.0</span><span class="ot">,</span> <span class="fl">1.7</span>]]<span class="ot">,</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    y<span class="ot">:</span> [<span class="fl">2.1</span><span class="ot">,</span> <span class="fl">4.2</span><span class="ot">,</span> <span class="fl">5.8</span><span class="ot">,</span> <span class="fl">8.1</span><span class="ot">,</span> <span class="fl">10.2</span>]<span class="ot">,</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>)<span class="ot">;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="cf">foreach</span> (<span class="va">$fit</span>[<span class="st">&#39;coefficients&#39;</span>] <span class="kw">as</span> <span class="va">$j</span> =&gt; <span class="va">$coefficient</span>) {</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">printf</span>(<span class="st">&quot;%d  %8.4f  p = %.4f</span><span class="sc">\n</span><span class="st">&quot;</span><span class="ot">,</span> <span class="va">$j</span><span class="ot">,</span> <span class="va">$coefficient</span><span class="ot">,</span> <span class="va">$fit</span>[<span class="st">&#39;p_values&#39;</span>][<span class="va">$j</span>])<span class="ot">;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>The coefficients are -0.2843, 2.5864, and -1.6819, with the intercept
+first. The same code runs with the extension loaded.</p>
 </section>
 <section id="checking-what-is-available" class="level2">
 <h2>Checking what is available</h2>

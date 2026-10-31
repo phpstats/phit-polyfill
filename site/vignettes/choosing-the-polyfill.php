@@ -92,10 +92,11 @@ return [
             ['type' => 'text', 'content' => $fits
                 ? sprintf('The polyfill completes this workload in %.1f ms, within the %.0f ms budget. On a host without the extension, the polyfill is a workable choice for it.', $polyfillMs, $budget)
                 : sprintf('The polyfill needs %.1f ms, more than the %.0f ms budget. Install the extension for this workload, or run it outside the request, for example in a queued job.', $polyfillMs, $budget)],
-            ['type' => 'text', 'content' => 'A library can require the polyfill and suggest the extension, so that it '
-                .'works everywhere and runs faster where phit is installed. When the extension is loaded, the polyfill '
+            ['type' => 'text', 'content' => 'A library can require the polyfill and suggest the extension, so that its '
+                .'calls work on any host and run faster where phit is installed. The CSV reader is the exception: '
+                .'`Phit\\read_csv` and `Phit\\CsvReader` need the extension. When the extension is loaded, the polyfill '
                 .'defines nothing and adds no overhead to the calls.'],
-            ['type' => 'code', 'chain' => "{\n    \"require\": {\n        \"phpstats/phit-polyfill\": \"^0.1\"\n    },\n    \"suggest\": {\n        \"ext-phit\": \"Native implementation, about 10 to 20 times faster\"\n    }\n}"],
+            ['type' => 'code', 'chain' => "{\n    \"require\": {\n        \"phpstats/phit-polyfill\": \"^0.3\"\n    },\n    \"suggest\": {\n        \"ext-phit\": \"Faster native implementation, and needed for the CSV reader\"\n    }\n}"],
             ['type' => 'note', 'content' => 'Run the polyfill with OPcache and without the JIT (`opcache.jit=disable`). Its '
                 .'functions throw an exception with code 1007 while a JIT compiles the process, on every PHP '
                 .'version. See "PHP versions and the JIT" in the docs.'],

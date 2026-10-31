@@ -1,6 +1,6 @@
 {
     "name": "phpstats/phit-polyfill",
-    "description": "Pure-PHP polyfill for the phit extension: regression, formulas, mixed models, distributions, seeded sampling, and descriptive statistics",
+    "description": "Pure-PHP polyfill for the phit extension: regression, formulas, mixed models, distributions, seeded sampling, and descriptive statistics. The CSV reader needs the extension.",
     "type": "library",
     "license": "MIT",
     "keywords": ["statistics", "polyfill", "regression", "distributions", "phit"],

@@ -1,8 +1,8 @@
 {
   "package": "phit-polyfill",
   "title": "phit-polyfill",
-  "tagline": "phit's functions in pure PHP for hosts where the extension cannot be installed.",
-  "summary": "phit-polyfill defines phit's functions in the Phit namespace when the extension is not loaded. It ports phit's Rust code to PHP, with the extension's parameter names, result keys, warnings, and exception codes, so code written against phit runs without the extension. It covers 232 of phit 0.3.0's 233 functions; Phit\\read_csv and Phit\\CsvReader need the extension. When the extension is loaded, the polyfill defines nothing.",
+  "tagline": "phit's functions in pure PHP, except the CSV reader, for hosts where the extension cannot be installed.",
+  "summary": "phit-polyfill defines phit's functions, except the CSV reader, in the Phit namespace when the extension is not loaded. It ports phit's Rust code to PHP, with the extension's parameter names, result keys, warnings, and exception codes, so code written against phit runs without the extension. It covers 232 of phit 0.3.0's 233 functions; Phit\\read_csv and Phit\\CsvReader need the extension. When the extension is loaded, the polyfill defines nothing.",
   "install": [
     "composer require phpstats/phit-polyfill"
   ],
