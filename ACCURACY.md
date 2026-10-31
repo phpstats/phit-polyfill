@@ -391,8 +391,8 @@ error. See
 
 ## Not provided
 
-`Phit\read_csv` needs the native extension and is left undefined; phibble's
-PHP reader is the fallback. `Phit\Polyfill\Polyfill::supports()` reports
+`Phit\read_csv` and the `Phit\CsvReader` class need the native extension and
+are left undefined; phibble's PHP reader is the fallback. `Phit\Polyfill\Polyfill::supports()` reports
 which functions are available.
 
 ## Known differences from the extension

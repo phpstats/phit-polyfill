@@ -11,6 +11,9 @@ $root = dirname(__DIR__);
 require $root.'/vendor/autoload.php';
 
 $api = json_decode(file_get_contents($root.'/tests/fixtures/php-api.json'), true, flags: JSON_THROW_ON_ERROR);
+// Classes in the contract (entries with methods, such as Phit\CsvReader) are
+// extension-only.
+$api = array_filter($api, fn (array $spec) => ! isset($spec['methods']));
 ksort($api);
 
 $families = [

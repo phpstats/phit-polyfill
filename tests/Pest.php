@@ -23,6 +23,18 @@ function loadFixture(string $name): array
     );
 }
 
+/** The functions of the API contract, without its classes. */
+function apiFunctions(): array
+{
+    return array_filter(loadFixture('php-api.json'), fn (array $spec) => ! isset($spec['methods']));
+}
+
+/** The classes of the API contract, which are all extension-only. */
+function apiClasses(): array
+{
+    return array_filter(loadFixture('php-api.json'), fn (array $spec) => isset($spec['methods']));
+}
+
 /** Call the polyfill implementation of a Phit\ function (named arguments allowed). */
 function pf(string $fn, mixed ...$arguments): mixed
 {

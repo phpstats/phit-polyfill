@@ -27,7 +27,7 @@ function contractParameterNames(): array
     static $names = null;
     if ($names === null) {
         $names = [];
-        foreach (loadFixture('php-api.json') as $fn => $spec) {
+        foreach (apiFunctions() as $fn => $spec) {
             $names[$fn] = array_map(fn (array $parameter) => $parameter['name'], $spec['parameters']);
         }
     }
@@ -106,7 +106,7 @@ it('declares the contract parameter names on every polyfilled implementation', f
 
 it('binds every contract parameter name on the polyfill', function () {
     $problems = [];
-    foreach (loadFixture('php-api.json') as $fn => $spec) {
+    foreach (apiFunctions() as $fn => $spec) {
         if (! Polyfill::supports($fn)) {
             continue;
         }
@@ -147,7 +147,7 @@ it('binds every contract parameter name on the native extension', function () {
         test()->markTestSkipped('phit extension not loaded');
     }
     $problems = [];
-    foreach (loadFixture('php-api.json') as $fn => $spec) {
+    foreach (apiFunctions() as $fn => $spec) {
         $message = unknownNamedParameter($fn, contractNamedArguments($spec['parameters']));
         if ($message !== null) {
             $problems[] = "$fn: $message";

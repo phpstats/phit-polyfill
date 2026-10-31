@@ -8,6 +8,17 @@ Each release states the phit commit it reproduces. The same commit is
 pinned in `tests/fixtures/REFERENCE`, and the reference fixtures are copied
 from it.
 
+## [Unreleased]
+
+Reproduces phit [v0.2.0](https://github.com/phpstats/phit/releases/tag/v0.2.0),
+commit [`ac176ff`](https://github.com/phpstats/phit/commit/ac176ff6567a27d75191685ca7e8a6876786d548).
+
+### Extension-only
+
+phit 0.2.0's chunked CSV reader, the `Phit\CsvReader` class, is left
+undefined and needs the native extension, as `Phit\read_csv` and its new
+`block_size` option do. No polyfilled function changed.
+
 ## [0.1.0] - 2026-10-30
 
 Reproduces phit [v0.1.1](https://github.com/phpstats/phit/releases/tag/v0.1.1),
@@ -90,4 +101,5 @@ Requires PHP 8.3 or later.
   when the test suite runs the implementations directly, so that one CI job
   is informational; the `Phit\` functions refuse before any of that code runs.
 
+[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.1.0

@@ -253,8 +253,9 @@ interface</a></li>
 </ul>
 </nav>
 <p>The polyfill implements 228 of phit’s 229 functions.
-<code>Phit\read_csv</code> needs the extension. phibble’s PHP CSV reader
-is the fallback for it. Functions the polyfill does not implement stay
+<code>Phit\read_csv</code> and the chunked reader class
+<code>Phit\CsvReader</code> need the extension. phibble’s PHP CSV reader
+is the fallback for both. Functions the polyfill does not implement stay
 undefined without the extension, so <code>function_exists()</code>
 reports them correctly.</p>
 <table>

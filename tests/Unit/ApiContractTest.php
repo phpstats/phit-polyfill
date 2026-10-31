@@ -8,7 +8,7 @@ use Phit\Polyfill\Polyfill;
 // The Phit functions the polyfill defines must have the extension's exact
 // signatures (tests/fixtures/php-api.json), so code runs unchanged on either.
 
-$api = loadFixture('php-api.json');
+$api = apiFunctions();
 
 it('declares every polyfilled function with the extension signature', function () use ($api) {
     foreach (Polyfill::functions() as $fn) {
@@ -50,6 +50,24 @@ it('leaves extension-only functions undefined', function () use ($api) {
     }
     foreach (['Phit\read_csv'] as $fn) {
         expect(Polyfill::supports($fn))->toBeFalse($fn);
+    }
+});
+
+it('leaves the contract classes to the extension', function () {
+    $classes = apiClasses();
+    expect($classes)->toHaveKey('Phit\CsvReader');
+    foreach ($classes as $class => $spec) {
+        expect(Polyfill::supports($class))->toBeFalse($class);
+        if (! extension_loaded('phit')) {
+            expect(class_exists($class))->toBeFalse($class);
+
+            continue;
+        }
+        foreach ($spec['methods'] as $name => $method) {
+            $reflection = new ReflectionMethod($class, $name);
+            $parameters = array_map(fn (ReflectionParameter $p) => $p->getName(), $reflection->getParameters());
+            expect($parameters)->toBe(array_column($method['parameters'], 'name'), "$class::$name");
+        }
     }
 });
 

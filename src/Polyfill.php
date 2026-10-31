@@ -11,7 +11,7 @@ final class Polyfill
 {
     /**
      * Whether the polyfill implements $fn. Functions it does not implement
-     * (Phit\read_csv) need the native extension.
+     * (Phit\read_csv, and the Phit\CsvReader class) need the native extension.
      */
     public static function supports(string $fn): bool
     {
