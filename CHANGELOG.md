@@ -10,8 +10,8 @@ from it.
 
 ## [0.3.0] - 2026-10-31
 
-Reproduces phit v0.3.0, commit
-[`2629fe1`](https://github.com/phpstats/phit/commit/2629fe105e8aeb4a73ac96313e3ff6c05e1df7ac).
+Reproduces phit [v0.3.0](https://github.com/phpstats/phit/releases/tag/v0.3.0),
+commit [`2629fe1`](https://github.com/phpstats/phit/commit/2629fe105e8aeb4a73ac96313e3ff6c05e1df7ac).
 
 ### Added
 
