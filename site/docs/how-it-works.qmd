@@ -61,14 +61,3 @@ its own exact function.
 
 Inputs are validated in the extension's order, so an input that is invalid in
 several ways raises the same exception code.
-
-## Known differences
-
-- The listwise-deletion warning is raised with `E_USER_WARNING`, because PHP
-  code cannot raise `E_WARNING`. The text is identical.
-- Scalar arguments of the wrong type follow PHP's userland rules: coercion in
-  non-strict files, otherwise `TypeError`. The extension raises an
-  `\Exception` instead.
-- Matrix products above 5×5 follow the extension's aarch64 build, which uses
-  fused multiply-adds. On an x86-64 CPU without FMA, the extension's own
-  products can differ in the last bit.

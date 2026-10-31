@@ -194,8 +194,6 @@ id="toc-distributions">Distributions</a></li>
 id="toc-rounding-and-fused-multiply-add">Rounding and fused
 multiply-add</a></li>
 <li><a href="#validation" id="toc-validation">Validation</a></li>
-<li><a href="#known-differences" id="toc-known-differences">Known
-differences</a></li>
 </ul>
 </nav>
 <p>The polyfill ports phit’s Rust code to PHP. It does not reimplement
@@ -263,20 +261,6 @@ through its own exact function.</p>
 <h2>Validation</h2>
 <p>Inputs are validated in the extension’s order, so an input that is
 invalid in several ways raises the same exception code.</p>
-</section>
-<section id="known-differences" class="level2">
-<h2>Known differences</h2>
-<ul>
-<li>The listwise-deletion warning is raised with
-<code>E_USER_WARNING</code>, because PHP code cannot raise
-<code>E_WARNING</code>. The text is identical.</li>
-<li>Scalar arguments of the wrong type follow PHP’s userland rules:
-coercion in non-strict files, otherwise <code>TypeError</code>. The
-extension raises an <code>\Exception</code> instead.</li>
-<li>Matrix products above 5×5 follow the extension’s aarch64 build,
-which uses fused multiply-adds. On an x86-64 CPU without FMA, the
-extension’s own products can differ in the last bit.</li>
-</ul>
 </section>
 </body>
 </html>

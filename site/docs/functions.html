@@ -245,19 +245,22 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
+<li><a href="#csv-input" id="toc-csv-input">CSV input</a></li>
 <li><a href="#distributions"
 id="toc-distributions">Distributions</a></li>
 <li><a href="#formula-interface" id="toc-formula-interface">Formula
 interface</a></li>
-<li><a href="#exceptions" id="toc-exceptions">Exceptions</a></li>
+<li><a href="#mixed-models" id="toc-mixed-models">Mixed models</a></li>
+<li><a href="#posterior-draws" id="toc-posterior-draws">Posterior
+draws</a></li>
+<li><a href="#warnings-and-exceptions"
+id="toc-warnings-and-exceptions">Warnings and exceptions</a></li>
 </ul>
 </nav>
-<p>The polyfill implements 232 of phit’s 233 functions.
-<code>Phit\read_csv</code> and the chunked reader class
-<code>Phit\CsvReader</code> need the extension. phibble’s PHP CSV reader
-is the fallback for both. Functions the polyfill does not implement stay
-undefined without the extension, so <code>function_exists()</code>
-reports them correctly.</p>
+<p>The polyfill implements 232 of phit 0.3.0’s 233 functions.
+Signatures, parameter names, defaults, and result keys are the
+extension’s, so phit’s documentation describes each function’s arguments
+and results.</p>
 <table>
 <colgroup>
 <col style="width: 50%" />
@@ -321,10 +324,22 @@ offsets, the automatic intercept, and both missing-value policies</td>
 <td><code>draws_moments</code>, <code>draws_covariance_map</code>,
 <code>draws_affine</code></td>
 </tr>
+<tr>
+<td>Extension only</td>
+<td><code>read_csv</code> and the <code>CsvReader</code> class</td>
+</tr>
 </tbody>
 </table>
 <p>All names are in the <code>Phit</code> namespace, for example
 <code>Phit\fit_ols</code>.</p>
+<section id="csv-input" class="level2">
+<h2>CSV input</h2>
+<p><code>Phit\read_csv</code> and the chunked reader
+<code>Phit\CsvReader</code> need the extension. Without it they stay
+undefined, so <code>function_exists('Phit\read_csv')</code> and
+<code>class_exists('Phit\CsvReader')</code> return <code>false</code>.
+phibble reads CSV files in PHP when the extension is absent.</p>
+</section>
 <section id="distributions" class="level2">
 <h2>Distributions</h2>
 <p>Each family has a density or mass function and its logarithm,
@@ -417,7 +432,10 @@ class="sourceCode php"><code class="sourceCode php"><span id="cb1-1"><a href="#c
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>dist_normal_rng(<span class="dv">1000</span><span class="ot">,</span> seed<span class="ot">:</span> <span class="dv">42</span>)<span class="ot">;</span></span></code></pre></div>
 <p>The samplers use the extension’s generator: ChaCha20 seeded as in
 rand_core, with inverse-CDF sampling. A seed gives the same draws, bit
-for bit, with or without the extension.</p>
+for bit, with or without the extension. <code>dist_uniform_rng</code>,
+<code>dist_categorical_rng</code>,
+<code>dist_categorical_rows_rng</code>, and <code>permutation_rng</code>
+take one uniform per draw from the same stream.</p>
 </section>
 <section id="formula-interface" class="level2">
 <h2>Formula interface</h2>
@@ -458,12 +476,48 @@ returns the random-effect design, and are fitted by
 <code>fit_lmer</code> and <code>fit_glmer</code>. <code>fit_lm</code>
 and <code>fit_glm</code> reject them with code 1007.</p>
 </section>
-<section id="exceptions" class="level2">
-<h2>Exceptions</h2>
+<section id="mixed-models" class="level2">
+<h2>Mixed models</h2>
+<p>The five mixed-model functions port the extension’s code and support
+the same structures:</p>
+<ul>
+<li><code>fit_mixed_intercept</code> fits a linear model with one random
+intercept.</li>
+<li><code>fit_mixed</code> and <code>fit_lmer</code> fit linear mixed
+models by REML (the default) or maximum likelihood, with the BOBYQA
+(default) or Nelder–Mead optimizer. <code>fit_lmer</code> accepts random
+intercepts and slopes, correlated <code>(x | g)</code> and uncorrelated
+<code>(x || g)</code> terms, several terms such as
+<code>(x | subject) + (1 | item)</code>, and nested groups such as
+<code>(1 | subject/item)</code>.</li>
+<li><code>fit_logistic_mixed</code> and <code>fit_glmer</code> fit a
+binomial logit model with one random intercept, <code>(1 | g)</code>, by
+the Laplace approximation (the default) or adaptive Gauss–Hermite
+quadrature with 2 to 61 points. <code>fit_glmer</code> rejects other
+families, links, random slopes, and more than one term with code
+1007.</li>
+</ul>
+<p>The lme4 reference fixtures cover each of these structures, and the
+polyfill agrees with them within the extension’s tolerances. The
+randomized parity suite compares random-intercept and random-slope fits
+with the extension and finds them identical to the bit.</p>
+</section>
+<section id="posterior-draws" class="level2">
+<h2>Posterior draws</h2>
+<p><code>draws_moments</code>, <code>draws_covariance_map</code>, and
+<code>draws_affine</code> summarize and transform matrices of posterior
+draws. They follow the extension’s operation order, including the fused
+multiply-adds of its matrix products, so their results match the
+extension’s to the bit.</p>
+</section>
+<section id="warnings-and-exceptions" class="level2">
+<h2>Warnings and exceptions</h2>
+<p>When rows with missing values are dropped, the fitting functions warn
+with <code>E_USER_WARNING</code>, for example
+<code>Phit\fit_logistic(): Phit\fit_logistic dropped 2 of 80 observations with missing values (listwise deletion)</code>.
+The extension raises the same text as <code>E_WARNING</code>.</p>
 <p>Exceptions are plain <code>\Exception</code> instances whose code
-identifies the category, as in the extension. Messages name the
-qualified function, for example
-<code>Phit\fit_logistic dropped 2 of 80 observations</code>.</p>
+identifies the category, as in the extension.</p>
 <table>
 <thead>
 <tr>

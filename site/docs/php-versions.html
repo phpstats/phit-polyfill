@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc 3.10" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>PHP versions and the JIT</title>
+  <title>Compatibility and limitations</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -176,33 +176,179 @@
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">PHP versions and the JIT</h1>
+<h1 class="title">Compatibility and limitations</h1>
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#the-rule" id="toc-the-rule">The rule</a></li>
+<li><a href="#php-versions" id="toc-php-versions">PHP versions</a></li>
+<li><a href="#with-the-extension" id="toc-with-the-extension">With the
+extension</a></li>
+<li><a href="#differences-from-the-extension"
+id="toc-differences-from-the-extension">Differences from the
+extension</a></li>
+<li><a href="#performance" id="toc-performance">Performance</a></li>
+<li><a href="#the-jit" id="toc-the-jit">The JIT</a>
+<ul>
 <li><a href="#php-8.4-and-8.5" id="toc-php-8.4-and-8.5">PHP 8.4 and
 8.5</a></li>
 <li><a href="#php-8.3" id="toc-php-8.3">PHP 8.3</a></li>
 <li><a href="#optimizer-folding-with-nan"
 id="toc-optimizer-folding-with-nan">Optimizer folding with NaN</a></li>
+</ul></li>
 </ul>
 </nav>
-<p>The polyfill supports PHP 8.3, 8.4, and 8.5. CI runs the test suite
-on each version on Linux in five modes: without OPcache, with OPcache
-and no JIT, with the tracing JIT, with <code>opcache.jit=1205</code>,
-and with <code>opcache.jit=1235</code>. On macOS it runs the OPcache and
-<code>opcache.jit=1205</code> modes. The PHP versions and JIT modes
-verification lists the result of every combination with the phit
-extension loaded.</p>
-<section id="the-rule" class="level2">
-<h2>The rule</h2>
-<p>Run the polyfill with OPcache and without the JIT
-(<code>opcache.jit=disable</code>, which is also PHP 8.3’s default).
-Every <code>Phit\</code> function the polyfill defines throws an
-exception with code 1007 while any JIT compiles the process, on every
-PHP version, before it reads its arguments. The phit extension is not
-affected and runs under any setting.</p>
+<section id="php-versions" class="level2">
+<h2>PHP versions</h2>
+<p><code>composer.json</code> requires PHP <code>^8.3</code>, which
+allows PHP 8.3 and later 8.x releases. CI runs the test suite on PHP
+8.3, 8.4, and 8.5. On Linux it runs each version in five modes: without
+OPcache, with OPcache and no JIT, with the tracing JIT, with
+<code>opcache.jit=1205</code>, and with <code>opcache.jit=1235</code>.
+On macOS it runs the OPcache and <code>opcache.jit=1205</code> modes. No
+PHP extension is required.</p>
+</section>
+<section id="with-the-extension" class="level2">
+<h2>With the extension</h2>
+<ul>
+<li>When the <code>phit</code> extension is loaded, the polyfill’s
+bootstrap defines nothing, and every <code>Phit\</code> function is the
+extension’s. If the loaded extension is older than the phit release the
+polyfill reproduces, the functions it lacks stay undefined.</li>
+<li><code>composer.json</code> declares
+<code>"provide": {"ext-phit": "*"}</code>. Composer therefore treats a
+package that requires <code>ext-phit</code> as satisfied by the
+polyfill. <code>Phit\read_csv</code> and <code>Phit\CsvReader</code>
+remain unavailable without the extension.</li>
+</ul>
+</section>
+<section id="differences-from-the-extension" class="level2">
+<h2>Differences from the extension</h2>
+<ul>
+<li><code>Phit\read_csv</code> and <code>Phit\CsvReader</code> are not
+implemented.</li>
+<li>The listwise-deletion warning is raised with
+<code>E_USER_WARNING</code> because PHP code cannot raise
+<code>E_WARNING</code>. The text is identical.</li>
+<li>Scalar arguments of the wrong type follow PHP’s userland rules:
+coercion in non-strict files, otherwise <code>TypeError</code>. The
+extension raises an <code>\Exception</code>.</li>
+<li>The polyfill’s functions refuse to run under OPcache’s JIT, as
+described below. The extension runs under any JIT setting.</li>
+<li>Matrix products above 5×5 follow the extension’s aarch64 build,
+which uses fused multiply-adds. On an x86-64 CPU without FMA, the
+extension’s own products can differ from the polyfill’s in the last
+bit.</li>
+</ul>
+</section>
+<section id="performance" class="level2">
+<h2>Performance</h2>
+<p>The polyfill runs the extension’s algorithms in PHP. These timings
+were recorded on 2026-10-28 on an Apple M5 Ultra with PHP 8.5.10,
+OPcache on, and the JIT off, comparing polyfill commit
+<code>ab803fd</code> with phit commit <code>3861d77</code> in one
+process. Each design has 10 standard normal predictors plus an
+intercept.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">Polyfill</th>
+<th style="text-align: right;">Extension</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fit_ols</code></td>
+<td style="text-align: right;">10,000</td>
+<td style="text-align: right;">26 ms</td>
+<td style="text-align: right;">2.9 ms</td>
+</tr>
+<tr>
+<td><code>fit_ols</code></td>
+<td style="text-align: right;">100,000</td>
+<td style="text-align: right;">262 ms</td>
+<td style="text-align: right;">29 ms</td>
+</tr>
+<tr>
+<td><code>fit_logistic</code></td>
+<td style="text-align: right;">10,000</td>
+<td style="text-align: right;">160 ms</td>
+<td style="text-align: right;">7.0 ms</td>
+</tr>
+<tr>
+<td><code>fit_logistic</code></td>
+<td style="text-align: right;">100,000</td>
+<td style="text-align: right;">1.60 s</td>
+<td style="text-align: right;">72 ms</td>
+</tr>
+</tbody>
+</table>
+<p>The mixed models are the slowest part of the polyfill. In the
+recorded cases it took 13 to 78 times as long as the extension.
+<code>fit_mixed</code> and <code>fit_lmer</code> repeat a dense QR
+factorization at every optimizer step, so their cost grows roughly with
+the cube of the number of random coefficients.</p>
+<table>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 36%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr>
+<th>Fit</th>
+<th style="text-align: right;">Extension</th>
+<th style="text-align: right;">Polyfill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fit_mixed_intercept</code>, sleepstudy (n = 180)</td>
+<td style="text-align: right;">0.2 ms</td>
+<td style="text-align: right;">2.6 ms</td>
+</tr>
+<tr>
+<td><code>fit_logistic_mixed</code>, n = 185, Laplace</td>
+<td style="text-align: right;">1.3 ms</td>
+<td style="text-align: right;">26 ms</td>
+</tr>
+<tr>
+<td><code>fit_logistic_mixed</code>, n = 185, 9 quadrature points</td>
+<td style="text-align: right;">2.1 ms</td>
+<td style="text-align: right;">41 ms</td>
+</tr>
+<tr>
+<td><code>fit_mixed</code>, random slopes, 24 random coefficients</td>
+<td style="text-align: right;">0.7 ms</td>
+<td style="text-align: right;">37 ms</td>
+</tr>
+<tr>
+<td><code>fit_mixed</code>, nested, 84 random coefficients</td>
+<td style="text-align: right;">7.8 ms</td>
+<td style="text-align: right;">604 ms</td>
+</tr>
+<tr>
+<td><code>fit_mixed</code>, four nested levels, 120 random
+coefficients</td>
+<td style="text-align: right;">103 ms</td>
+<td style="text-align: right;">8.0 s</td>
+</tr>
+</tbody>
+</table>
+<p>The mixed-model timings were recorded on 2026-10-16 on the same
+machine and PHP version.</p>
+</section>
+<section id="the-jit" class="level2">
+<h2>The JIT</h2>
+<p>The polyfill runs with OPcache and without the JIT.
+<code>opcache.jit=disable</code> is the default on PHP 8.4 and 8.5. PHP
+8.3’s defaults (<code>opcache.jit=tracing</code> with
+<code>opcache.jit_buffer_size=0</code>) also leave the JIT off. Every
+<code>Phit\</code> function the polyfill defines throws an exception
+with code 1007 while any JIT compiles the process, on every PHP version,
+before it reads its arguments. The phit extension is not affected and
+runs under any setting.</p>
 <p>The JIT has computed wrong results in the polyfill without an error
 on all three versions, as described below. These are PHP bugs that can
 affect any PHP code; the polyfill’s numerical loops trigger them.
@@ -213,9 +359,8 @@ number either.</p>
 implementation without the check. The test suite uses it, and CI still
 runs the suite under the tracing JIT, <code>opcache.jit=1205</code>, and
 <code>opcache.jit=1235</code> to record the miscompiles.</p>
-</section>
-<section id="php-8.4-and-8.5" class="level2">
-<h2>PHP 8.4 and 8.5</h2>
+<section id="php-8.4-and-8.5" class="level3">
+<h3>PHP 8.4 and 8.5</h3>
 <p>A function JIT with hot-counter triggers compiles a function while it
 is running and enters the compiled code partway through a loop. In that
 case PHP can lose the value of a variable that is live across the loop
@@ -230,8 +375,8 @@ one. The failure has not reproduced on other machines with the same PHP
 build. PHP 8.5 passes under the tracing JIT in CI, which was also true
 of PHP 8.4 before this runner.</p>
 </section>
-<section id="php-8.3" class="level2">
-<h2>PHP 8.3</h2>
+<section id="php-8.3" class="level3">
+<h3>PHP 8.3</h3>
 <p>PHP 8.3 uses an older JIT backend, and that release line receives
 security fixes only. With the tracing JIT, one beta-distribution case in
 the stress suite returns a value that differs from the extension’s in
@@ -243,12 +388,13 @@ significant digits, so <code>round(0.49999999999999994)</code> is 1.0
 there. The polyfill uses its own exact rounding, which matches Rust and
 PHP 8.4.</p>
 </section>
-<section id="optimizer-folding-with-nan" class="level2">
-<h2>Optimizer folding with NaN</h2>
+<section id="optimizer-folding-with-nan" class="level3">
+<h3>Optimizer folding with NaN</h3>
 <p>OPcache’s optimizer rewrites <code>!($x &gt; 0)</code> as
 <code>$x &lt;= 0</code>, which differs when <code>$x</code> is NaN. The
 polyfill writes such conditions so that NaN takes the same branch as in
 the extension, with or without OPcache, on all three versions.</p>
+</section>
 </section>
 </body>
 </html>

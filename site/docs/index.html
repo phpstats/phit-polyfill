@@ -253,26 +253,32 @@ id="toc-checking-what-is-available">Checking what is available</a></li>
 </ul>
 </nav>
 <p>phit-polyfill is a pure-PHP implementation of the <a
-href="https://github.com/phpstats/phit">phit</a> native extension. It
-defines phit’s functions in the <code>Phit</code> namespace when the
-extension is not loaded. Names, parameter names, defaults, result keys,
-warnings, and exception codes are the same as the extension’s. Code
-written against phit therefore runs unchanged on hosts where the
-extension cannot be installed, such as shared hosting or a managed
-platform without custom extensions. When the extension is loaded, the
-polyfill defines nothing and phit is used.</p>
+href="https://github.com/phpstats/phit">phit</a> extension’s functions.
+When the extension is not loaded, it defines them in the
+<code>Phit</code> namespace with the extension’s names, parameter names,
+defaults, result keys, warnings, and exception codes. Code written
+against phit runs on hosts where the extension cannot be installed, such
+as shared hosting or a managed platform without custom extensions. When
+the extension is loaded, the polyfill defines nothing.</p>
 <p>The implementations are ports of phit’s Rust code. On every input in
-the test suites, the polyfill returns the same bits as the
-extension.</p>
+the test suites, the polyfill returns the same bits as the extension. It
+is slower: the recorded regression fits take 9 to 23 times as long, and
+mixed models 13 to 78 times as long (see <a
+href="php-versions.qmd">Compatibility and limitations</a>).</p>
 <section id="installation" class="level2">
 <h2>Installation</h2>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">composer</span> require phpstats/phit-polyfill</span></code></pre></div>
-<p>PHP 8.3 or later is required. Composer loads the polyfill’s
-<code>bootstrap.php</code> automatically. For each function the polyfill
-implements, the bootstrap declares it in the <code>Phit</code> namespace
-only if <code>function_exists()</code> reports that it is missing and
-the <code>phit</code> extension is not loaded.</p>
+<p><code>composer.json</code> requires PHP <code>^8.3</code>, which
+allows PHP 8.3 and later 8.x releases. CI tests PHP 8.3, 8.4, and 8.5.
+No PHP extension is required.</p>
+<p>Composer’s autoloader loads the polyfill’s
+<code>bootstrap.php</code>. If the <code>phit</code> extension is not
+loaded, the bootstrap declares each function the polyfill implements,
+unless a function of that name already exists.</p>
+<p>The polyfill’s functions throw an exception with code 1007 while
+OPcache’s JIT compiles the process. Set <code>opcache.jit=disable</code>
+where the polyfill runs.</p>
 </section>
 <section id="usage" class="level2">
 <h2>Usage</h2>
@@ -286,11 +292,11 @@ class="sourceCode php"><code class="sourceCode php"><span id="cb2-1"><a href="#c
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    y<span class="ot">:</span> [<span class="fl">2.1</span><span class="ot">,</span> <span class="fl">4.2</span><span class="ot">,</span> <span class="fl">5.8</span><span class="ot">,</span> <span class="fl">8.1</span><span class="ot">,</span> <span class="fl">10.2</span>]<span class="ot">,</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)<span class="ot">;</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span>[<span class="st">&#39;coefficients&#39;</span>]<span class="ot">;</span>  <span class="co">// intercept first, as with the extension</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span>[<span class="st">&#39;coefficients&#39;</span>]<span class="ot">;</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span>[<span class="st">&#39;p_values&#39;</span>]<span class="ot">;</span></span></code></pre></div>
-<p>The same code runs with the extension. Install phit where you can,
-because it is faster, and keep the polyfill as a Composer dependency for
-the hosts where you cannot.</p>
+<p><code>$fit['coefficients']</code> is
+<code>[-0.2843, 2.5864, -1.6819]</code> (rounded here), with the
+intercept first. The same code runs with the extension loaded.</p>
 </section>
 <section id="checking-what-is-available" class="level2">
 <h2>Checking what is available</h2>
@@ -303,16 +309,36 @@ class="sourceCode php"><code class="sourceCode php"><span id="cb3-1"><a href="#c
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>Polyfill::supports(<span class="st">&#39;Phit\read_csv&#39;</span>)<span class="ot">;</span>      <span class="co">// false: needs the extension</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>Polyfill::nativeLoaded()<span class="ot">;</span>                 <span class="co">// whether phit is loaded</span></span></code></pre></div>
 <p><code>Polyfill::implementation('Phit\fit_ols')</code> returns the
-polyfill’s callable even when the extension is loaded. The parity tests
-and the benchmarks use it to run both implementations in one
-process.</p>
+polyfill’s callable even when the extension is loaded, and it skips the
+JIT check. The parity tests and the benchmarks use it to run both
+implementations in one process.</p>
 </section>
 <section id="versions" class="level2">
 <h2>Versions</h2>
-<p>Each polyfill release reproduces one phit commit, pinned in
-<code>tests/fixtures/REFERENCE</code>. Version 0.1.0 reproduces phit <a
-href="https://github.com/phpstats/phit/commit/1bf73bd3bdf66f825039713ac58157d0f9d6ddf9"><code>1bf73bd</code></a>.
-Neither package has a tagged release yet.</p>
+<p>Each polyfill release reproduces one phit release, whose commit is
+pinned in <code>tests/fixtures/REFERENCE</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Polyfill</th>
+<th>phit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.3.0</td>
+<td>v0.3.0 (<code>2629fe1</code>)</td>
+</tr>
+<tr>
+<td>0.2.0</td>
+<td>v0.2.0 (<code>ac176ff</code>)</td>
+</tr>
+<tr>
+<td>0.1.0</td>
+<td>v0.1.1 (<code>f4887a4</code>)</td>
+</tr>
+</tbody>
+</table>
 </section>
 </body>
 </html>

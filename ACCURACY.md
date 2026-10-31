@@ -3,7 +3,7 @@
 This document records how closely the polyfill reproduces two references. The
 first is the R, SciPy, and mpmath values that the phit extension is
 validated against. The second is the extension itself. Every number below was
-measured, not estimated. A function is shipped only when it passes the
+measured. A function is shipped only when it passes the
 extension's own fixture tolerances and the parity suite. Anything that cannot
 meet them stays undefined and is listed under [Not provided](#not-provided).
 

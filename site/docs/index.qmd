@@ -3,16 +3,17 @@ title: "phit-polyfill"
 ---
 
 phit-polyfill is a pure-PHP implementation of the
-[phit](https://github.com/phpstats/phit) native extension. It defines phit's
-functions in the `Phit` namespace when the extension is not loaded. Names,
-parameter names, defaults, result keys, warnings, and exception codes are the
-same as the extension's. Code written against phit therefore runs unchanged on
-hosts where the extension cannot be installed, such as shared hosting or a
-managed platform without custom extensions. When the extension is loaded, the
-polyfill defines nothing and phit is used.
+[phit](https://github.com/phpstats/phit) extension's functions. When the
+extension is not loaded, it defines them in the `Phit` namespace with the
+extension's names, parameter names, defaults, result keys, warnings, and
+exception codes. Code written against phit runs on hosts where the extension
+cannot be installed, such as shared hosting or a managed platform without
+custom extensions. When the extension is loaded, the polyfill defines nothing.
 
 The implementations are ports of phit's Rust code. On every input in the test
-suites, the polyfill returns the same bits as the extension.
+suites, the polyfill returns the same bits as the extension. It is slower: the
+recorded regression fits take 9 to 23 times as long, and mixed models 13 to 78
+times as long (see [Compatibility and limitations](php-versions.qmd)).
 
 ## Installation
 
@@ -20,10 +21,15 @@ suites, the polyfill returns the same bits as the extension.
 composer require phpstats/phit-polyfill
 ```
 
-PHP 8.3 or later is required. Composer loads the polyfill's `bootstrap.php`
-automatically. For each function the polyfill implements, the bootstrap
-declares it in the `Phit` namespace only if `function_exists()` reports that it
-is missing and the `phit` extension is not loaded.
+`composer.json` requires PHP `^8.3`, which allows PHP 8.3 and later 8.x
+releases. CI tests PHP 8.3, 8.4, and 8.5. No PHP extension is required.
+
+Composer's autoloader loads the polyfill's `bootstrap.php`. If the `phit`
+extension is not loaded, the bootstrap declares each function the polyfill
+implements, unless a function of that name already exists.
+
+The polyfill's functions throw an exception with code 1007 while OPcache's JIT
+compiles the process. Set `opcache.jit=disable` where the polyfill runs.
 
 ## Usage
 
@@ -37,13 +43,12 @@ $fit = fit_ols(
     y: [2.1, 4.2, 5.8, 8.1, 10.2],
 );
 
-$fit['coefficients'];  // intercept first, as with the extension
+$fit['coefficients'];
 $fit['p_values'];
 ```
 
-The same code runs with the extension. Install phit where you can, because it
-is faster, and keep the polyfill as a Composer dependency for the hosts where
-you cannot.
+`$fit['coefficients']` is `[-0.2843, 2.5864, -1.6819]` (rounded here), with
+the intercept first. The same code runs with the extension loaded.
 
 ## Checking what is available
 
@@ -59,12 +64,16 @@ Polyfill::nativeLoaded();                 // whether phit is loaded
 ```
 
 `Polyfill::implementation('Phit\fit_ols')` returns the polyfill's callable
-even when the extension is loaded. The parity tests and the benchmarks use it
-to run both implementations in one process.
+even when the extension is loaded, and it skips the JIT check. The parity
+tests and the benchmarks use it to run both implementations in one process.
 
 ## Versions
 
-Each polyfill release reproduces one phit commit, pinned in
-`tests/fixtures/REFERENCE`. Version 0.1.0 reproduces phit
-[`1bf73bd`](https://github.com/phpstats/phit/commit/1bf73bd3bdf66f825039713ac58157d0f9d6ddf9).
-Neither package has a tagged release yet.
+Each polyfill release reproduces one phit release, whose commit is pinned in
+`tests/fixtures/REFERENCE`.
+
+| Polyfill | phit |
+|---|---|
+| 0.3.0 | v0.3.0 (`2629fe1`) |
+| 0.2.0 | v0.2.0 (`ac176ff`) |
+| 0.1.0 | v0.1.1 (`f4887a4`) |

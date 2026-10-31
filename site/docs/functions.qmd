@@ -2,11 +2,9 @@
 title: "Functions"
 ---
 
-The polyfill implements 232 of phit's 233 functions. `Phit\read_csv` and the
-chunked reader class `Phit\CsvReader` need the extension. phibble's PHP CSV
-reader is the fallback for both. Functions the
-polyfill does not implement stay undefined without the extension, so
-`function_exists()` reports them correctly.
+The polyfill implements 232 of phit 0.3.0's 233 functions. Signatures,
+parameter names, defaults, and result keys are the extension's, so phit's
+documentation describes each function's arguments and results.
 
 | Area | Functions |
 |---|---|
@@ -19,8 +17,16 @@ polyfill does not implement stay undefined without the extension, so
 | Distributions | 13 families with 14 functions each, listed below |
 | Random numbers | `dist_<family>_rng` for each of the 13 families, `dist_uniform_rng`, `dist_categorical_rng`, `dist_categorical_rows_rng`, `permutation_rng` |
 | Posterior draws | `draws_moments`, `draws_covariance_map`, `draws_affine` |
+| Extension only | `read_csv` and the `CsvReader` class |
 
 All names are in the `Phit` namespace, for example `Phit\fit_ols`.
+
+## CSV input
+
+`Phit\read_csv` and the chunked reader `Phit\CsvReader` need the extension.
+Without it they stay undefined, so `function_exists('Phit\read_csv')` and
+`class_exists('Phit\CsvReader')` return `false`. phibble reads CSV files in
+PHP when the extension is absent.
 
 ## Distributions
 
@@ -57,7 +63,9 @@ dist_normal_rng(1000, seed: 42);
 
 The samplers use the extension's generator: ChaCha20 seeded as in rand_core,
 with inverse-CDF sampling. A seed gives the same draws, bit for bit, with or
-without the extension.
+without the extension. `dist_uniform_rng`, `dist_categorical_rng`,
+`dist_categorical_rows_rng`, and `permutation_rng` take one uniform per draw
+from the same stream.
 
 ## Formula interface
 
@@ -94,11 +102,43 @@ and poisson. Random-effect bars such as `(1 | g)` are accepted by
 `model_matrix`, which returns the random-effect design, and are fitted by
 `fit_lmer` and `fit_glmer`. `fit_lm` and `fit_glm` reject them with code 1007.
 
-## Exceptions
+## Mixed models
+
+The five mixed-model functions port the extension's code and support the same
+structures:
+
+- `fit_mixed_intercept` fits a linear model with one random intercept.
+- `fit_mixed` and `fit_lmer` fit linear mixed models by REML (the default) or
+  maximum likelihood, with the BOBYQA (default) or Nelder–Mead optimizer.
+  `fit_lmer` accepts random intercepts and slopes, correlated `(x | g)` and
+  uncorrelated `(x || g)` terms, several terms such as
+  `(x | subject) + (1 | item)`, and nested groups such as `(1 | subject/item)`.
+- `fit_logistic_mixed` and `fit_glmer` fit a binomial logit model with one
+  random intercept, `(1 | g)`, by the Laplace approximation (the default) or
+  adaptive Gauss–Hermite quadrature with 2 to 61 points. `fit_glmer` rejects
+  other families, links, random slopes, and more than one term with code 1007.
+
+The lme4 reference fixtures cover each of these structures, and the polyfill
+agrees with them within the extension's tolerances. The randomized parity
+suite compares random-intercept and random-slope fits with the extension and
+finds them identical to the bit.
+
+## Posterior draws
+
+`draws_moments`, `draws_covariance_map`, and `draws_affine` summarize and
+transform matrices of posterior draws. They follow the extension's operation
+order, including the fused multiply-adds of its matrix products, so their
+results match the extension's to the bit.
+
+## Warnings and exceptions
+
+When rows with missing values are dropped, the fitting functions warn with
+`E_USER_WARNING`, for example `Phit\fit_logistic(): Phit\fit_logistic
+dropped 2 of 80 observations with missing values (listwise deletion)`. The
+extension raises the same text as `E_WARNING`.
 
 Exceptions are plain `\Exception` instances whose code identifies the
-category, as in the extension. Messages name the qualified function, for
-example `Phit\fit_logistic dropped 2 of 80 observations`.
+category, as in the extension.
 
 | Code | Meaning |
 |---:|---|

@@ -1,10 +1,10 @@
 {
     "name": "phpstats/phit-polyfill",
-    "description": "Pure-PHP polyfill for the phit native extension: descriptive statistics, OLS/logistic/probit/Poisson regression and probability distributions",
+    "description": "Pure-PHP polyfill for the phit extension: regression, formulas, mixed models, distributions, seeded sampling, and descriptive statistics",
     "type": "library",
     "license": "MIT",
     "keywords": ["statistics", "polyfill", "regression", "distributions", "phit"],
-    "homepage": "https://phpstats.github.io/phit/",
+    "homepage": "https://phit.phpstats.org",
     "require": {
         "php": "^8.3"
     },

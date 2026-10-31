@@ -79,8 +79,8 @@ return [
         $blocks = [
             ['type' => 'text', 'content' => 'The phit extension is the faster choice wherever it can be installed. The '
                 .'polyfill is for hosts where it cannot: shared hosting, managed platforms that allow no custom '
-                .'extensions, or a development machine without a Rust toolchain. Because the polyfill returns the same '
-                .'results bit for bit, the choice is only about speed. This page times one workload with each, '
+                .'extensions, or a development machine without a Rust toolchain. For the functions both provide, the polyfill '
+                .'returns the same results bit for bit, so the choice comes down to speed. This page times one workload with each, '
                 .'taking the median of three runs after a warm-up call, on the server that renders it.'],
             ['type' => 'code', 'chain' => $code],
             ['type' => 'metrics', 'items' => array_values(array_filter([
