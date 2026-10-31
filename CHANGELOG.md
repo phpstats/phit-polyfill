@@ -10,10 +10,25 @@ from it.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-31
+
+Reproduces phit [v0.3.0](https://github.com/phpstats/phit/releases/tag/v0.3.0)
+and [v0.3.1](https://github.com/phpstats/phit/releases/tag/v0.3.1). The pin
+stays at v0.3.0's commit
+[`2629fe1`](https://github.com/phpstats/phit/commit/2629fe105e8aeb4a73ac96313e3ff6c05e1df7ac).
+v0.3.1, commit
+[`96e29e1`](https://github.com/phpstats/phit/commit/96e29e108c1527d30d959f2ec2cd0df5c52d0585),
+changes only phit's packaging and documentation. Its functions, API contract,
+and reference fixtures are those of v0.3.0.
+
 ### Changed
 
 - `composer.json` requires PHP `>=8.3 <8.6`, the versions CI tests. It
   previously allowed every later 8.x release.
+- The package's homepage is <https://phit.phpstats.org>.
+- The documentation states that when any version of the phit extension is
+  loaded, the polyfill defines nothing, and that the CSV reader needs the
+  extension.
 
 ## [0.3.0] - 2026-10-31
 
@@ -123,7 +138,8 @@ Requires PHP 8.3 or later.
   when the test suite runs the implementations directly, so that one CI job
   is informational; the `Phit\` functions refuse before any of that code runs.
 
-[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.3.1
 [0.3.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.3.0
 [0.2.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.2.0
 [0.1.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.1.0

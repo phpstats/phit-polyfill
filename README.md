@@ -99,11 +99,13 @@ extension.
 
 ## Versions
 
-Each release reproduces one phit release. Its commit is pinned in
-`tests/fixtures/REFERENCE`, and the reference fixtures are copied from it.
+Each release reproduces the phit commit pinned in `tests/fixtures/REFERENCE`,
+and the reference fixtures are copied from it. phit v0.3.1 changes only
+packaging and documentation, so it has the same functions as v0.3.0.
 
 | Polyfill | phit |
 |---|---|
+| 0.3.1 | [v0.3.0](https://github.com/phpstats/phit/releases/tag/v0.3.0) (`2629fe1`) and [v0.3.1](https://github.com/phpstats/phit/releases/tag/v0.3.1) (`96e29e1`) |
 | 0.3.0 | [v0.3.0](https://github.com/phpstats/phit/releases/tag/v0.3.0) (`2629fe1`) |
 | 0.2.0 | [v0.2.0](https://github.com/phpstats/phit/releases/tag/v0.2.0) (`ac176ff`) |
 | 0.1.0 | [v0.1.1](https://github.com/phpstats/phit/releases/tag/v0.1.1) (`f4887a4`) |
