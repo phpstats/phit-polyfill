@@ -6,7 +6,7 @@
     "keywords": ["statistics", "polyfill", "regression", "distributions", "phit"],
     "homepage": "https://phit.phpstats.org",
     "require": {
-        "php": "^8.3"
+        "php": ">=8.3 <8.6"
     },
     "require-dev": {
         "pestphp/pest": "^4.0",

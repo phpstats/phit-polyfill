@@ -21,12 +21,12 @@ times as long (see [Compatibility and limitations](php-versions.qmd)).
 composer require phpstats/phit-polyfill
 ```
 
-`composer.json` requires PHP `^8.3`, which allows PHP 8.3 and later 8.x
-releases. CI tests PHP 8.3, 8.4, and 8.5. No PHP extension is required.
+The polyfill supports PHP 8.3, 8.4, and 8.5 (`composer.json` requires
+`>=8.3 <8.6`). CI tests all three. No PHP extension is required.
 
-Composer's autoloader loads the polyfill's `bootstrap.php`. If the `phit`
-extension is not loaded, the bootstrap declares each function the polyfill
-implements, unless a function of that name already exists.
+Composer's autoloader loads the polyfill's `bootstrap.php`. If any version
+of the `phit` extension is loaded, the bootstrap defines nothing. Otherwise it declares each function the
+polyfill implements, unless a function of that name already exists.
 
 The polyfill's functions throw an exception with code 1007 while OPcache's JIT
 compiles the process. Set `opcache.jit=disable` where the polyfill runs.

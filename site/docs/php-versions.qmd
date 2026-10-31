@@ -4,22 +4,23 @@ title: "Compatibility and limitations"
 
 ## PHP versions
 
-`composer.json` requires PHP `^8.3`, which allows PHP 8.3 and later 8.x
-releases. CI runs the test suite on PHP 8.3, 8.4, and 8.5. On Linux it runs
+The polyfill supports PHP 8.3, 8.4, and 8.5 (`composer.json` requires
+`>=8.3 <8.6`). CI runs the test suite on all three. On Linux it runs
 each version in five modes: without OPcache, with OPcache and no JIT, with the
 tracing JIT, with `opcache.jit=1205`, and with `opcache.jit=1235`. On macOS it
 runs the OPcache and `opcache.jit=1205` modes. No PHP extension is required.
 
 ## With the extension
 
-- When the `phit` extension is loaded, the polyfill's bootstrap defines
-  nothing, and every `Phit\` function is the extension's. If the loaded
-  extension is older than the phit release the polyfill reproduces, the
-  functions it lacks stay undefined.
-- `composer.json` declares `"provide": {"ext-phit": "*"}`. Composer therefore
-  treats a package that requires `ext-phit` as satisfied by the polyfill.
-  `Phit\read_csv` and `Phit\CsvReader` remain unavailable without the
-  extension.
+- When any version of the `phit` extension is loaded, the polyfill's
+  bootstrap defines nothing, and every `Phit\` function is the extension's.
+  An extension older than the phit release the polyfill reproduces lacks the
+  newer functions, and the polyfill does not define them. Upgrade the
+  extension to that release to use them. The [overview](index.qmd#versions)
+  lists the phit release for each polyfill version.
+- `composer.json` declares `"provide": {"ext-phit": "*"}`, so Composer treats
+  a package that requires `ext-phit` as satisfied by the polyfill. The CSV
+  reader, `Phit\read_csv` and `Phit\CsvReader`, needs the extension.
 
 ## Differences from the extension
 

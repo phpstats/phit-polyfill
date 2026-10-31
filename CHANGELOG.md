@@ -8,6 +8,13 @@ Each release states the phit commit it reproduces. The same commit is
 pinned in `tests/fixtures/REFERENCE`, and the reference fixtures are copied
 from it.
 
+## [Unreleased]
+
+### Changed
+
+- `composer.json` requires PHP `>=8.3 <8.6`, the versions CI tests. It
+  previously allowed every later 8.x release.
+
 ## [0.3.0] - 2026-10-31
 
 Reproduces phit [v0.3.0](https://github.com/phpstats/phit/releases/tag/v0.3.0),
@@ -116,6 +123,7 @@ Requires PHP 8.3 or later.
   when the test suite runs the implementations directly, so that one CI job
   is informational; the `Phit\` functions refuse before any of that code runs.
 
+[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.3.0...HEAD
 [0.3.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.3.0
 [0.2.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.2.0
 [0.1.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.1.0

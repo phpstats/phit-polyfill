@@ -9,7 +9,7 @@ composer test:ext    # with the extension loaded from .ext/libphit.dylib
 ```
 
 The composer scripts run the tests with the PHP that runs Composer, so
-`php85 "$(which composer)" test` picks a version. Any PHP 8.3 or later works.
+`php85 "$(which composer)" test` picks a version. PHP 8.3, 8.4, and 8.5 work.
 `composer test:ext` needs the PHP that `.ext/libphit.dylib` was built for;
 under another one the extension does not load and the parity tests skip.
 

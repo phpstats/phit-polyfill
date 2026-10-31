@@ -199,26 +199,29 @@ id="toc-optimizer-folding-with-nan">Optimizer folding with NaN</a></li>
 </nav>
 <section id="php-versions" class="level2">
 <h2>PHP versions</h2>
-<p><code>composer.json</code> requires PHP <code>^8.3</code>, which
-allows PHP 8.3 and later 8.x releases. CI runs the test suite on PHP
-8.3, 8.4, and 8.5. On Linux it runs each version in five modes: without
-OPcache, with OPcache and no JIT, with the tracing JIT, with
-<code>opcache.jit=1205</code>, and with <code>opcache.jit=1235</code>.
-On macOS it runs the OPcache and <code>opcache.jit=1205</code> modes. No
-PHP extension is required.</p>
+<p>The polyfill supports PHP 8.3, 8.4, and 8.5
+(<code>composer.json</code> requires <code>&gt;=8.3 &lt;8.6</code>). CI
+runs the test suite on all three. On Linux it runs each version in five
+modes: without OPcache, with OPcache and no JIT, with the tracing JIT,
+with <code>opcache.jit=1205</code>, and with
+<code>opcache.jit=1235</code>. On macOS it runs the OPcache and
+<code>opcache.jit=1205</code> modes. No PHP extension is required.</p>
 </section>
 <section id="with-the-extension" class="level2">
 <h2>With the extension</h2>
 <ul>
-<li>When the <code>phit</code> extension is loaded, the polyfill’s
-bootstrap defines nothing, and every <code>Phit\</code> function is the
-extension’s. If the loaded extension is older than the phit release the
-polyfill reproduces, the functions it lacks stay undefined.</li>
+<li>When any version of the <code>phit</code> extension is loaded, the
+polyfill’s bootstrap defines nothing, and every <code>Phit\</code>
+function is the extension’s. An extension older than the phit release
+the polyfill reproduces lacks the newer functions, and the polyfill does
+not define them. Upgrade the extension to that release to use them. The
+<a href="index.qmd#versions">overview</a> lists the phit release for
+each polyfill version.</li>
 <li><code>composer.json</code> declares
-<code>"provide": {"ext-phit": "*"}</code>. Composer therefore treats a
-package that requires <code>ext-phit</code> as satisfied by the
-polyfill. <code>Phit\read_csv</code> and <code>Phit\CsvReader</code>
-remain unavailable without the extension.</li>
+<code>"provide": {"ext-phit": "*"}</code>, so Composer treats a package
+that requires <code>ext-phit</code> as satisfied by the polyfill. The
+CSV reader, <code>Phit\read_csv</code> and <code>Phit\CsvReader</code>,
+needs the extension.</li>
 </ul>
 </section>
 <section id="differences-from-the-extension" class="level2">
@@ -351,10 +354,10 @@ before it reads its arguments. The phit extension is not affected and
 runs under any setting.</p>
 <p>The JIT has computed wrong results in the polyfill without an error
 on all three versions, as described below. These are PHP bugs that can
-affect any PHP code; the polyfill’s numerical loops trigger them.
-Refusing every function, rather than the ones that have failed so far,
-means a miscompile the tests have not found cannot produce a wrong
-number either.</p>
+affect any PHP code; the polyfill’s numerical loops trigger them. The
+polyfill refuses every function, including those that have not failed,
+so a miscompile the tests have not found cannot produce a wrong number
+either.</p>
 <p><code>Phit\Polyfill\Polyfill::implementation()</code> returns an
 implementation without the check. The test suite uses it, and CI still
 runs the suite under the tracing JIT, <code>opcache.jit=1205</code>, and

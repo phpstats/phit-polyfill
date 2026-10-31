@@ -21,9 +21,9 @@ suites they return the same bits as the extension. The documentation is in
 composer require phpstats/phit-polyfill
 ```
 
-`composer.json` requires PHP `^8.3`, which allows PHP 8.3 and later 8.x
-releases. CI tests PHP 8.3, 8.4, and 8.5 on Linux and macOS. No PHP extension
-is required.
+The polyfill supports PHP 8.3, 8.4, and 8.5 (`composer.json` requires
+`>=8.3 <8.6`). CI tests all three on Linux and macOS. No PHP extension is
+required.
 
 Composer's autoloader loads `bootstrap.php`, which defines the functions. The
 polyfill's functions refuse to run while OPcache's JIT compiles the process.
@@ -61,14 +61,14 @@ Polyfill::nativeLoaded();                 // whether phit is loaded
 
 ## With the extension
 
-- When the `phit` extension is loaded, `bootstrap.php` returns before it
-  defines anything. Every `Phit\` function is the extension's. If the loaded
-  extension is older than the phit release the polyfill reproduces, the
-  functions it lacks stay undefined. The polyfill does not fill them in.
-- `composer.json` declares `"provide": {"ext-phit": "*"}`. Composer therefore
-  treats a package that requires `ext-phit` as satisfied by the polyfill,
-  although `Phit\read_csv` and `Phit\CsvReader` remain unavailable without the
-  extension.
+- When any version of the `phit` extension is loaded, `bootstrap.php` returns
+  before it defines anything, and every `Phit\` function is the extension's.
+  An extension older than the phit release the polyfill reproduces lacks the
+  newer functions, and the polyfill does not define them. Upgrade the
+  extension to that release to use them (see [Versions](#versions)).
+- `composer.json` declares `"provide": {"ext-phit": "*"}`, so Composer treats
+  a package that requires `ext-phit` as satisfied by the polyfill. The CSV
+  reader, `Phit\read_csv` and `Phit\CsvReader`, needs the extension.
 - `Polyfill::implementation('Phit\fit_ols')` returns the polyfill's callable
   even when the extension is loaded. It skips the JIT check. The parity tests
   and benchmarks use it to run both implementations in one process.
@@ -167,7 +167,7 @@ composer test:ext    # with the extension loaded from .ext/libphit.dylib
 ```
 
 The composer scripts run the tests with the PHP that runs Composer, so
-`php85 "$(which composer)" test` picks a version. Any PHP 8.3 or later works.
+`php85 "$(which composer)" test` picks a version. PHP 8.3, 8.4, and 8.5 work.
 `composer test:ext` needs the PHP that `.ext/libphit.dylib` was built for;
 under another one the extension does not load and the parity tests skip.
 

@@ -256,8 +256,8 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">composer</span> test        <span class="co"># polyfill only</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">composer</span> test:ext    <span class="co"># with the extension loaded from .ext/libphit.dylib</span></span></code></pre></div>
 <p>The composer scripts run the tests with the PHP that runs Composer,
-so <code>php85 "$(which composer)" test</code> picks a version. Any PHP
-8.3 or later works. <code>composer test:ext</code> needs the PHP that
+so <code>php85 "$(which composer)" test</code> picks a version. PHP 8.3,
+8.4, and 8.5 work. <code>composer test:ext</code> needs the PHP that
 <code>.ext/libphit.dylib</code> was built for; under another one the
 extension does not load and the parity tests skip.</p>
 <section id="tests" class="level2">
