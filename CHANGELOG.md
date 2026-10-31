@@ -8,7 +8,7 @@ Each release states the phit commit it reproduces. The same commit is
 pinned in `tests/fixtures/REFERENCE`, and the reference fixtures are copied
 from it.
 
-## [Unreleased]
+## [0.2.0] - 2026-10-30
 
 Reproduces phit [v0.2.0](https://github.com/phpstats/phit/releases/tag/v0.2.0),
 commit [`ac176ff`](https://github.com/phpstats/phit/commit/ac176ff6567a27d75191685ca7e8a6876786d548).
@@ -101,5 +101,5 @@ Requires PHP 8.3 or later.
   when the test suite runs the implementations directly, so that one CI job
   is informational; the `Phit\` functions refuse before any of that code runs.
 
-[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.1.0...HEAD
+[0.2.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.2.0
 [0.1.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.1.0
