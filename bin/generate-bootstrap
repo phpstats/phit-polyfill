@@ -33,7 +33,9 @@ $formulas = ['model_matrix' => ['ModelMatrix', 'build'], 'fit_lm' => ['Lm', 'fit
     'predict' => ['Predict', 'predict'],
     'stat_density' => ['Smoothing', 'density'], 'stat_bw_nrd0' => ['Smoothing', 'bwNrd0'], 'stat_bw_nrd' => ['Smoothing', 'bwNrd'],
     'stat_approx' => ['Smoothing', 'approx'], 'stat_ecdf' => ['Smoothing', 'ecdf'],
-    'optimize' => ['Optimize', 'optimize'], 'uniroot' => ['Optimize', 'uniroot']];
+    'optimize' => ['Optimize', 'optimize'], 'uniroot' => ['Optimize', 'uniroot'],
+    'dist_uniform_rng' => ['Sampling', 'uniform'], 'dist_categorical_rng' => ['Sampling', 'categorical'],
+    'dist_categorical_rows_rng' => ['Sampling', 'categoricalRows'], 'permutation_rng' => ['Sampling', 'permutation']];
 
 function camel(string $name): string
 {

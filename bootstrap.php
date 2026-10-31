@@ -280,6 +280,24 @@ if (! function_exists('Phit\dist_binomial_sf_array')) {
     }
 }
 
+if (! function_exists('Phit\dist_categorical_rng')) {
+    function dist_categorical_rng(int $n, int $seed, array $prob): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\Sampling::categorical($n, $seed, $prob);
+    }
+}
+
+if (! function_exists('Phit\dist_categorical_rows_rng')) {
+    function dist_categorical_rows_rng(int $seed, array $prob): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\Sampling::categoricalRows($seed, $prob);
+    }
+}
+
 if (! function_exists('Phit\dist_chisquare_cdf')) {
     function dist_chisquare_cdf(float $x, float $df): float
     {
@@ -1765,6 +1783,15 @@ if (! function_exists('Phit\dist_t_sf_array')) {
     }
 }
 
+if (! function_exists('Phit\dist_uniform_rng')) {
+    function dist_uniform_rng(int $n, int $seed, float $min = 0.0, float $max = 1.0): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\Sampling::uniform($n, $seed, $min, $max);
+    }
+}
+
 if (! function_exists('Phit\draws_affine')) {
     function draws_affine(array $draws, array $matrix, array $shift): array
     {
@@ -1906,6 +1933,15 @@ if (! function_exists('Phit\optimize')) {
         \Phit\Polyfill\Internal\Jit::refuse();
 
         return \Phit\Polyfill\Optimize::optimize($f, $lower, $upper, $tol, $maximum);
+    }
+}
+
+if (! function_exists('Phit\permutation_rng')) {
+    function permutation_rng(int $n, int $seed, ?int $size = null): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\Sampling::permutation($n, $seed, $size);
     }
 }
 

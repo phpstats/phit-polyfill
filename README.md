@@ -68,7 +68,7 @@ Polyfill::nativeLoaded();                 // whether phit is loaded
 | Formula interface | `Phit\model_matrix`, `Phit\fit_lm`, `Phit\fit_glm`, `Phit\predict` | Provided |
 | Distributions | 13 families × 14 functions; see [Distributions](#distributions) | Provided |
 | Mixed models | `Phit\fit_mixed_intercept`, `Phit\fit_mixed`, `Phit\fit_logistic_mixed`, `Phit\fit_lmer`, `Phit\fit_glmer` | Provided (slower than the extension; see [ACCURACY.md](ACCURACY.md#speed)) |
-| Random numbers | 13 seeded `*_rng` functions, one per distribution family | Provided |
+| Random numbers | 13 seeded `*_rng` functions, one per distribution family, plus `dist_uniform_rng`, `dist_categorical_rng`, `dist_categorical_rows_rng`, and `permutation_rng` | Provided |
 | Posterior draws | `Phit\draws_moments`, `Phit\draws_covariance_map`, `Phit\draws_affine` | Provided |
 | CSV reading | `Phit\read_csv` and the chunked `Phit\CsvReader` class (phibble's PHP reader is the fallback) | Extension only |
 
@@ -102,7 +102,8 @@ For example, `Phit\dist_t_sf(2.5, df: 12)` and
 Each family also has a seeded sampler, such as
 `Phit\dist_normal_rng(1000, seed: 42)`. The polyfill uses the extension's generator (ChaCha20 seeded as in rand_core,
 with inverse-CDF sampling), so a seed gives the same draws, bit for bit, with
-or without the extension.
+or without the extension. The uniform, categorical, and permutation samplers
+take their uniforms from the same stream.
 
 ### Formula interface
 

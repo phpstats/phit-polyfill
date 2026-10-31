@@ -8,6 +8,21 @@ Each release states the phit commit it reproduces. The same commit is
 pinned in `tests/fixtures/REFERENCE`, and the reference fixtures are copied
 from it.
 
+## [0.3.0] - 2026-10-31
+
+Reproduces phit v0.3.0, commit
+[`2629fe1`](https://github.com/phpstats/phit/commit/2629fe105e8aeb4a73ac96313e3ff6c05e1df7ac).
+
+### Added
+
+- Seeded uniform, categorical, and permutation sampling:
+  `Phit\dist_uniform_rng` (R's `runif()`), `Phit\dist_categorical_rng`
+  (0-based indices drawn with given weights), `Phit\dist_categorical_rows_rng`
+  (one index per row of weights), and `Phit\permutation_rng` (a partial
+  Fisher–Yates shuffle, as R's `sample(n, size)`). They take one uniform per
+  draw from the same ChaCha20 stream as the other samplers, so the same seed
+  gives the extension's draws.
+
 ## [0.2.0] - 2026-10-30
 
 Reproduces phit [v0.2.0](https://github.com/phpstats/phit/releases/tag/v0.2.0),
@@ -101,5 +116,6 @@ Requires PHP 8.3 or later.
   when the test suite runs the implementations directly, so that one CI job
   is informational; the `Phit\` functions refuse before any of that code runs.
 
+[0.3.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.3.0
 [0.2.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.2.0
 [0.1.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.1.0

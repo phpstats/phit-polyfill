@@ -2,7 +2,7 @@
 title: "Functions"
 ---
 
-The polyfill implements 228 of phit's 229 functions. `Phit\read_csv` and the
+The polyfill implements 232 of phit's 233 functions. `Phit\read_csv` and the
 chunked reader class `Phit\CsvReader` need the extension. phibble's PHP CSV
 reader is the fallback for both. Functions the
 polyfill does not implement stay undefined without the extension, so
@@ -17,7 +17,7 @@ polyfill does not implement stay undefined without the extension, so
 | Formula interface | `model_matrix`, `fit_lm`, `fit_glm`, `predict` |
 | Mixed models | `fit_mixed_intercept`, `fit_mixed`, `fit_logistic_mixed`, `fit_lmer`, `fit_glmer` |
 | Distributions | 13 families with 14 functions each, listed below |
-| Random numbers | `dist_<family>_rng` for each of the 13 families |
+| Random numbers | `dist_<family>_rng` for each of the 13 families, `dist_uniform_rng`, `dist_categorical_rng`, `dist_categorical_rows_rng`, `permutation_rng` |
 | Posterior draws | `draws_moments`, `draws_covariance_map`, `draws_affine` |
 
 All names are in the `Phit` namespace, for example `Phit\fit_ols`.

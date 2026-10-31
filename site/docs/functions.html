@@ -252,7 +252,7 @@ interface</a></li>
 <li><a href="#exceptions" id="toc-exceptions">Exceptions</a></li>
 </ul>
 </nav>
-<p>The polyfill implements 228 of phit’s 229 functions.
+<p>The polyfill implements 232 of phit’s 233 functions.
 <code>Phit\read_csv</code> and the chunked reader class
 <code>Phit\CsvReader</code> need the extension. phibble’s PHP CSV reader
 is the fallback for both. Functions the polyfill does not implement stay
@@ -311,8 +311,10 @@ offsets, the automatic intercept, and both missing-value policies</td>
 </tr>
 <tr>
 <td>Random numbers</td>
-<td><code>dist_&lt;family&gt;_rng</code> for each of the 13
-families</td>
+<td><code>dist_&lt;family&gt;_rng</code> for each of the 13 families,
+<code>dist_uniform_rng</code>, <code>dist_categorical_rng</code>,
+<code>dist_categorical_rows_rng</code>,
+<code>permutation_rng</code></td>
 </tr>
 <tr>
 <td>Posterior draws</td>

@@ -300,6 +300,14 @@ and seeds, including invalid ones). Against the R and NumPy reference vectors
 in `rng-python-r.json`, continuous draws agree within 1e-12 relative error and
 counts agree exactly.
 
+`Phit\dist_uniform_rng`, `Phit\dist_categorical_rng`,
+`Phit\dist_categorical_rows_rng`, and `Phit\permutation_rng` take one uniform
+per draw from the same stream. Applied to the reference uniforms in
+`rng-python-r.json`, their documented maps give exactly the polyfill's draws,
+and a parity suite of 200 seeded random cases per function, plus edge and
+error cases, matches the extension's draws, exception codes, and messages
+exactly.
+
 ## Posterior draws
 
 `Phit\draws_moments`, `Phit\draws_covariance_map`, and `Phit\draws_affine`
