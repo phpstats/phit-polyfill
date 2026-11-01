@@ -88,7 +88,7 @@ Polyfill::nativeLoaded();                           // whether phit is loaded
 
 ## Coverage
 
-The polyfill implements 242 of phit 0.4.0's 243 functions. Ten of the 242
+The polyfill implements 242 of phit 0.4.3's 243 functions. Ten of the 242
 are the deprecated 0.3 model names (see [Names in phit 0.4](#names-in-phit-04)).
 
 | Area | Functions | Polyfill |
@@ -150,10 +150,13 @@ phit 0.5 will remove the 0.3 names, and `fit_ols` will reject a matrix.
 
 Each release reproduces the phit commit pinned in `tests/fixtures/REFERENCE`,
 and the reference fixtures are copied from it. phit v0.3.1 changes only
-packaging and documentation, so it has the same functions as v0.3.0.
+packaging and documentation, so it has the same functions as v0.3.0. phit
+v0.4.1 and v0.4.2 change only the CSV reader, which the polyfill leaves to the
+extension.
 
 | Polyfill | phit |
 |---|---|
+| 0.4.1 | [v0.4.3](https://github.com/phpstats/phit/releases/tag/v0.4.3) (`db75800`) |
 | 0.4.0 | [v0.4.0](https://github.com/phpstats/phit/releases/tag/v0.4.0) (`076f019`) |
 | 0.3.1 | [v0.3.0](https://github.com/phpstats/phit/releases/tag/v0.3.0) (`2629fe1`) and [v0.3.1](https://github.com/phpstats/phit/releases/tag/v0.3.1) (`96e29e1`) |
 | 0.3.0 | [v0.3.0](https://github.com/phpstats/phit/releases/tag/v0.3.0) (`2629fe1`) |

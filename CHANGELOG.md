@@ -10,6 +10,13 @@ from it.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-01
+
+Reproduces phit [v0.4.3](https://github.com/phpstats/phit/releases/tag/v0.4.3),
+commit [`db75800`](https://github.com/phpstats/phit/commit/db7580022223bdf67daa1c7fc2e4dbd8bf568d96).
+phit v0.4.1 and v0.4.2 change only the CSV reader, which the polyfill leaves
+to the extension. Its reference fixtures are unchanged from v0.4.0.
+
 ### Changed
 
 - `fit_mixed_gaussian()` and `fit_mixed_gaussian_matrix()` factor single and
@@ -20,6 +27,8 @@ from it.
   random intercept on 20,000 rows in 200 groups takes about 90 ms, where the
   dense path took 9 s. Single and nested designs are no longer limited to 512
   random coefficients.
+- A single or nested design whose weighted rows overflow throws code 1003,
+  "weighted design exceeds floating-point range", as the dense path does.
 
 ## [0.4.0] - 2026-11-01
 
@@ -192,7 +201,8 @@ Requires PHP 8.3 or later.
   when the test suite runs the implementations directly, so that one CI job
   is informational; the `Phit\` functions refuse before any of that code runs.
 
-[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.4.1
 [0.4.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.4.0
 [0.3.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.3.1
 [0.3.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.3.0
