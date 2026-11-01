@@ -75,18 +75,18 @@ from the same crate version.
 | `Phit\stat_cov` | R (descriptive-r.json) | 6 | 2.1e-16 | 0% | correlated, negative, offset |
 | `Phit\fit_logistic_matrix` | R (logistic-r.json) | 78 | 7.4e-9 | 6% | n=80, p=3, n=80, p=2, n=80, p=1 |
 | `Phit\fit_logistic_matrix` | R (r-compatibility.json) | 52 | 3.5e-6 | 20% | logistic_intercept_individual, logistic_intercept_grouped, logistic_no_intercept_individual, logistic_no_intercept_grouped |
-| `Phit\fit_logistic_matrix` | R (stress-r.json) | 44 | 2.5e-12 | 0% | logistic_rare, logistic_offset_-1000, logistic_offset_1000, logistic_extreme_known_predictors |
+| `Phit\fit_logistic_matrix` | R (stress-r.json) | 44 | 3.2e-13 | 0% | logistic_rare, logistic_offset_-1000, logistic_offset_1000, logistic_extreme_known_predictors |
 | `Phit\stat_mean` | R (descriptive-r.json) | 8 | 1.5e-16 | 0% | small, integers, offset, tiny, and 4 more |
 | `Phit\stat_median` | R (descriptive-r.json) | 8 | 0.0e+0 | 0% | small, integers, offset, tiny, and 4 more |
-| `Phit\fit_ols_matrix` | R (ols-r.json) | 108 | 3.5e-13 | 0% | n=8, p=2, n=8, p=3, n=5, p=2, n=10, p=3, and 1 more |
-| `Phit\fit_ols_matrix` | R (r-compatibility.json) | 30 | 3.8e-12 | 0% | ols_intercept_individual, ols_no_intercept_individual |
-| `Phit\fit_ols_matrix` | R (stress-r.json) | 54 | 1.6e-8 | 0% | nearly_collinear, poorly_scaled, small_outcome, large_outcome, and 2 more |
+| `Phit\fit_ols_matrix` | R (ols-r.json) | 108 | 1.4e-12 | 0% | n=8, p=2, n=8, p=3, n=5, p=2, n=10, p=3, and 1 more |
+| `Phit\fit_ols_matrix` | R (r-compatibility.json) | 30 | 7.0e-13 | 0% | ols_intercept_individual, ols_no_intercept_individual |
+| `Phit\fit_ols_matrix` | R (stress-r.json) | 54 | 2.1e-8 | 0% | nearly_collinear, poorly_scaled, small_outcome, large_outcome, and 2 more |
 | `Phit\fit_poisson_matrix` | R (poisson-r.json) | 78 | 8.8e-11 | 0% | n=120, p=3, n=120, p=2, n=120, p=1 |
 | `Phit\fit_poisson_matrix` | R (r-compatibility.json) | 26 | 8.0e-7 | 39% | poisson_intercept_individual, poisson_no_intercept_individual |
 | `Phit\fit_poisson_matrix` | R (stress-r.json) | 55 | 1.7e-8 | 21% | poisson_tiny_known_means, poisson_sparse, poisson_large, poisson_offset_-1000, and 1 more |
 | `Phit\fit_probit_matrix` | R (probit-r.json) | 78 | 6.3e-8 | 17% | n=120, p=3, n=120, p=2, n=120, p=1 |
 | `Phit\fit_probit_matrix` | R (r-compatibility.json) | 52 | 1.8e-5 | 20% | probit_intercept_individual, probit_intercept_grouped, probit_no_intercept_individual, probit_no_intercept_grouped |
-| `Phit\fit_probit_matrix` | R (stress-r.json) | 44 | 7.4e-11 | 0% | probit_rare, probit_offset_-1000, probit_offset_1000, probit_extreme_known_predictors |
+| `Phit\fit_probit_matrix` | R (stress-r.json) | 44 | 7.5e-11 | 0% | probit_rare, probit_offset_-1000, probit_offset_1000, probit_extreme_known_predictors |
 | `Phit\stat_quantile_array` | R (descriptive-r.json) | 8 | 0.0e+0 | 0% | small, integers, offset, tiny, and 4 more |
 | `Phit\stat_quantile` | R (descriptive-r.json) | 80 | 0.0e+0 | 0% | small, integers, offset, tiny, and 4 more |
 | `Phit\stat_sd` | R (descriptive-r.json) | 8 | 3.9e-16 | 0% | small, integers, offset, tiny, and 4 more |
@@ -260,7 +260,7 @@ exactly.
 | Function | Comparisons | Max relative error | Tolerance used | Datasets |
 |---|---:|---:|---:|---|
 | `Phit\model_matrix` | 266 | 6.7e-16 | 0% | housing, schools, cbpp, synthetic, small |
-| `Phit\fit_ols` | 238 | 2.7e-12 | 0% | housing, schools, synthetic |
+| `Phit\fit_ols` | 238 | 3.5e-12 | 1% | housing, schools, synthetic |
 | `Phit\fit_generalized_linear` | 240 | 5.9e-10 | 1% | learning, cbpp, clinic, synthetic |
 
 ### Against the extension
