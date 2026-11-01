@@ -272,6 +272,34 @@ it('fits mixed models exactly like the extension', function () {
     expect(true)->toBeTrue();
 });
 
+it('fits nested and crossed Gaussian mixed models exactly like the extension', function () {
+    // Nested terms split into a block per outer group (phit 0.4.3); crossed
+    // terms usually connect every random column and keep the dense summary.
+    skipMixedFitsUnderJit();
+    randomParitySeed('mixed-blocks');
+    for ($round = 0; $round < max(1, intdiv(randomParityIterations(), 6)); $round++) {
+        $outer = mt_rand(2, 6);
+        $inner = mt_rand(2, 4);
+        $n = mt_rand(3 * $outer * $inner, 6 * $outer * $inner);
+        $p = mt_rand(1, 2);
+        [$x, $y, , , $labels] = randomDesign($n, $p, $outer);
+        $nested = array_map(fn ($label) => "$label/".mt_rand(0, $inner - 1), $labels);
+        $crossed = array_map(fn () => mt_rand(0, $inner), $labels);
+        $intercepts = array_fill(0, $n, [1.0]);
+        $slopes = array_map(fn ($row) => [1.0, $row[0] ?? 0.0], $x);
+        $options = ['reml' => mt_rand(0, 1) === 1, 'optimizer' => mt_rand(0, 2) === 0 ? 'nelder_mead' : 'bobyqa'];
+        set_error_handler(fn () => true);
+        try {
+            randomParityCompare('Phit\fit_mixed_gaussian_matrix', [$x, $y, [['z' => $intercepts, 'groups' => $labels], ['z' => $intercepts, 'groups' => $nested]], ...$options]);
+            randomParityCompare('Phit\fit_mixed_gaussian_matrix', [$x, $y, [['z' => $slopes, 'groups' => $labels, 'correlated' => mt_rand(0, 1) === 1], ['z' => $intercepts, 'groups' => $nested]], ...$options]);
+            randomParityCompare('Phit\fit_mixed_gaussian_matrix', [$x, $y, [['z' => $intercepts, 'groups' => $labels], ['z' => $intercepts, 'groups' => $crossed]], ...$options]);
+        } finally {
+            restore_error_handler();
+        }
+    }
+    expect(true)->toBeTrue();
+});
+
 it('predicts exactly like the extension', function () {
     randomParitySeed('predict');
     for ($round = 0; $round < randomParityIterations(); $round++) {

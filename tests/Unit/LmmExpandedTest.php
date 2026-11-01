@@ -149,3 +149,32 @@ describe('Phit\fit_mixed_gaussian_matrix inputs', function () {
         expect($typed['random'][0]['group_labels'])->toBe([1, '1', 'A', 'B']);
     });
 });
+
+// stats-core tests/stability.rs: since phit 0.4.3 the dense limit (q <= 512,
+// n(q+p+1) <= 5e7) applies only when the random columns form one block.
+describe('Phit\fit_mixed_gaussian_matrix design limit', function () {
+    it('checks the dense limit when crossed terms connect every random column', function () {
+        // Row 2k pairs group k of the first term with group k of the second, and
+        // row 2k + 1 with group k + 1, so every random column is connected.
+        $n = 1040;
+        $crossed = fn (array $groups) => ['z' => array_fill(0, $n, [1.0]), 'groups' => $groups];
+        $random = [
+            $crossed(array_map(fn ($i) => intdiv($i, 2), range(0, $n - 1))),
+            $crossed(array_map(fn ($i) => intdiv($i + 1, 2) % intdiv($n, 2), range(0, $n - 1))),
+        ];
+
+        expect(thrownCode(fn () => pf('Phit\fit_mixed_gaussian_matrix', array_fill(0, $n, [1.0]), array_map(fn ($i) => (float) ($i % 7), range(0, $n - 1)), $random, intercept: false)))
+            ->toBe(1007);
+    });
+
+    it('has no dense limit for one grouping term', function () {
+        skipMixedFitsUnderJit();
+        // 513 groups: past the dense limit, but one term splits into a block per group.
+        $n = 1026;
+        $random = [['z' => array_fill(0, $n, [1.0]), 'groups' => array_map(fn ($i) => intdiv($i, 2), range(0, $n - 1))]];
+        $y = array_map(fn ($i) => (float) ($i % 7 + intdiv($i, 2) % 5), range(0, $n - 1));
+        $fit = pf('Phit\fit_mixed_gaussian_matrix', array_fill(0, $n, [1.0]), $y, $random, intercept: false);
+
+        expect($fit['random'][0]['effects'])->toHaveCount(513);
+    });
+});

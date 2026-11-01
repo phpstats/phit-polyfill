@@ -10,6 +10,17 @@ from it.
 
 ## [Unreleased]
 
+### Changed
+
+- `fit_mixed_gaussian()` and `fit_mixed_gaussian_matrix()` factor single and
+  nested grouping terms block by block, as phit 0.4.3 does. The random-effect
+  columns that share rows form independent blocks, one per group or outermost
+  group, and each likelihood evaluation factors the blocks separately. Crossed
+  terms keep the dense path. The results are identical to phit 0.4.3's. A
+  random intercept on 20,000 rows in 200 groups takes about 90 ms, where the
+  dense path took 9 s. Single and nested designs are no longer limited to 512
+  random coefficients.
+
 ## [0.4.0] - 2026-11-01
 
 Reproduces phit [v0.4.0](https://github.com/phpstats/phit/releases/tag/v0.4.0),
