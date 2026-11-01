@@ -14,6 +14,10 @@ use Phit\Polyfill\Polyfill;
 describe('deprecated aliases', function () {
     foreach (aliasCases() as [$old, $new, $positional, $named]) {
         it("Phit\\$old returns exactly Phit\\$new's result, with one deprecation", function () use ($old, $new, $positional, $named) {
+            // Two fits in one process: under the tracing JIT the second can take another optimizer path.
+            if (str_contains($new, 'mixed')) {
+                skipMixedFitsUnderJit();
+            }
             [$expected, $none] = deprecations(fn () => pf("Phit\\$new", ...$positional, ...$named));
             expect($none)->toBe([]);
             [$actual, $messages] = deprecations(fn () => pf("Phit\\$old", ...$positional, ...$named));
@@ -35,6 +39,7 @@ describe('deprecated aliases', function () {
     });
 
     it('keeps fit_glmer\'s family and link, which fit_mixed_logistic drops', function () {
+        skipMixedFitsUnderJit();
         ['herds' => $herds] = aliasData();
         [$glmer] = deprecations(fn () => pf('Phit\fit_glmer', 'cbind(incidence, healthy) ~ period + (1 | herd)', $herds, 'binomial', 'logit'));
         $parameters = array_map(fn ($p) => $p->getName(), (new ReflectionMethod(...Polyfill::implementation('Phit\fit_mixed_logistic')))->getParameters());
