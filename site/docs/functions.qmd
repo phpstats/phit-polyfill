@@ -2,7 +2,7 @@
 title: "Functions"
 ---
 
-The polyfill implements 242 of phit 0.4.3's 243 functions. Ten of the 242 are
+The polyfill implements 242 of phit 0.4.4's 243 functions. Ten of the 242 are
 the deprecated 0.3 model names, listed in [Names in phit 0.4](#names-in-phit-0.4). Signatures,
 parameter names, defaults, and result keys are the extension's, so phit's
 documentation describes each function's arguments and results.

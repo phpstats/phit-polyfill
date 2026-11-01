@@ -10,10 +10,15 @@ from it.
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-11-01
+
+Reproduces phit [v0.4.4](https://github.com/phpstats/phit/releases/tag/v0.4.4),
+commit [`066e2e1`](https://github.com/phpstats/phit/commit/066e2e16a4b1db644e2700451b91ddd88cd635b1).
+The distribution fixtures were rerecorded with the same cases.
+
 ### Fixed
 
-- The listwise-deletion warning names the function once, as phit's does since
-  [`3a6261f`](https://github.com/phpstats/phit/commit/3a6261f16eff87ece7212899c9e3da07c14868b3):
+- The listwise-deletion warning names the function once, as phit 0.4.4's does:
   `Phit\fit_ols(): dropped 1 of 10 observations with missing values (listwise
   deletion)`. The prefix is still the name the caller used.
 
@@ -208,7 +213,8 @@ Requires PHP 8.3 or later.
   when the test suite runs the implementations directly, so that one CI job
   is informational; the `Phit\` functions refuse before any of that code runs.
 
-[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.4.2
 [0.4.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.4.1
 [0.4.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.4.0
 [0.3.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.3.1

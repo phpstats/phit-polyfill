@@ -92,6 +92,7 @@ v0.4.2 change only the CSV reader, which the polyfill leaves to the extension.
 
 | Polyfill | phit |
 |---|---|
+| 0.4.2 | v0.4.4 (`066e2e1`) |
 | 0.4.1 | v0.4.3 (`db75800`) |
 | 0.4.0 | v0.4.0 (`076f019`) |
 | 0.3.1 | v0.3.0 (`2629fe1`) and v0.3.1 (`96e29e1`) |
