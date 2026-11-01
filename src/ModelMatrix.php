@@ -47,7 +47,7 @@ final class ModelMatrix
         if ($dropped > 0) {
             // E_USER_WARNING with the "fn(): " prefix PHP adds to native warnings.
             trigger_error(
-                "Phit\\model_matrix(): Phit\\model_matrix dropped $dropped of {$design->nInput} observations with missing values (listwise deletion)",
+                "Phit\\model_matrix(): dropped $dropped of {$design->nInput} observations with missing values (listwise deletion)",
                 E_USER_WARNING,
             );
         }

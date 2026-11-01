@@ -166,7 +166,7 @@ describe('mixed formula interfaces', function () {
         $warnings = warnings(fn () => pf('Phit\fit_mixed_gaussian', 'y ~ x + (1 | subject)', $panel), $r);
         expect($warnings)->toHaveCount(1)
             ->and($warnings[0][0])->toBe(E_USER_WARNING)
-            ->and($warnings[0][1])->toContain('Phit\fit_mixed_gaussian dropped 5 of 384')
+            ->and($warnings[0][1])->toStartWith('Phit\fit_mixed_gaussian(): dropped 5 of 384 ')
             ->and($r['dropped_rows'])->toBe([4, 39, 76, 210, 299]);
     });
 });

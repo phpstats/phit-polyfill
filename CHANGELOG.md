@@ -10,6 +10,13 @@ from it.
 
 ## [Unreleased]
 
+### Fixed
+
+- The listwise-deletion warning names the function once, as phit's does since
+  [`3a6261f`](https://github.com/phpstats/phit/commit/3a6261f16eff87ece7212899c9e3da07c14868b3):
+  `Phit\fit_ols(): dropped 1 of 10 observations with missing values (listwise
+  deletion)`. The prefix is still the name the caller used.
+
 ## [0.4.1] - 2026-11-01
 
 Reproduces phit [v0.4.3](https://github.com/phpstats/phit/releases/tag/v0.4.3),

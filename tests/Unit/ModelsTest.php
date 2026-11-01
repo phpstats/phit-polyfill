@@ -208,7 +208,7 @@ describe('listwise deletion', function () {
             ->and($result['df_residual'])->toBe($n - count($drop) - count($x[0]))
             ->and($warnings)->toHaveCount(1)
             ->and($warnings[0][0])->toBe(E_USER_WARNING)
-            ->and($warnings[0][1])->toContain("$fn(): $fn dropped ".count($drop)." of $n")
+            ->and($warnings[0][1])->toBe("$fn(): dropped ".count($drop)." of $n observations with missing values (listwise deletion)")
             ->and($result['diagnostics']['warnings'])->toBe(['listwise deletion removed '.count($drop)." of $n original rows"])
             ->and($complete['n_dropped'])->toBe(0)
             ->and($complete['dropped_rows'])->toBe([]);

@@ -160,7 +160,7 @@ it('accepts weights by column name or aligned array, and deletes null weights', 
     $warn = warnings(fn () => pf('Phit\fit_ols', 'y ~ x', $base, weights: [1, 2, null, 3, 1, 2]), $wnull);
     expect($wnull['dropped_rows'])->toBe([2])
         ->and($warn)->toHaveCount(1)
-        ->and($warn[0][1])->toContain('Phit\fit_ols dropped 1 of 6');
+        ->and($warn[0][1])->toBe('Phit\fit_ols(): dropped 1 of 6 observations with missing values (listwise deletion)');
     expect(pf('Phit\fit_ols_matrix', array_map(fn ($v) => [$v], $base['x']), $base['y'])['coefficients'])
         ->toBe(pf('Phit\fit_ols', 'y ~ x', $base)['coefficients']);
 });
@@ -176,7 +176,7 @@ it('deletes rows only over the variables the formula uses', function () {
         ->and($mm['n_observations'] + $mm['n_dropped'])->toBe(90)
         ->and($warn)->toHaveCount(1)
         ->and($warn[0][0])->toBe(E_USER_WARNING)
-        ->and($warn[0][1])->toContain('Phit\model_matrix dropped');
+        ->and($warn[0][1])->toStartWith('Phit\model_matrix(): dropped ');
     set_error_handler(function (int $severity, string $message): never {
         throw new ErrorException($message, 0, $severity);
     });

@@ -271,7 +271,7 @@ final class ModelData
             // the name the caller used, which differs through an alias.
             $caller = CalledAs::name() ?? $function;
             trigger_error(
-                "{$caller}(): $function dropped $dropped of {$this->nInput} observations with missing values (listwise deletion)",
+                "{$caller}(): dropped $dropped of {$this->nInput} observations with missing values (listwise deletion)",
                 E_USER_WARNING,
             );
         }

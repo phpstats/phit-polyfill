@@ -180,8 +180,8 @@ results match the extension's to the bit.
 ## Warnings and exceptions
 
 When rows with missing values are dropped, the fitting functions warn with
-`E_USER_WARNING`, for example `Phit\fit_logistic_matrix(): Phit\fit_logistic_matrix
-dropped 2 of 80 observations with missing values (listwise deletion)`. The
+`E_USER_WARNING`, for example `Phit\fit_logistic_matrix(): dropped 2 of 80
+observations with missing values (listwise deletion)`. The
 extension raises the same text as `E_WARNING`.
 
 Exceptions are plain `\Exception` instances whose code identifies the

@@ -66,11 +66,11 @@ describe('deprecated aliases', function () {
         $warning = fn (callable $call) => array_values(array_filter(warnings($call), fn ($w) => $w[0] === E_USER_WARNING))[0][1];
 
         expect($warning(fn () => pf('Phit\fit_logistic', $x, [0, 1, 0, 1, 1, 0])))
-            ->toBe('Phit\fit_logistic(): Phit\fit_logistic_matrix dropped 1 of 6 observations with missing values (listwise deletion)')
+            ->toBe('Phit\fit_logistic(): dropped 1 of 6 observations with missing values (listwise deletion)')
             ->and($warning(fn () => pf('Phit\fit_ols', $x, $y)))
-            ->toBe('Phit\fit_ols(): Phit\fit_ols_matrix dropped 1 of 6 observations with missing values (listwise deletion)')
+            ->toBe('Phit\fit_ols(): dropped 1 of 6 observations with missing values (listwise deletion)')
             ->and($warning(fn () => pf('Phit\fit_ols_matrix', $x, $y)))
-            ->toBe('Phit\fit_ols_matrix(): Phit\fit_ols_matrix dropped 1 of 6 observations with missing values (listwise deletion)');
+            ->toBe('Phit\fit_ols_matrix(): dropped 1 of 6 observations with missing values (listwise deletion)');
     });
 
     it('raises the deprecation from the bootstrap\'s functions', function () {
