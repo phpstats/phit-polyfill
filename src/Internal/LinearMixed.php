@@ -232,11 +232,18 @@ final class LinearMixed
                     }
                     $a[$m + $p][$r] = $w * ($y[$i] - $offset[$i]);
                 }
+                foreach ($a as $column) {
+                    foreach ($column as $v) {
+                        if (is_nan($v) || is_infinite($v)) {
+                            throw ErrorCode::exception(ErrorCode::NONFINITE, 'weighted design exceeds floating-point range');
+                        }
+                    }
+                }
                 [$blockR] = LeastSquares::householder($a, $nb, $m + $p + 1);
                 $blocks[] = ['columns' => $columns, 'r' => $blockR, 'rows' => min($nb, $m + $p + 1)];
             }
         }
-        // As in lmm.rs, a blocked design leaves this summary empty, and so its finiteness check.
+        // A blocked design leaves the dense summary empty.
         $denseRows = $blocked ? 0 : $n;
         $augmented = array_fill(0, $width, array_fill(0, $denseRows, 0.0));
         for ($i = 0; $i < $denseRows; $i++) {

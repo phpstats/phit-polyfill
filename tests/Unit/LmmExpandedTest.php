@@ -177,4 +177,22 @@ describe('Phit\fit_mixed_gaussian_matrix design limit', function () {
 
         expect($fit['random'][0]['effects'])->toHaveCount(513);
     });
+
+    it('rejects an overflowing weighted design in blocks too', function () {
+        // One grouping term splits into blocks; sqrt(1e300) * 1e300 overflows
+        // only in the weighted response column.
+        $n = 40;
+        $random = [['z' => array_fill(0, $n, [1.0]), 'groups' => array_map(fn ($i) => intdiv($i, 4), range(0, $n - 1))]];
+        $y = array_map(fn ($i) => (float) ($i % 7), range(0, $n - 1));
+        $y[3] = 1e300;
+        $thrown = null;
+        try {
+            pf('Phit\fit_mixed_gaussian_matrix', array_fill(0, $n, [1.0]), $y, $random, weights: array_fill(0, $n, 1e300), intercept: false);
+        } catch (Exception $e) {
+            $thrown = $e;
+        }
+
+        expect($thrown?->getCode())->toBe(1003)
+            ->and($thrown?->getMessage())->toContain('weighted design exceeds floating-point range');
+    });
 });
