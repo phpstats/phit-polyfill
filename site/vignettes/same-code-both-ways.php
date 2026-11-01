@@ -8,10 +8,10 @@ use Phit\Polyfill\Polyfill;
 return [
     'inputs' => [
         'model' => ['type' => 'radio', 'label' => 'Model', 'options' => [
-            'fit_ols' => 'Linear (fit_ols)',
-            'fit_logistic' => 'Logistic (fit_logistic)',
-            'fit_poisson' => 'Poisson (fit_poisson)',
-        ], 'default' => 'fit_logistic'],
+            'fit_ols_matrix' => 'Linear (fit_ols_matrix)',
+            'fit_logistic_matrix' => 'Logistic (fit_logistic_matrix)',
+            'fit_poisson_matrix' => 'Poisson (fit_poisson_matrix)',
+        ], 'default' => 'fit_logistic_matrix'],
         'rows' => ['type' => 'select', 'label' => 'Rows', 'options' => [500 => '500', 5000 => '5,000', 20000 => '20,000'], 'default' => 5000],
         'seed' => ['type' => 'number', 'label' => 'Seed', 'min' => 1, 'max' => 1000, 'step' => 1, 'default' => 7],
     ],
@@ -34,9 +34,9 @@ return [
             $eta = -0.4 + 0.35 * $hours + 0.6 * $prior;
             $x[] = [$hours, $prior];
             $y[] = match ($model) {
-                'fit_ols' => 60.0 + 4.0 * $eta + 5.0 * $gaussian(),
-                'fit_logistic' => mt_rand() / mt_getrandmax() < 1 / (1 + exp(-$eta)) ? 1 : 0,
-                'fit_poisson' => (function () use ($eta): int {
+                'fit_ols_matrix' => 60.0 + 4.0 * $eta + 5.0 * $gaussian(),
+                'fit_logistic_matrix' => mt_rand() / mt_getrandmax() < 1 / (1 + exp(-$eta)) ? 1 : 0,
+                'fit_poisson_matrix' => (function () use ($eta): int {
                     // Knuth's method for a Poisson draw with mean exp(eta / 2).
                     $limit = exp(-exp($eta / 2));
                     $k = 0;

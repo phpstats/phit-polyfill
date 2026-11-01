@@ -10,6 +10,49 @@ from it.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-01
+
+Reproduces phit [v0.4.0](https://github.com/phpstats/phit/releases/tag/v0.4.0),
+commit [`076f019`](https://github.com/phpstats/phit/commit/076f0197287f983399ecb80c6ffee48f0975d225).
+Its numeric reference fixtures are unchanged from v0.3.0, and every result is
+the same as in 0.3.1.
+
+### Changed
+
+- The model functions have phit 0.4's names. The formula fits have the short
+  names, and the matrix fits end in `_matrix`.
+
+  | 0.3 name | 0.4 name | Input |
+  |---|---|---|
+  | `fit_lm` | `fit_ols` | formula |
+  | `fit_glm` | `fit_generalized_linear` | formula |
+  | `fit_lmer` | `fit_mixed_gaussian` | formula |
+  | `fit_glmer` | `fit_mixed_logistic` | formula |
+  | `fit_ols` (matrix) | `fit_ols_matrix` | matrix |
+  | `fit_logistic` | `fit_logistic_matrix` | matrix |
+  | `fit_probit` | `fit_probit_matrix` | matrix |
+  | `fit_poisson` | `fit_poisson_matrix` | matrix |
+  | `fit_mixed` | `fit_mixed_gaussian_matrix` | matrix |
+  | `fit_mixed_intercept` | `fit_mixed_gaussian_intercept_matrix` | matrix |
+  | `fit_logistic_mixed` | `fit_mixed_logistic_matrix` | matrix |
+
+- `Phit\fit_ols` chooses its form from its first argument. A formula string,
+  or named `formula:` and `data:`, is the formula fit. An array, or named `x:`
+  and `y:`, is the matrix fit, with a deprecation. Mixed or incomplete
+  arguments throw an exception with code 1001.
+- `Phit\fit_mixed_logistic` takes no `family` or `link` argument.
+- Messages and warnings name the 0.4 functions. The listwise-deletion
+  warning's prefix is the name the caller used, as for the extension.
+
+### Deprecated
+
+- The ten other 0.3 names are aliases. Each raises one `E_USER_DEPRECATED`
+  naming its replacement and returns exactly the replacement's result.
+  `Phit\fit_glmer` still accepts `family` and `link`, and it rejects any
+  family other than binomial with the logit link with code 1007.
+- `Phit\fit_ols` with a matrix. Call `Phit\fit_ols_matrix` instead.
+- phit 0.5 will remove the aliases, and `Phit\fit_ols` will reject a matrix.
+
 ## [0.3.1] - 2026-10-31
 
 Reproduces phit [v0.3.0](https://github.com/phpstats/phit/releases/tag/v0.3.0)
@@ -138,7 +181,8 @@ Requires PHP 8.3 or later.
   when the test suite runs the implementations directly, so that one CI job
   is informational; the `Phit\` functions refuse before any of that code runs.
 
-[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.4.0
 [0.3.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.3.1
 [0.3.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.3.0
 [0.2.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.2.0

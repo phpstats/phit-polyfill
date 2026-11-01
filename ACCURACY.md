@@ -56,11 +56,11 @@ non-numbers.
 
 ## Regression models
 
-`Phit\fit_ols` solves least squares by Householder QR of the column-scaled design,
+`Phit\fit_ols_matrix` solves least squares by Householder QR of the column-scaled design,
 then a one-sided Jacobi SVD of the small R factor. The singular values are
 those of the design, so the extension's rank rule (s ≤ ε·max(n, p)·s_max)
-makes the same decisions. `Phit\fit_logistic`, `Phit\fit_probit`, and
-`Phit\fit_poisson` port the extension's damped Newton / Fisher-scoring loop step
+makes the same decisions. `Phit\fit_logistic_matrix`, `Phit\fit_probit_matrix`, and
+`Phit\fit_poisson_matrix` port the extension's damped Newton / Fisher-scoring loop step
 for step. This includes the starting values, line search, separation
 certificate, convergence rule, compensated likelihood sums, and statistics. The
 statrs special functions behind p-values and likelihood constants (erfc, ln Γ,
@@ -73,20 +73,20 @@ from the same crate version.
 |---|---|---:|---:|---:|---|
 | `Phit\stat_cor` | R (descriptive-r.json) | 3 | 1.3e-16 | 0% | correlated, negative, offset |
 | `Phit\stat_cov` | R (descriptive-r.json) | 6 | 2.1e-16 | 0% | correlated, negative, offset |
-| `Phit\fit_logistic` | R (logistic-r.json) | 78 | 7.4e-9 | 6% | n=80, p=3, n=80, p=2, n=80, p=1 |
-| `Phit\fit_logistic` | R (r-compatibility.json) | 52 | 3.5e-6 | 20% | logistic_intercept_individual, logistic_intercept_grouped, logistic_no_intercept_individual, logistic_no_intercept_grouped |
-| `Phit\fit_logistic` | R (stress-r.json) | 44 | 2.5e-12 | 0% | logistic_rare, logistic_offset_-1000, logistic_offset_1000, logistic_extreme_known_predictors |
+| `Phit\fit_logistic_matrix` | R (logistic-r.json) | 78 | 7.4e-9 | 6% | n=80, p=3, n=80, p=2, n=80, p=1 |
+| `Phit\fit_logistic_matrix` | R (r-compatibility.json) | 52 | 3.5e-6 | 20% | logistic_intercept_individual, logistic_intercept_grouped, logistic_no_intercept_individual, logistic_no_intercept_grouped |
+| `Phit\fit_logistic_matrix` | R (stress-r.json) | 44 | 2.5e-12 | 0% | logistic_rare, logistic_offset_-1000, logistic_offset_1000, logistic_extreme_known_predictors |
 | `Phit\stat_mean` | R (descriptive-r.json) | 8 | 1.5e-16 | 0% | small, integers, offset, tiny, and 4 more |
 | `Phit\stat_median` | R (descriptive-r.json) | 8 | 0.0e+0 | 0% | small, integers, offset, tiny, and 4 more |
-| `Phit\fit_ols` | R (ols-r.json) | 108 | 3.5e-13 | 0% | n=8, p=2, n=8, p=3, n=5, p=2, n=10, p=3, and 1 more |
-| `Phit\fit_ols` | R (r-compatibility.json) | 30 | 3.8e-12 | 0% | ols_intercept_individual, ols_no_intercept_individual |
-| `Phit\fit_ols` | R (stress-r.json) | 54 | 1.6e-8 | 0% | nearly_collinear, poorly_scaled, small_outcome, large_outcome, and 2 more |
-| `Phit\fit_poisson` | R (poisson-r.json) | 78 | 8.8e-11 | 0% | n=120, p=3, n=120, p=2, n=120, p=1 |
-| `Phit\fit_poisson` | R (r-compatibility.json) | 26 | 8.0e-7 | 39% | poisson_intercept_individual, poisson_no_intercept_individual |
-| `Phit\fit_poisson` | R (stress-r.json) | 55 | 1.7e-8 | 21% | poisson_tiny_known_means, poisson_sparse, poisson_large, poisson_offset_-1000, and 1 more |
-| `Phit\fit_probit` | R (probit-r.json) | 78 | 6.3e-8 | 17% | n=120, p=3, n=120, p=2, n=120, p=1 |
-| `Phit\fit_probit` | R (r-compatibility.json) | 52 | 1.8e-5 | 20% | probit_intercept_individual, probit_intercept_grouped, probit_no_intercept_individual, probit_no_intercept_grouped |
-| `Phit\fit_probit` | R (stress-r.json) | 44 | 7.4e-11 | 0% | probit_rare, probit_offset_-1000, probit_offset_1000, probit_extreme_known_predictors |
+| `Phit\fit_ols_matrix` | R (ols-r.json) | 108 | 3.5e-13 | 0% | n=8, p=2, n=8, p=3, n=5, p=2, n=10, p=3, and 1 more |
+| `Phit\fit_ols_matrix` | R (r-compatibility.json) | 30 | 3.8e-12 | 0% | ols_intercept_individual, ols_no_intercept_individual |
+| `Phit\fit_ols_matrix` | R (stress-r.json) | 54 | 1.6e-8 | 0% | nearly_collinear, poorly_scaled, small_outcome, large_outcome, and 2 more |
+| `Phit\fit_poisson_matrix` | R (poisson-r.json) | 78 | 8.8e-11 | 0% | n=120, p=3, n=120, p=2, n=120, p=1 |
+| `Phit\fit_poisson_matrix` | R (r-compatibility.json) | 26 | 8.0e-7 | 39% | poisson_intercept_individual, poisson_no_intercept_individual |
+| `Phit\fit_poisson_matrix` | R (stress-r.json) | 55 | 1.7e-8 | 21% | poisson_tiny_known_means, poisson_sparse, poisson_large, poisson_offset_-1000, and 1 more |
+| `Phit\fit_probit_matrix` | R (probit-r.json) | 78 | 6.3e-8 | 17% | n=120, p=3, n=120, p=2, n=120, p=1 |
+| `Phit\fit_probit_matrix` | R (r-compatibility.json) | 52 | 1.8e-5 | 20% | probit_intercept_individual, probit_intercept_grouped, probit_no_intercept_individual, probit_no_intercept_grouped |
+| `Phit\fit_probit_matrix` | R (stress-r.json) | 44 | 7.4e-11 | 0% | probit_rare, probit_offset_-1000, probit_offset_1000, probit_extreme_known_predictors |
 | `Phit\stat_quantile_array` | R (descriptive-r.json) | 8 | 0.0e+0 | 0% | small, integers, offset, tiny, and 4 more |
 | `Phit\stat_quantile` | R (descriptive-r.json) | 80 | 0.0e+0 | 0% | small, integers, offset, tiny, and 4 more |
 | `Phit\stat_sd` | R (descriptive-r.json) | 8 | 3.9e-16 | 0% | small, integers, offset, tiny, and 4 more |
@@ -245,7 +245,7 @@ results equal those of the original walk.
 
 ## Formula interface
 
-`Phit\model_matrix`, `Phit\fit_lm`, and `Phit\fit_glm` port the extension's formula
+`Phit\model_matrix`, `Phit\fit_ols`, and `Phit\fit_generalized_linear` port the extension's formula
 parser, term expansion, evaluation, and coding. The fits reuse the polyfill's
 OLS and GLM code described above.
 
@@ -260,8 +260,8 @@ exactly.
 | Function | Comparisons | Max relative error | Tolerance used | Datasets |
 |---|---:|---:|---:|---|
 | `Phit\model_matrix` | 266 | 6.7e-16 | 0% | housing, schools, cbpp, synthetic, small |
-| `Phit\fit_lm` | 238 | 2.7e-12 | 0% | housing, schools, synthetic |
-| `Phit\fit_glm` | 240 | 5.9e-10 | 1% | learning, cbpp, clinic, synthetic |
+| `Phit\fit_ols` | 238 | 2.7e-12 | 0% | housing, schools, synthetic |
+| `Phit\fit_generalized_linear` | 240 | 5.9e-10 | 1% | learning, cbpp, clinic, synthetic |
 
 ### Against the extension
 
@@ -330,8 +330,8 @@ NumPy references in `draws-python.json`, all cases agree within 1e-11.
 
 ## Mixed models
 
-`Phit\fit_mixed_intercept`, `Phit\fit_mixed`, `Phit\fit_logistic_mixed`, `Phit\fit_lmer`, and
-`Phit\fit_glmer` port the extension's stats-core code (mixed.rs, lmm.rs,
+`Phit\fit_mixed_gaussian_intercept_matrix`, `Phit\fit_mixed_gaussian_matrix`, `Phit\fit_mixed_logistic_matrix`, `Phit\fit_mixed_gaussian`, and
+`Phit\fit_mixed_logistic` port the extension's stats-core code (mixed.rs, lmm.rs,
 logistic_mixed.rs, and the formula front end) together with the numerical
 libraries it relies on, each reproduced to the bit and checked against the
 compiled Rust library on randomized problems:
@@ -365,9 +365,9 @@ the main quantities:
 
 | Function | Reference | Coefficients | Std. errors | Variance components | Log-likelihood |
 |---|---|---:|---:|---:|---:|
-| `Phit\fit_mixed_intercept` | lmm-r.json (6 fits) | 5.4e-9 | 2.8e-8 | 7.8e-8 | 2.4e-16 |
-| `Phit\fit_mixed_intercept` | lmm-public-r.json (4 public datasets) | 1.7e-9 | 4.5e-8 | 1.2e-7 | 4.0e-16 |
-| `Phit\fit_logistic_mixed` | logistic-mixed-r.json (28 fits) | 1.7e-6 | 2.2e-5 | 1.2e-6 | 3.1e-9 |
+| `Phit\fit_mixed_gaussian_intercept_matrix` | lmm-r.json (6 fits) | 5.4e-9 | 2.8e-8 | 7.8e-8 | 2.4e-16 |
+| `Phit\fit_mixed_gaussian_intercept_matrix` | lmm-public-r.json (4 public datasets) | 1.7e-9 | 4.5e-8 | 1.2e-7 | 4.0e-16 |
+| `Phit\fit_mixed_logistic_matrix` | logistic-mixed-r.json (28 fits) | 1.7e-6 | 2.2e-5 | 1.2e-6 | 3.1e-9 |
 
 The binomial standard errors differ from lme4 by up to 2·10⁻⁵ relative because
 both programs differentiate the approximate likelihood numerically, with
@@ -382,14 +382,14 @@ Ultra with PHP 8.5.10, in the same process as the extension:
 
 | Fit | Extension | Polyfill |
 |---|---:|---:|
-| `Phit\fit_mixed_intercept`, sleepstudy (n = 180) | 0.2 ms | 2.6 ms |
-| `Phit\fit_logistic_mixed`, n = 185, Laplace | 1.3 ms | 26 ms |
-| `Phit\fit_logistic_mixed`, n = 185, 9 quadrature points | 2.1 ms | 41 ms |
-| `Phit\fit_mixed`, random slopes, q = 24 | 0.7 ms | 37 ms |
-| `Phit\fit_mixed`, nested, q = 84 | 7.8 ms | 604 ms |
-| `Phit\fit_mixed`, four nested levels, q = 120 | 103 ms | 8.0 s |
+| `Phit\fit_mixed_gaussian_intercept_matrix`, sleepstudy (n = 180) | 0.2 ms | 2.6 ms |
+| `Phit\fit_mixed_logistic_matrix`, n = 185, Laplace | 1.3 ms | 26 ms |
+| `Phit\fit_mixed_logistic_matrix`, n = 185, 9 quadrature points | 2.1 ms | 41 ms |
+| `Phit\fit_mixed_gaussian_matrix`, random slopes, q = 24 | 0.7 ms | 37 ms |
+| `Phit\fit_mixed_gaussian_matrix`, nested, q = 84 | 7.8 ms | 604 ms |
+| `Phit\fit_mixed_gaussian_matrix`, four nested levels, q = 120 | 103 ms | 8.0 s |
 
-Here q is the number of random coefficients. `Phit\fit_mixed` and `Phit\fit_lmer`
+Here q is the number of random coefficients. `Phit\fit_mixed_gaussian_matrix` and `Phit\fit_mixed_gaussian`
 repeat a dense QR of a matrix with about n + q rows and q + p columns at every
 optimizer step, so their cost grows roughly with q³. Like every polyfilled
 function, they throw an exception with code 1007 while a JIT compiles the
@@ -407,7 +407,7 @@ which functions are available.
 
 - The listwise-deletion warning is raised with `E_USER_WARNING`, because PHP
   code cannot raise `E_WARNING`. The message text is identical, including the
-  `Phit\fit_ols(): ` prefix.
+  `Phit\fit_ols_matrix(): ` prefix.
 - A scalar argument of the wrong type follows PHP's rules for a userland
   function. In files without `strict_types`, numeric strings and booleans are
   coerced, and other values raise `TypeError`. The extension raises an

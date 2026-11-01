@@ -46,27 +46,30 @@ require __DIR__.'/vendor/autoload.php';
 
 use function Phit\fit_ols;
 
-$fit = fit_ols(
-    x: [[1.2, 0.4], [2.3, 1.1], [3.1, 0.9], [4.8, 2.2], [5.0, 1.7]],
-    y: [2.1, 4.2, 5.8, 8.1, 10.2],
-);
+$data = [
+    'score' => [2.1, 4.2, 5.8, 8.1, 10.2],
+    'hours' => [1.2, 2.3, 3.1, 4.8, 5.0],
+    'absences' => [0.4, 1.1, 0.9, 2.2, 1.7],
+];
 
-foreach ($fit['coefficients'] as $j => $coefficient) {
-    printf("%d  %8.4f  p = %.4f\n", $j, $coefficient, $fit['p_values'][$j]);
+$fit = fit_ols('score ~ hours + absences', $data);
+
+foreach ($fit['columns'] as $j => $term) {
+    printf("%-12s %8.4f  p = %.4f\n", $term, $fit['coefficients'][$j], $fit['p_values'][$j]);
 }
 ```
 
-The coefficients are -0.2843, 2.5864, and -1.6819, with the intercept
-first. The same code runs with the extension loaded.
+The coefficients are -0.2843 for the intercept, 2.5864 for `hours`, and
+-1.6819 for `absences`. The same code runs with the extension loaded.
 
 `Phit\Polyfill\Polyfill` reports what is available:
 
 ```php
 use Phit\Polyfill\Polyfill;
 
-Polyfill::supports('Phit\fit_logistic');  // true
-Polyfill::supports('Phit\read_csv');      // false: needs the extension
-Polyfill::nativeLoaded();                 // whether phit is loaded
+Polyfill::supports('Phit\fit_generalized_linear');  // true
+Polyfill::supports('Phit\read_csv');                // false: needs the extension
+Polyfill::nativeLoaded();                           // whether phit is loaded
 ```
 
 ## With the extension
@@ -85,16 +88,17 @@ Polyfill::nativeLoaded();                 // whether phit is loaded
 
 ## Coverage
 
-The polyfill implements 232 of phit 0.3.0's 233 functions.
+The polyfill implements 242 of phit 0.4.0's 243 functions. Ten of the 242
+are the deprecated 0.3 model names (see [Names in phit 0.4](#names-in-phit-04)).
 
 | Area | Functions | Polyfill |
 |---|---|---|
 | Descriptive statistics | `stat_mean`, `stat_var`, `stat_sd`, `stat_median`, `stat_quantile`, `stat_quantile_array`, `stat_cov`, `stat_cor`, `stat_weighted_mean`, `stat_weighted_var` | Provided |
 | Smoothing | `stat_density`, `stat_bw_nrd0`, `stat_bw_nrd`, `stat_approx`, `stat_ecdf` | Provided |
 | Optimization | `optimize`, `uniroot` | Provided |
-| Regression | `fit_ols`, `fit_logistic`, `fit_probit`, `fit_poisson` | Provided |
-| Formula interface | `model_matrix`, `fit_lm`, `fit_glm`, `predict` | Provided |
-| Mixed models | `fit_mixed_intercept`, `fit_mixed`, `fit_logistic_mixed`, `fit_lmer`, `fit_glmer` | Provided |
+| Models from a formula | `fit_ols`, `fit_generalized_linear`, `fit_mixed_gaussian`, `fit_mixed_logistic`, `model_matrix`, `predict` | Provided |
+| Models from a matrix | `fit_ols_matrix`, `fit_logistic_matrix`, `fit_probit_matrix`, `fit_poisson_matrix`, `fit_mixed_gaussian_matrix`, `fit_mixed_gaussian_intercept_matrix`, `fit_mixed_logistic_matrix` | Provided |
+| Deprecated 0.3 model names | `fit_lm`, `fit_glm`, `fit_lmer`, `fit_glmer`, `fit_logistic`, `fit_probit`, `fit_poisson`, `fit_mixed`, `fit_mixed_intercept`, `fit_logistic_mixed` | Provided |
 | Distributions | 13 families with 14 functions each | Provided |
 | Random numbers | `dist_<family>_rng` for the 13 families, `dist_uniform_rng`, `dist_categorical_rng`, `dist_categorical_rows_rng`, `permutation_rng` | Provided |
 | Posterior draws | `draws_moments`, `draws_covariance_map`, `draws_affine` | Provided |
@@ -107,6 +111,41 @@ without the extension, so `function_exists()` and `class_exists()` report
 them correctly. phibble's PHP CSV reader covers CSV input without the
 extension.
 
+## Names in phit 0.4
+
+phit 0.4.0 renamed the model functions. The formula fits have the short
+names, and the matrix fits end in `_matrix`. The polyfill follows it, and
+results are unchanged.
+
+| phit 0.3 | phit 0.4 | Input |
+|---|---|---|
+| `fit_lm` | `fit_ols` | formula |
+| `fit_glm` | `fit_generalized_linear` | formula |
+| `fit_lmer` | `fit_mixed_gaussian` | formula |
+| `fit_glmer` | `fit_mixed_logistic` | formula |
+| `fit_ols` (matrix) | `fit_ols_matrix` | matrix |
+| `fit_logistic` | `fit_logistic_matrix` | matrix |
+| `fit_probit` | `fit_probit_matrix` | matrix |
+| `fit_poisson` | `fit_poisson_matrix` | matrix |
+| `fit_mixed` | `fit_mixed_gaussian_matrix` | matrix |
+| `fit_mixed_intercept` | `fit_mixed_gaussian_intercept_matrix` | matrix |
+| `fit_logistic_mixed` | `fit_mixed_logistic_matrix` | matrix |
+
+- Each 0.3 name still works. It raises one `E_USER_DEPRECATED` that names
+  its replacement, for example `Phit\fit_lm(): Deprecated since phit 0.4.0;
+  use Phit\fit_ols() instead`, and returns exactly the replacement's result.
+- `fit_ols` chooses its form from its first argument. A formula string, or
+  named `formula:` and `data:`, is the formula fit. An array, or named `x:`
+  and `y:`, is the 0.3 matrix fit, with a deprecation that points to
+  `fit_ols_matrix()`.
+- `fit_mixed_logistic` takes no `family` or `link`. It fits a binomial logit
+  model with one random intercept. The deprecated `fit_glmer` still accepts
+  `family: 'binomial'` and the logit link.
+- Messages and warnings name the 0.4 functions, also when the call uses a
+  0.3 name.
+
+phit 0.5 will remove the 0.3 names, and `fit_ols` will reject a matrix.
+
 ## Versions
 
 Each release reproduces the phit commit pinned in `tests/fixtures/REFERENCE`,
@@ -115,6 +154,7 @@ packaging and documentation, so it has the same functions as v0.3.0.
 
 | Polyfill | phit |
 |---|---|
+| 0.4.0 | [v0.4.0](https://github.com/phpstats/phit/releases/tag/v0.4.0) (`076f019`) |
 | 0.3.1 | [v0.3.0](https://github.com/phpstats/phit/releases/tag/v0.3.0) (`2629fe1`) and [v0.3.1](https://github.com/phpstats/phit/releases/tag/v0.3.1) (`96e29e1`) |
 | 0.3.0 | [v0.3.0](https://github.com/phpstats/phit/releases/tag/v0.3.0) (`2629fe1`) |
 | 0.2.0 | [v0.2.0](https://github.com/phpstats/phit/releases/tag/v0.2.0) (`ac176ff`) |
@@ -149,15 +189,15 @@ normal predictors plus an intercept. Times are the median of five runs.
 
 | Model | n | Polyfill | Extension | Ratio |
 |---|---:|---:|---:|---:|
-| `Phit\fit_ols` | 10,000 | 26 ms | 2.9 ms | 8.9× |
-| `Phit\fit_ols` | 100,000 | 262 ms | 29 ms | 9.1× |
-| `Phit\fit_logistic` | 10,000 | 160 ms | 7.0 ms | 23× |
-| `Phit\fit_logistic` | 100,000 | 1.60 s | 72 ms | 22× |
+| `Phit\fit_ols_matrix` | 10,000 | 26 ms | 2.9 ms | 8.9× |
+| `Phit\fit_ols_matrix` | 100,000 | 262 ms | 29 ms | 9.1× |
+| `Phit\fit_logistic_matrix` | 10,000 | 160 ms | 7.0 ms | 23× |
+| `Phit\fit_logistic_matrix` | 100,000 | 1.60 s | 72 ms | 22× |
 
 The logistic fit includes the null model that every intercept model fits for
 `null_deviance`. The coefficients were identical in every case. In the recorded mixed-model
 cases the polyfill took 13 to 78 times as long as the extension. The cost of
-`fit_mixed` and `fit_lmer` grows roughly with the cube of the number of random
+`fit_mixed_gaussian_matrix` and `fit_mixed_gaussian` grows roughly with the cube of the number of random
 coefficients. One fit with 120 random coefficients took 8.0 s against the
 extension's 103 ms ([ACCURACY.md](ACCURACY.md#speed)).
 

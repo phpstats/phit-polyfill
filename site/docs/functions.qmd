@@ -2,7 +2,8 @@
 title: "Functions"
 ---
 
-The polyfill implements 232 of phit 0.3.0's 233 functions. Signatures,
+The polyfill implements 242 of phit 0.4.0's 243 functions. Ten of the 242 are
+the deprecated 0.3 model names, listed in [Names in phit 0.4](#names-in-phit-0.4). Signatures,
 parameter names, defaults, and result keys are the extension's, so phit's
 documentation describes each function's arguments and results.
 
@@ -11,15 +12,58 @@ documentation describes each function's arguments and results.
 | Descriptive statistics | `stat_mean`, `stat_var`, `stat_sd`, `stat_median`, `stat_quantile`, `stat_quantile_array`, `stat_cov`, `stat_cor`, `stat_weighted_mean`, `stat_weighted_var` |
 | Smoothing | `stat_density`, `stat_bw_nrd0`, `stat_bw_nrd`, `stat_approx`, `stat_ecdf` |
 | Optimization | `optimize`, `uniroot` |
-| Regression | `fit_ols`, `fit_logistic`, `fit_probit`, `fit_poisson`, with weights, offsets, the automatic intercept, and both missing-value policies |
-| Formula interface | `model_matrix`, `fit_lm`, `fit_glm`, `predict` |
-| Mixed models | `fit_mixed_intercept`, `fit_mixed`, `fit_logistic_mixed`, `fit_lmer`, `fit_glmer` |
+| Models from a formula | `fit_ols`, `fit_generalized_linear`, `fit_mixed_gaussian`, `fit_mixed_logistic`, `model_matrix`, `predict` |
+| Models from a matrix | `fit_ols_matrix`, `fit_logistic_matrix`, `fit_probit_matrix`, `fit_poisson_matrix`, with weights, offsets, the automatic intercept, and both missing-value policies; `fit_mixed_gaussian_matrix`, `fit_mixed_gaussian_intercept_matrix`, `fit_mixed_logistic_matrix` |
+| Deprecated 0.3 model names | `fit_lm`, `fit_glm`, `fit_lmer`, `fit_glmer`, `fit_logistic`, `fit_probit`, `fit_poisson`, `fit_mixed`, `fit_mixed_intercept`, `fit_logistic_mixed` |
 | Distributions | 13 families with 14 functions each, listed below |
 | Random numbers | `dist_<family>_rng` for each of the 13 families, `dist_uniform_rng`, `dist_categorical_rng`, `dist_categorical_rows_rng`, `permutation_rng` |
 | Posterior draws | `draws_moments`, `draws_covariance_map`, `draws_affine` |
 | Extension only | `read_csv` and the `CsvReader` class |
 
 All names are in the `Phit` namespace, for example `Phit\fit_ols`.
+
+## Names in phit 0.4
+
+phit 0.4.0 renamed the model functions, and the polyfill follows it. The
+formula fits have the short names, and the matrix fits end in `_matrix`.
+Results are unchanged.
+
+| phit 0.3 | phit 0.4 | Input |
+|---|---|---|
+| `fit_lm` | `fit_ols` | formula |
+| `fit_glm` | `fit_generalized_linear` | formula |
+| `fit_lmer` | `fit_mixed_gaussian` | formula |
+| `fit_glmer` | `fit_mixed_logistic` | formula |
+| `fit_ols` (matrix) | `fit_ols_matrix` | matrix |
+| `fit_logistic` | `fit_logistic_matrix` | matrix |
+| `fit_probit` | `fit_probit_matrix` | matrix |
+| `fit_poisson` | `fit_poisson_matrix` | matrix |
+| `fit_mixed` | `fit_mixed_gaussian_matrix` | matrix |
+| `fit_mixed_intercept` | `fit_mixed_gaussian_intercept_matrix` | matrix |
+| `fit_logistic_mixed` | `fit_mixed_logistic_matrix` | matrix |
+
+Each 0.3 name still works. It raises one `E_USER_DEPRECATED` that names its
+replacement, for example `Phit\fit_lm(): Deprecated since phit 0.4.0; use
+Phit\fit_ols() instead`, and returns exactly the replacement's result.
+Messages and warnings name the 0.4 functions, also when the call uses a 0.3
+name. phit 0.5 will remove the 0.3 names.
+
+`fit_ols` has two forms until phit 0.5, and its first argument chooses one.
+
+```php
+use function Phit\fit_ols;
+
+fit_ols('rent ~ log(area)', $data);              // formula fit
+fit_ols(formula: 'rent ~ log(area)', data: $data); // the same call, named
+fit_ols($x, $y);                                 // deprecated matrix fit
+fit_ols(x: $x, y: $y);                           // the same call, named
+```
+
+The matrix form raises a deprecation that points to `fit_ols_matrix()` and
+returns its result. Mixing the forms, such as a formula with `x:`, or a
+formula with `offset:` or `intercept:`, throws an exception with code 1001
+before any deprecation. In a formula, write `offset()` or `- 1` instead. In
+both forms, and in `fit_ols_matrix`, `weights` gives weighted least squares.
 
 ## CSV input
 
@@ -69,14 +113,14 @@ from the same stream.
 
 ## Formula interface
 
-`model_matrix`, `fit_lm`, and `fit_glm` accept an R-style formula over named
+`model_matrix`, `fit_ols`, and `fit_generalized_linear` accept an R-style formula over named
 columns. They port the extension's parser, term expansion, and coding, so
 column names, term order, contrasts, and missing-value handling match the
 extension. Where the extension differs from R, the polyfill follows the
 extension.
 
 ```php
-use function Phit\{fit_lm, fit_glm, model_matrix, predict};
+use function Phit\{fit_ols, fit_generalized_linear, model_matrix, predict};
 
 $data = [
     'rent' => [1879.25, 1805.03, 2022.29, 1267.85, 1509.24, 2240.10],
@@ -84,7 +128,7 @@ $data = [
     'district' => ['north', 'south', 'north', 'east', 'east', 'south'],
 ];
 
-$fit = fit_lm('rent ~ log(area) + district', $data);
+$fit = fit_ols('rent ~ log(area) + district', $data);
 $fit['named'];    // coefficients keyed by column name
 
 $design = model_matrix('~ area * district', $data);
@@ -100,23 +144,26 @@ Supported syntax includes `+ - : * / %in% ^`, `0`/`1`/`-1`, `.`, `offset()`,
 for grouped binomial data. Families are gaussian, binomial (logit or probit),
 and poisson. Random-effect bars such as `(1 | g)` are accepted by
 `model_matrix`, which returns the random-effect design, and are fitted by
-`fit_lmer` and `fit_glmer`. `fit_lm` and `fit_glm` reject them with code 1007.
+`fit_mixed_gaussian` and `fit_mixed_logistic`. `fit_ols` and `fit_generalized_linear` reject them with code 1007.
 
 ## Mixed models
 
 The five mixed-model functions port the extension's code and support the same
 structures:
 
-- `fit_mixed_intercept` fits a linear model with one random intercept.
-- `fit_mixed` and `fit_lmer` fit linear mixed models by REML (the default) or
+- `fit_mixed_gaussian_intercept_matrix` fits a linear model with one random intercept.
+- `fit_mixed_gaussian_matrix` and `fit_mixed_gaussian` fit linear mixed models by REML (the default) or
   maximum likelihood, with the BOBYQA (default) or Nelder–Mead optimizer.
-  `fit_lmer` accepts random intercepts and slopes, correlated `(x | g)` and
+  `fit_mixed_gaussian` accepts random intercepts and slopes, correlated `(x | g)` and
   uncorrelated `(x || g)` terms, several terms such as
   `(x | subject) + (1 | item)`, and nested groups such as `(1 | subject/item)`.
-- `fit_logistic_mixed` and `fit_glmer` fit a binomial logit model with one
+- `fit_mixed_logistic_matrix` and `fit_mixed_logistic` fit a binomial logit model with one
   random intercept, `(1 | g)`, by the Laplace approximation (the default) or
-  adaptive Gauss–Hermite quadrature with 2 to 61 points. `fit_glmer` rejects
-  other families, links, random slopes, and more than one term with code 1007.
+  adaptive Gauss–Hermite quadrature with 2 to 61 points. `fit_mixed_logistic`
+  takes no `family` or `link` argument, and it rejects random slopes and more
+  than one term with code 1007. The deprecated `fit_glmer` accepts
+  `family: 'binomial'` with the logit link and rejects other families and
+  links with code 1007.
 
 The lme4 reference fixtures cover each of these structures, and the polyfill
 agrees with them within the extension's tolerances. The randomized parity
@@ -133,7 +180,7 @@ results match the extension's to the bit.
 ## Warnings and exceptions
 
 When rows with missing values are dropped, the fitting functions warn with
-`E_USER_WARNING`, for example `Phit\fit_logistic(): Phit\fit_logistic
+`E_USER_WARNING`, for example `Phit\fit_logistic_matrix(): Phit\fit_logistic_matrix
 dropped 2 of 80 observations with missing values (listwise deletion)`. The
 extension raises the same text as `E_WARNING`.
 

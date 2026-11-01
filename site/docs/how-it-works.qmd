@@ -9,7 +9,7 @@ bits.
 
 ## Least squares
 
-`fit_ols` scales the design columns to unit norm and factors the design by
+`fit_ols_matrix` scales the design columns to unit norm and factors the design by
 Householder QR, with the operation order of the extension's linear-algebra
 library (nalgebra). The singular values of the small $R$ factor, computed by
 a Jacobi sweep, equal the design's. The extension's rank rule,
@@ -20,7 +20,7 @@ the extension does.
 
 ## Generalized linear models
 
-`fit_logistic` and `fit_poisson` use damped Newton IRLS, and `fit_probit` uses
+`fit_logistic_matrix` and `fit_poisson_matrix` use damped Newton IRLS, and `fit_probit_matrix` uses
 Fisher scoring. Each iteration solves a weighted least-squares step with the
 same QR, halves the step until the likelihood does not decrease, and stops
 only after a small full step. The separation certificate, boundary handling,
@@ -28,10 +28,10 @@ starting values for extreme offsets, and exception codes match the extension.
 
 ## Mixed models
 
-`fit_mixed_intercept` profiles the variance ratio as the extension does.
-`fit_mixed` and `fit_lmer` port the extension's general linear mixed model,
-including its BOBYQA and Nelder–Mead optimizers. `fit_logistic_mixed` and
-`fit_glmer` port the likelihood (the Laplace approximation, or adaptive
+`fit_mixed_gaussian_intercept_matrix` profiles the variance ratio as the extension does.
+`fit_mixed_gaussian_matrix` and `fit_mixed_gaussian` port the extension's general linear mixed model,
+including its BOBYQA and Nelder–Mead optimizers. `fit_mixed_logistic_matrix` and
+`fit_mixed_logistic` port the likelihood (the Laplace approximation, or adaptive
 Gauss–Hermite quadrature with 2 to 61 points) and the BOBYQA search.
 The optimizers are ported from the same crate versions, so they take the same
 steps.

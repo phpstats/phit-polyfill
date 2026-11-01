@@ -202,11 +202,11 @@ constants, branch order, and floating-point operation order, so the two
 return the same bits.</p>
 <section id="least-squares" class="level2">
 <h2>Least squares</h2>
-<p><code>fit_ols</code> scales the design columns to unit norm and
-factors the design by Householder QR, with the operation order of the
-extension’s linear-algebra library (nalgebra). The singular values of
-the small <span class="math inline">\(R\)</span> factor, computed by a
-Jacobi sweep, equal the design’s. The extension’s rank rule, <span
+<p><code>fit_ols_matrix</code> scales the design columns to unit norm
+and factors the design by Householder QR, with the operation order of
+the extension’s linear-algebra library (nalgebra). The singular values
+of the small <span class="math inline">\(R\)</span> factor, computed by
+a Jacobi sweep, equal the design’s. The extension’s rank rule, <span
 class="math inline">\(s \le \varepsilon \cdot \max(n, p) \cdot
 s_{\max}\)</span>, therefore makes the same rank decisions. Coefficients
 and covariances come from <span class="math inline">\(R\)</span> by
@@ -215,23 +215,26 @@ as the extension does.</p>
 </section>
 <section id="generalized-linear-models" class="level2">
 <h2>Generalized linear models</h2>
-<p><code>fit_logistic</code> and <code>fit_poisson</code> use damped
-Newton IRLS, and <code>fit_probit</code> uses Fisher scoring. Each
-iteration solves a weighted least-squares step with the same QR, halves
-the step until the likelihood does not decrease, and stops only after a
-small full step. The separation certificate, boundary handling, starting
-values for extreme offsets, and exception codes match the extension.</p>
+<p><code>fit_logistic_matrix</code> and <code>fit_poisson_matrix</code>
+use damped Newton IRLS, and <code>fit_probit_matrix</code> uses Fisher
+scoring. Each iteration solves a weighted least-squares step with the
+same QR, halves the step until the likelihood does not decrease, and
+stops only after a small full step. The separation certificate, boundary
+handling, starting values for extreme offsets, and exception codes match
+the extension.</p>
 </section>
 <section id="mixed-models" class="level2">
 <h2>Mixed models</h2>
-<p><code>fit_mixed_intercept</code> profiles the variance ratio as the
-extension does. <code>fit_mixed</code> and <code>fit_lmer</code> port
-the extension’s general linear mixed model, including its BOBYQA and
-Nelder–Mead optimizers. <code>fit_logistic_mixed</code> and
-<code>fit_glmer</code> port the likelihood (the Laplace approximation,
-or adaptive Gauss–Hermite quadrature with 2 to 61 points) and the BOBYQA
-search. The optimizers are ported from the same crate versions, so they
-take the same steps.</p>
+<p><code>fit_mixed_gaussian_intercept_matrix</code> profiles the
+variance ratio as the extension does.
+<code>fit_mixed_gaussian_matrix</code> and
+<code>fit_mixed_gaussian</code> port the extension’s general linear
+mixed model, including its BOBYQA and Nelder–Mead optimizers.
+<code>fit_mixed_logistic_matrix</code> and
+<code>fit_mixed_logistic</code> port the likelihood (the Laplace
+approximation, or adaptive Gauss–Hermite quadrature with 2 to 61 points)
+and the BOBYQA search. The optimizers are ported from the same crate
+versions, so they take the same steps.</p>
 </section>
 <section id="distributions" class="level2">
 <h2>Distributions</h2>

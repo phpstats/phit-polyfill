@@ -79,7 +79,7 @@ describe('deprecated aliases', function () {
 
         expect($result)->toBe(pf('Phit\fit_probit_matrix', $x, $pass))
             ->and($messages)->toBe(['Phit\fit_probit(): Deprecated since phit 0.4.0; use Phit\fit_probit_matrix() instead']);
-    })->skip(fn () => extension_loaded('phit'), 'the bootstrap defines nothing when the extension is loaded');
+    })->skip(fn () => extension_loaded('phit') || Phit\Polyfill\Internal\Jit::compiling(), 'the bootstrap defines nothing when the extension is loaded, and its functions refuse to run under the JIT');
 });
 
 describe('fit_ols dispatch', function () {

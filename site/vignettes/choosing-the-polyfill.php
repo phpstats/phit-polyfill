@@ -42,7 +42,7 @@ return [
                     $y[] = mt_rand() / mt_getrandmax() < 1 / (1 + exp(-$eta)) ? 1 : 0;
                 }
 
-                return ['Phit\fit_logistic', [$x, $y], "use function Phit\\fit_logistic;\n\n\$fit = fit_logistic(\$x, \$y);"];
+                return ['Phit\fit_logistic_matrix', [$x, $y], "use function Phit\\fit_logistic_matrix;\n\n\$fit = fit_logistic_matrix(\$x, \$y);"];
             })(),
             'glmer' => (function () use ($gaussian) {
                 $effects = array_map(fn () => 0.8 * $gaussian(), range(1, 40));
@@ -55,8 +55,8 @@ return [
                     $frame['school'][] = 's'.($i % 40);
                 }
 
-                return ['Phit\fit_glmer', ['passed ~ hours + (1 | school)', $frame],
-                    "use function Phit\\fit_glmer;\n\n\$fit = fit_glmer('passed ~ hours + (1 | school)', \$frame);"];
+                return ['Phit\fit_mixed_logistic', ['passed ~ hours + (1 | school)', $frame],
+                    "use function Phit\\fit_mixed_logistic;\n\n\$fit = fit_mixed_logistic('passed ~ hours + (1 | school)', \$frame);"];
             })(),
         };
 
@@ -96,7 +96,7 @@ return [
                 .'calls work on any host and run faster where phit is installed. The CSV reader is the exception: '
                 .'`Phit\\read_csv` and `Phit\\CsvReader` need the extension. When the extension is loaded, the polyfill '
                 .'defines nothing and adds no overhead to the calls.'],
-            ['type' => 'code', 'chain' => "{\n    \"require\": {\n        \"phpstats/phit-polyfill\": \"^0.3\"\n    },\n    \"suggest\": {\n        \"ext-phit\": \"Faster native implementation, and needed for the CSV reader\"\n    }\n}"],
+            ['type' => 'code', 'chain' => "{\n    \"require\": {\n        \"phpstats/phit-polyfill\": \"^0.4\"\n    },\n    \"suggest\": {\n        \"ext-phit\": \"Faster native implementation, and needed for the CSV reader\"\n    }\n}"],
             ['type' => 'note', 'content' => 'Run the polyfill with OPcache and without the JIT (`opcache.jit=disable`). Its '
                 .'functions throw an exception with code 1007 while a JIT compiles the process, on every PHP '
                 .'version. See "PHP versions and the JIT" in the docs.'],

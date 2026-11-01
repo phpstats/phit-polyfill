@@ -30,8 +30,8 @@ version (see below). The rest of this section explains why.
 **Do not fit anything through the bobyqa optimizer under the tracing JIT on
 PHP 8.4.** On GitHub's x86-64 runner that configuration returns a different
 minimum, not a differently rounded one: one reference case gives 3.3254 where
-the crate and every other mode give 4.0388. `Phit\fit_lmer` and
-`Phit\fit_glmer` default to that optimizer, so a mixed model fitted that way
+the crate and every other mode give 4.0388. `Phit\fit_mixed_gaussian` and
+`Phit\fit_mixed_logistic` default to that optimizer, so a mixed model fitted that way
 could be wrong by a wide margin and say nothing about it. The tracing
 JIT was recommended here until 2026-10-21.
 

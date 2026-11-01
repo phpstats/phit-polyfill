@@ -245,6 +245,8 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
+<li><a href="#names-in-phit-0.4" id="toc-names-in-phit-0.4">Names in
+phit 0.4</a></li>
 <li><a href="#csv-input" id="toc-csv-input">CSV input</a></li>
 <li><a href="#distributions"
 id="toc-distributions">Distributions</a></li>
@@ -257,10 +259,11 @@ draws</a></li>
 id="toc-warnings-and-exceptions">Warnings and exceptions</a></li>
 </ul>
 </nav>
-<p>The polyfill implements 232 of phit 0.3.0’s 233 functions.
-Signatures, parameter names, defaults, and result keys are the
-extension’s, so phit’s documentation describes each function’s arguments
-and results.</p>
+<p>The polyfill implements 242 of phit 0.4.0’s 243 functions. Ten of the
+242 are the deprecated 0.3 model names, listed in <a
+href="#names-in-phit-0.4">Names in phit 0.4</a>. Signatures, parameter
+names, defaults, and result keys are the extension’s, so phit’s
+documentation describes each function’s arguments and results.</p>
 <table>
 <colgroup>
 <col style="width: 50%" />
@@ -292,21 +295,27 @@ and results.</p>
 <td><code>optimize</code>, <code>uniroot</code></td>
 </tr>
 <tr>
-<td>Regression</td>
-<td><code>fit_ols</code>, <code>fit_logistic</code>,
-<code>fit_probit</code>, <code>fit_poisson</code>, with weights,
-offsets, the automatic intercept, and both missing-value policies</td>
+<td>Models from a formula</td>
+<td><code>fit_ols</code>, <code>fit_generalized_linear</code>,
+<code>fit_mixed_gaussian</code>, <code>fit_mixed_logistic</code>,
+<code>model_matrix</code>, <code>predict</code></td>
 </tr>
 <tr>
-<td>Formula interface</td>
-<td><code>model_matrix</code>, <code>fit_lm</code>,
-<code>fit_glm</code>, <code>predict</code></td>
+<td>Models from a matrix</td>
+<td><code>fit_ols_matrix</code>, <code>fit_logistic_matrix</code>,
+<code>fit_probit_matrix</code>, <code>fit_poisson_matrix</code>, with
+weights, offsets, the automatic intercept, and both missing-value
+policies; <code>fit_mixed_gaussian_matrix</code>,
+<code>fit_mixed_gaussian_intercept_matrix</code>,
+<code>fit_mixed_logistic_matrix</code></td>
 </tr>
 <tr>
-<td>Mixed models</td>
-<td><code>fit_mixed_intercept</code>, <code>fit_mixed</code>,
-<code>fit_logistic_mixed</code>, <code>fit_lmer</code>,
-<code>fit_glmer</code></td>
+<td>Deprecated 0.3 model names</td>
+<td><code>fit_lm</code>, <code>fit_glm</code>, <code>fit_lmer</code>,
+<code>fit_glmer</code>, <code>fit_logistic</code>,
+<code>fit_probit</code>, <code>fit_poisson</code>,
+<code>fit_mixed</code>, <code>fit_mixed_intercept</code>,
+<code>fit_logistic_mixed</code></td>
 </tr>
 <tr>
 <td>Distributions</td>
@@ -332,6 +341,106 @@ offsets, the automatic intercept, and both missing-value policies</td>
 </table>
 <p>All names are in the <code>Phit</code> namespace, for example
 <code>Phit\fit_ols</code>.</p>
+<section id="names-in-phit-0.4" class="level2">
+<h2>Names in phit 0.4</h2>
+<p>phit 0.4.0 renamed the model functions, and the polyfill follows it.
+The formula fits have the short names, and the matrix fits end in
+<code>_matrix</code>. Results are unchanged.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>phit 0.3</th>
+<th>phit 0.4</th>
+<th>Input</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fit_lm</code></td>
+<td><code>fit_ols</code></td>
+<td>formula</td>
+</tr>
+<tr>
+<td><code>fit_glm</code></td>
+<td><code>fit_generalized_linear</code></td>
+<td>formula</td>
+</tr>
+<tr>
+<td><code>fit_lmer</code></td>
+<td><code>fit_mixed_gaussian</code></td>
+<td>formula</td>
+</tr>
+<tr>
+<td><code>fit_glmer</code></td>
+<td><code>fit_mixed_logistic</code></td>
+<td>formula</td>
+</tr>
+<tr>
+<td><code>fit_ols</code> (matrix)</td>
+<td><code>fit_ols_matrix</code></td>
+<td>matrix</td>
+</tr>
+<tr>
+<td><code>fit_logistic</code></td>
+<td><code>fit_logistic_matrix</code></td>
+<td>matrix</td>
+</tr>
+<tr>
+<td><code>fit_probit</code></td>
+<td><code>fit_probit_matrix</code></td>
+<td>matrix</td>
+</tr>
+<tr>
+<td><code>fit_poisson</code></td>
+<td><code>fit_poisson_matrix</code></td>
+<td>matrix</td>
+</tr>
+<tr>
+<td><code>fit_mixed</code></td>
+<td><code>fit_mixed_gaussian_matrix</code></td>
+<td>matrix</td>
+</tr>
+<tr>
+<td><code>fit_mixed_intercept</code></td>
+<td><code>fit_mixed_gaussian_intercept_matrix</code></td>
+<td>matrix</td>
+</tr>
+<tr>
+<td><code>fit_logistic_mixed</code></td>
+<td><code>fit_mixed_logistic_matrix</code></td>
+<td>matrix</td>
+</tr>
+</tbody>
+</table>
+<p>Each 0.3 name still works. It raises one
+<code>E_USER_DEPRECATED</code> that names its replacement, for example
+<code>Phit\fit_lm(): Deprecated since phit 0.4.0; use Phit\fit_ols() instead</code>,
+and returns exactly the replacement’s result. Messages and warnings name
+the 0.4 functions, also when the call uses a 0.3 name. phit 0.5 will
+remove the 0.3 names.</p>
+<p><code>fit_ols</code> has two forms until phit 0.5, and its first
+argument chooses one.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode php"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\fit_ols<span class="ot">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>fit_ols(<span class="st">&#39;rent ~ log(area)&#39;</span><span class="ot">,</span> <span class="va">$data</span>)<span class="ot">;</span>              <span class="co">// formula fit</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>fit_ols(formula<span class="ot">:</span> <span class="st">&#39;rent ~ log(area)&#39;</span><span class="ot">,</span> data<span class="ot">:</span> <span class="va">$data</span>)<span class="ot">;</span> <span class="co">// the same call, named</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>fit_ols(<span class="va">$x</span><span class="ot">,</span> <span class="va">$y</span>)<span class="ot">;</span>                                 <span class="co">// deprecated matrix fit</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fit_ols(x<span class="ot">:</span> <span class="va">$x</span><span class="ot">,</span> y<span class="ot">:</span> <span class="va">$y</span>)<span class="ot">;</span>                           <span class="co">// the same call, named</span></span></code></pre></div>
+<p>The matrix form raises a deprecation that points to
+<code>fit_ols_matrix()</code> and returns its result. Mixing the forms,
+such as a formula with <code>x:</code>, or a formula with
+<code>offset:</code> or <code>intercept:</code>, throws an exception
+with code 1001 before any deprecation. In a formula, write
+<code>offset()</code> or <code>- 1</code> instead. In both forms, and in
+<code>fit_ols_matrix</code>, <code>weights</code> gives weighted least
+squares.</p>
+</section>
 <section id="csv-input" class="level2">
 <h2>CSV input</h2>
 <p><code>Phit\read_csv</code> and the chunked reader
@@ -424,12 +533,12 @@ phibble reads CSV files in PHP when the extension is absent.</p>
 </table>
 <p>The continuous families use <code>pdf</code> and <code>logpdf</code>;
 the discrete families use <code>pmf</code> and <code>logpmf</code>.</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode php"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\{dist_t_sf<span class="ot">,</span> dist_normal_quantile_array<span class="ot">,</span> dist_normal_rng}<span class="ot">;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>dist_t_sf(<span class="fl">2.5</span><span class="ot">,</span> df<span class="ot">:</span> <span class="dv">12</span>)<span class="ot">;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>dist_normal_quantile_array([<span class="fl">0.025</span><span class="ot">,</span> <span class="fl">0.975</span>])<span class="ot">;</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>dist_normal_rng(<span class="dv">1000</span><span class="ot">,</span> seed<span class="ot">:</span> <span class="dv">42</span>)<span class="ot">;</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode php"><code class="sourceCode php"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\{dist_t_sf<span class="ot">,</span> dist_normal_quantile_array<span class="ot">,</span> dist_normal_rng}<span class="ot">;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>dist_t_sf(<span class="fl">2.5</span><span class="ot">,</span> df<span class="ot">:</span> <span class="dv">12</span>)<span class="ot">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>dist_normal_quantile_array([<span class="fl">0.025</span><span class="ot">,</span> <span class="fl">0.975</span>])<span class="ot">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>dist_normal_rng(<span class="dv">1000</span><span class="ot">,</span> seed<span class="ot">:</span> <span class="dv">42</span>)<span class="ot">;</span></span></code></pre></div>
 <p>The samplers use the extension’s generator: ChaCha20 seeded as in
 rand_core, with inverse-CDF sampling. A seed gives the same draws, bit
 for bit, with or without the extension. <code>dist_uniform_rng</code>,
@@ -439,29 +548,29 @@ take one uniform per draw from the same stream.</p>
 </section>
 <section id="formula-interface" class="level2">
 <h2>Formula interface</h2>
-<p><code>model_matrix</code>, <code>fit_lm</code>, and
-<code>fit_glm</code> accept an R-style formula over named columns. They
-port the extension’s parser, term expansion, and coding, so column
-names, term order, contrasts, and missing-value handling match the
-extension. Where the extension differs from R, the polyfill follows the
-extension.</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode php"><code class="sourceCode php"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\{fit_lm<span class="ot">,</span> fit_glm<span class="ot">,</span> model_matrix<span class="ot">,</span> predict}<span class="ot">;</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="va">$data</span> <span class="op">=</span> [</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;rent&#39;</span> =&gt; [<span class="fl">1879.25</span><span class="ot">,</span> <span class="fl">1805.03</span><span class="ot">,</span> <span class="fl">2022.29</span><span class="ot">,</span> <span class="fl">1267.85</span><span class="ot">,</span> <span class="fl">1509.24</span><span class="ot">,</span> <span class="fl">2240.10</span>]<span class="ot">,</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;area&#39;</span> =&gt; [<span class="fl">74.4</span><span class="ot">,</span> <span class="fl">57.4</span><span class="ot">,</span> <span class="fl">66.4</span><span class="ot">,</span> <span class="fl">49.1</span><span class="ot">,</span> <span class="fl">45.7</span><span class="ot">,</span> <span class="fl">92.4</span>]<span class="ot">,</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;district&#39;</span> =&gt; [<span class="st">&#39;north&#39;</span><span class="ot">,</span> <span class="st">&#39;south&#39;</span><span class="ot">,</span> <span class="st">&#39;north&#39;</span><span class="ot">,</span> <span class="st">&#39;east&#39;</span><span class="ot">,</span> <span class="st">&#39;east&#39;</span><span class="ot">,</span> <span class="st">&#39;south&#39;</span>]<span class="ot">,</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>]<span class="ot">;</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> fit_lm(<span class="st">&#39;rent ~ log(area) + district&#39;</span><span class="ot">,</span> <span class="va">$data</span>)<span class="ot">;</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span>[<span class="st">&#39;named&#39;</span>]<span class="ot">;</span>    <span class="co">// coefficients keyed by column name</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="va">$design</span> <span class="op">=</span> model_matrix(<span class="st">&#39;~ area * district&#39;</span><span class="ot">,</span> <span class="va">$data</span>)<span class="ot">;</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="va">$design</span>[<span class="st">&#39;columns&#39;</span>]<span class="ot">;</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="va">$new</span> <span class="op">=</span> predict(<span class="va">$fit</span><span class="ot">,</span> [<span class="st">&#39;area&#39;</span> =&gt; [<span class="fl">60.0</span><span class="ot">,</span> <span class="fl">80.0</span>]<span class="ot">,</span> <span class="st">&#39;district&#39;</span> =&gt; [<span class="st">&#39;east&#39;</span><span class="ot">,</span> <span class="st">&#39;north&#39;</span>]]<span class="ot">,</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    interval<span class="ot">:</span> <span class="st">&#39;prediction&#39;</span>)<span class="ot">;</span></span></code></pre></div>
+<p><code>model_matrix</code>, <code>fit_ols</code>, and
+<code>fit_generalized_linear</code> accept an R-style formula over named
+columns. They port the extension’s parser, term expansion, and coding,
+so column names, term order, contrasts, and missing-value handling match
+the extension. Where the extension differs from R, the polyfill follows
+the extension.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode php"><code class="sourceCode php"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\{fit_ols<span class="ot">,</span> fit_generalized_linear<span class="ot">,</span> model_matrix<span class="ot">,</span> predict}<span class="ot">;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="va">$data</span> <span class="op">=</span> [</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;rent&#39;</span> =&gt; [<span class="fl">1879.25</span><span class="ot">,</span> <span class="fl">1805.03</span><span class="ot">,</span> <span class="fl">2022.29</span><span class="ot">,</span> <span class="fl">1267.85</span><span class="ot">,</span> <span class="fl">1509.24</span><span class="ot">,</span> <span class="fl">2240.10</span>]<span class="ot">,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;area&#39;</span> =&gt; [<span class="fl">74.4</span><span class="ot">,</span> <span class="fl">57.4</span><span class="ot">,</span> <span class="fl">66.4</span><span class="ot">,</span> <span class="fl">49.1</span><span class="ot">,</span> <span class="fl">45.7</span><span class="ot">,</span> <span class="fl">92.4</span>]<span class="ot">,</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;district&#39;</span> =&gt; [<span class="st">&#39;north&#39;</span><span class="ot">,</span> <span class="st">&#39;south&#39;</span><span class="ot">,</span> <span class="st">&#39;north&#39;</span><span class="ot">,</span> <span class="st">&#39;east&#39;</span><span class="ot">,</span> <span class="st">&#39;east&#39;</span><span class="ot">,</span> <span class="st">&#39;south&#39;</span>]<span class="ot">,</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>]<span class="ot">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> fit_ols(<span class="st">&#39;rent ~ log(area) + district&#39;</span><span class="ot">,</span> <span class="va">$data</span>)<span class="ot">;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span>[<span class="st">&#39;named&#39;</span>]<span class="ot">;</span>    <span class="co">// coefficients keyed by column name</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="va">$design</span> <span class="op">=</span> model_matrix(<span class="st">&#39;~ area * district&#39;</span><span class="ot">,</span> <span class="va">$data</span>)<span class="ot">;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="va">$design</span>[<span class="st">&#39;columns&#39;</span>]<span class="ot">;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="va">$new</span> <span class="op">=</span> predict(<span class="va">$fit</span><span class="ot">,</span> [<span class="st">&#39;area&#39;</span> =&gt; [<span class="fl">60.0</span><span class="ot">,</span> <span class="fl">80.0</span>]<span class="ot">,</span> <span class="st">&#39;district&#39;</span> =&gt; [<span class="st">&#39;east&#39;</span><span class="ot">,</span> <span class="st">&#39;north&#39;</span>]]<span class="ot">,</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    interval<span class="ot">:</span> <span class="st">&#39;prediction&#39;</span>)<span class="ot">;</span></span></code></pre></div>
 <p>Supported syntax includes <code>+ - : * / %in% ^</code>,
 <code>0</code>/<code>1</code>/<code>-1</code>, <code>.</code>,
 <code>offset()</code>, <code>I()</code>, the common transforms
@@ -473,29 +582,34 @@ responses for grouped binomial data. Families are gaussian, binomial
 (logit or probit), and poisson. Random-effect bars such as
 <code>(1 | g)</code> are accepted by <code>model_matrix</code>, which
 returns the random-effect design, and are fitted by
-<code>fit_lmer</code> and <code>fit_glmer</code>. <code>fit_lm</code>
-and <code>fit_glm</code> reject them with code 1007.</p>
+<code>fit_mixed_gaussian</code> and <code>fit_mixed_logistic</code>.
+<code>fit_ols</code> and <code>fit_generalized_linear</code> reject them
+with code 1007.</p>
 </section>
 <section id="mixed-models" class="level2">
 <h2>Mixed models</h2>
 <p>The five mixed-model functions port the extension’s code and support
 the same structures:</p>
 <ul>
-<li><code>fit_mixed_intercept</code> fits a linear model with one random
-intercept.</li>
-<li><code>fit_mixed</code> and <code>fit_lmer</code> fit linear mixed
-models by REML (the default) or maximum likelihood, with the BOBYQA
-(default) or Nelder–Mead optimizer. <code>fit_lmer</code> accepts random
-intercepts and slopes, correlated <code>(x | g)</code> and uncorrelated
+<li><code>fit_mixed_gaussian_intercept_matrix</code> fits a linear model
+with one random intercept.</li>
+<li><code>fit_mixed_gaussian_matrix</code> and
+<code>fit_mixed_gaussian</code> fit linear mixed models by REML (the
+default) or maximum likelihood, with the BOBYQA (default) or Nelder–Mead
+optimizer. <code>fit_mixed_gaussian</code> accepts random intercepts and
+slopes, correlated <code>(x | g)</code> and uncorrelated
 <code>(x || g)</code> terms, several terms such as
 <code>(x | subject) + (1 | item)</code>, and nested groups such as
 <code>(1 | subject/item)</code>.</li>
-<li><code>fit_logistic_mixed</code> and <code>fit_glmer</code> fit a
-binomial logit model with one random intercept, <code>(1 | g)</code>, by
-the Laplace approximation (the default) or adaptive Gauss–Hermite
-quadrature with 2 to 61 points. <code>fit_glmer</code> rejects other
-families, links, random slopes, and more than one term with code
-1007.</li>
+<li><code>fit_mixed_logistic_matrix</code> and
+<code>fit_mixed_logistic</code> fit a binomial logit model with one
+random intercept, <code>(1 | g)</code>, by the Laplace approximation
+(the default) or adaptive Gauss–Hermite quadrature with 2 to 61 points.
+<code>fit_mixed_logistic</code> takes no <code>family</code> or
+<code>link</code> argument, and it rejects random slopes and more than
+one term with code 1007. The deprecated <code>fit_glmer</code> accepts
+<code>family: 'binomial'</code> with the logit link and rejects other
+families and links with code 1007.</li>
 </ul>
 <p>The lme4 reference fixtures cover each of these structures, and the
 polyfill agrees with them within the extension’s tolerances. The
@@ -514,7 +628,7 @@ extension’s to the bit.</p>
 <h2>Warnings and exceptions</h2>
 <p>When rows with missing values are dropped, the fitting functions warn
 with <code>E_USER_WARNING</code>, for example
-<code>Phit\fit_logistic(): Phit\fit_logistic dropped 2 of 80 observations with missing values (listwise deletion)</code>.
+<code>Phit\fit_logistic_matrix(): Phit\fit_logistic_matrix dropped 2 of 80 observations with missing values (listwise deletion)</code>.
 The extension raises the same text as <code>E_WARNING</code>.</p>
 <p>Exceptions are plain <code>\Exception</code> instances whose code
 identifies the category, as in the extension.</p>
