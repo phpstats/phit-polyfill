@@ -11,12 +11,12 @@ use Phit\Polyfill\Internal\LogisticRandomIntercept;
 use Phit\Polyfill\Internal\ModelData;
 
 /**
- * lme4-style formula interfaces over the mixed-model cores: Phit\fit_lmer and
- * Phit\fit_glmer (the extension's formula.rs).
+ * lme4-style formula interfaces over the mixed-model cores: Phit\fit_mixed_gaussian and
+ * Phit\fit_mixed_logistic (the extension's formula.rs).
  */
 final class MixedFormula
 {
-    /** Phit\fit_lmer */
+    /** Phit\fit_mixed_gaussian */
     public static function lmer(
         string $formula,
         mixed $data,
@@ -47,8 +47,8 @@ final class MixedFormula
             }
         }
         [$design, $w] = Frontend::prepare($formula, $data, $missing, $weights, true);
-        self::requireRandom($design, 'Phit\fit_lmer');
-        $y = Frontend::numericResponse($design, 'Phit\fit_lmer');
+        self::requireRandom($design, 'Phit\fit_mixed_gaussian');
+        $y = Frontend::numericResponse($design, 'Phit\fit_mixed_gaussian');
         $terms = [];
         $termLabels = [];
         foreach ($design->random as $term) {
@@ -78,10 +78,10 @@ final class MixedFormula
         }
         $output = Frontend::addNames($output, $design);
 
-        return Frontend::finish($output, $design, 'Phit\fit_lmer', $optimizer);
+        return Frontend::finish($output, $design, 'Phit\fit_mixed_gaussian', $optimizer);
     }
 
-    /** Phit\fit_glmer */
+    /** Phit\fit_glmer, deprecated: Phit\fit_mixed_logistic with a family and link that must be binomial logit. */
     public static function glmer(
         string $formula,
         mixed $data,
@@ -93,17 +93,31 @@ final class MixedFormula
         int $maxEvaluations = 20000,
         float $tolerance = 1e-7,
     ): array {
-        Frontend::stringArgument($formula, 'formula');
         Frontend::stringArgument($family, 'family');
         Frontend::stringArgument($link, 'link');
-        Frontend::stringArgument($missing, 'missing');
         if ($family !== 'binomial' || ($link !== '' && $link !== 'logit')) {
             throw ErrorCode::exception(ErrorCode::UNSUPPORTED, "Phit\\fit_glmer supports family 'binomial' with the logit link only (got '$family'/'$link')");
         }
+
+        return self::mixedLogistic($formula, $data, $missing, $weights, $quadraturePoints, $maxEvaluations, $tolerance);
+    }
+
+    /** Phit\fit_mixed_logistic */
+    public static function mixedLogistic(
+        string $formula,
+        mixed $data,
+        string $missing = 'drop',
+        mixed $weights = null,
+        int $quadraturePoints = 1,
+        int $maxEvaluations = 20000,
+        float $tolerance = 1e-7,
+    ): array {
+        Frontend::stringArgument($formula, 'formula');
+        Frontend::stringArgument($missing, 'missing');
         [$design, $w] = Frontend::prepare($formula, $data, $missing, $weights, true);
-        self::requireRandom($design, 'Phit\fit_glmer');
+        self::requireRandom($design, 'Phit\fit_mixed_logistic');
         if (count($design->random) !== 1 || $design->random[0]['columns'] !== ['(Intercept)']) {
-            throw ErrorCode::exception(ErrorCode::UNSUPPORTED, 'Phit\fit_glmer supports exactly one random intercept, (1 | g); random slopes and several terms are not implemented');
+            throw ErrorCode::exception(ErrorCode::UNSUPPORTED, 'Phit\fit_mixed_logistic supports exactly one random intercept, (1 | g); random slopes and several terms are not implemented');
         }
         $y = Glm::binomialResponse($design, $w);
         [$indices, $labels] = ModelData::groupIndices($design->random[0]['groups']);
@@ -128,13 +142,13 @@ final class MixedFormula
         ]];
         $output = Frontend::addNames($output, $design);
 
-        return Frontend::finish($output, $design, 'Phit\fit_glmer', 'bobyqa');
+        return Frontend::finish($output, $design, 'Phit\fit_mixed_logistic', 'bobyqa');
     }
 
     private static function requireRandom(Design $design, string $function): void
     {
         if ($design->random === []) {
-            throw ErrorCode::exception(ErrorCode::INVALID_INPUT, "$function needs at least one random-effect term such as (1 | g); use Phit\\fit_lm or Phit\\fit_glm for fixed effects only");
+            throw ErrorCode::exception(ErrorCode::INVALID_INPUT, "$function needs at least one random-effect term such as (1 | g); use Phit\\fit_ols or Phit\\fit_generalized_linear for fixed effects only");
         }
     }
 }

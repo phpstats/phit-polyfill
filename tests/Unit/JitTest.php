@@ -34,9 +34,9 @@ it('refuses every kind of Phit\ function under the JIT', function () {
             code(fn () => Phit\stat_mean([1, 2, 3])),
             code(fn () => Phit\dist_beta_cdf(0.5, 1e5, 1e5)),
             code(fn () => Phit\dist_normal_rng(3, 42)),
-            code(fn () => Phit\fit_ols([[1], [2], [3], [4]], [1, 3, 2, 4])),
-            code(fn () => Phit\fit_lmer("y ~ x + (1 | g)", ["y" => [1, 2, 3, 4], "x" => [1, 2, 3, 4], "g" => [1, 1, 2, 2]])),
-            code(fn () => Phit\fit_mixed_intercept([[1], [2], [3], [4]], [1, 3, 2, 4], [1, 1, 2, 2])),
+            code(fn () => Phit\fit_ols_matrix([[1], [2], [3], [4]], [1, 3, 2, 4])),
+            code(fn () => Phit\fit_mixed_gaussian("y ~ x + (1 | g)", ["y" => [1, 2, 3, 4], "x" => [1, 2, 3, 4], "g" => [1, 1, 2, 2]])),
+            code(fn () => Phit\fit_mixed_gaussian_intercept_matrix([[1], [2], [3], [4]], [1, 3, 2, 4], [1, 1, 2, 2])),
             code(fn () => Phit\stat_mean([])),
         ]);');
     if ($output === null) {

@@ -15,7 +15,7 @@ it('declares every polyfilled function with the extension signature', function (
         expect($api)->toHaveKey($fn);
         $spec = $api[$fn];
         $reflection = extension_loaded('phit')
-            ? new ReflectionMethod(...Polyfill::implementation($fn))
+            ? new ReflectionMethod(...Phit\Polyfill\FunctionMap::MAP[$fn])
             : new ReflectionFunction($fn);
         $parameters = $reflection->getParameters();
         expect($parameters)->toHaveCount(count($spec['parameters']), $fn);
@@ -86,6 +86,6 @@ it('routes the Phit functions to the polyfill implementation', function () {
     }
     $x = [[1.0], [2.0], [3.0], [4.0], [5.0]];
     $y = [2.1, 4.2, 5.8, 8.1, 10.2];
-    expect(\Phit\fit_ols($x, $y))->toBe(Polyfill::implementation('Phit\fit_ols')($x, $y))
+    expect(\Phit\fit_ols_matrix($x, $y))->toBe(Polyfill::implementation('Phit\fit_ols_matrix')($x, $y))
         ->and(\Phit\stat_mean([1, 2, 3]))->toBe(2.0);
 });

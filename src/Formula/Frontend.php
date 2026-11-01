@@ -8,7 +8,7 @@ use Phit\Polyfill\ErrorCode;
 use Phit\Polyfill\Internal\ModelData;
 
 /**
- * The PHP glue shared by Phit\model_matrix, Phit\fit_lm and Phit\fit_glm, in the
+ * The PHP glue shared by Phit\model_matrix, Phit\fit_ols and Phit\fit_generalized_linear, in the
  * extension's order: argument checks, missing policy, data, weights, design.
  *
  * @internal
@@ -88,7 +88,7 @@ final class Frontend
         if ($design->random !== []) {
             throw ErrorCode::exception(
                 ErrorCode::UNSUPPORTED,
-                "$function does not fit random-effect terms such as ({$design->random[0]['label']}); use Phit\\fit_lmer, or Phit\\fit_mixed with Phit\\model_matrix()['random']",
+                "$function does not fit random-effect terms such as ({$design->random[0]['label']}); use Phit\\fit_mixed_gaussian, or Phit\\fit_mixed_gaussian_matrix with Phit\\model_matrix()['random']",
             );
         }
     }

@@ -7,7 +7,7 @@ namespace Phit\Polyfill;
 use Phit\Polyfill\Internal\Family\PoissonFamily;
 
 /**
- * Poisson count regression with exposure offsets by damped Newton IRLS (Phit\fit_poisson).
+ * Poisson count regression with exposure offsets by damped Newton IRLS (Phit\fit_poisson_matrix).
  */
 final class Poisson
 {
@@ -19,6 +19,6 @@ final class Poisson
         ?array $offset = null,
         bool $intercept = true,
     ): array {
-        return (new PoissonFamily())->run($x, $y, $missing, $weights, $offset, $intercept, 'count', 'Phit\fit_poisson');
+        return (new PoissonFamily())->run($x, $y, $missing, $weights, $offset, $intercept, 'count', 'Phit\fit_poisson_matrix');
     }
 }

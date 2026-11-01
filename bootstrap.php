@@ -1819,8 +1819,8 @@ if (! function_exists('Phit\draws_moments')) {
     }
 }
 
-if (! function_exists('Phit\fit_glm')) {
-    function fit_glm(string $formula, mixed $data, string $family = 'gaussian', string $link = '', string $missing = 'drop', mixed $weights = null): array
+if (! function_exists('Phit\fit_generalized_linear')) {
+    function fit_generalized_linear(string $formula, mixed $data, string $family = 'gaussian', string $link = '', string $missing = 'drop', mixed $weights = null): array
     {
         \Phit\Polyfill\Internal\Jit::refuse();
 
@@ -1828,12 +1828,23 @@ if (! function_exists('Phit\fit_glm')) {
     }
 }
 
+if (! function_exists('Phit\fit_glm')) {
+    function fit_glm(string $formula, mixed $data, string $family = 'gaussian', string $link = '', string $missing = 'drop', mixed $weights = null): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+        \Phit\Polyfill\Internal\Deprecation::alias('Phit\fit_glm', 'Phit\fit_generalized_linear');
+
+        return \Phit\Polyfill\Internal\CalledAs::run('Phit\fit_glm', static fn (): array => \Phit\Polyfill\Glm::fit($formula, $data, $family, $link, $missing, $weights));
+    }
+}
+
 if (! function_exists('Phit\fit_glmer')) {
     function fit_glmer(string $formula, mixed $data, string $family = 'binomial', string $link = '', string $missing = 'drop', mixed $weights = null, int $quadraturePoints = 1, int $maxEvaluations = 20000, float $tolerance = 1.0E-7): array
     {
         \Phit\Polyfill\Internal\Jit::refuse();
+        \Phit\Polyfill\Internal\Deprecation::alias('Phit\fit_glmer', 'Phit\fit_mixed_logistic');
 
-        return \Phit\Polyfill\MixedFormula::glmer($formula, $data, $family, $link, $missing, $weights, $quadraturePoints, $maxEvaluations, $tolerance);
+        return \Phit\Polyfill\Internal\CalledAs::run('Phit\fit_glmer', static fn (): array => \Phit\Polyfill\MixedFormula::glmer($formula, $data, $family, $link, $missing, $weights, $quadraturePoints, $maxEvaluations, $tolerance));
     }
 }
 
@@ -1841,8 +1852,9 @@ if (! function_exists('Phit\fit_lm')) {
     function fit_lm(string $formula, mixed $data, string $missing = 'drop', mixed $weights = null): array
     {
         \Phit\Polyfill\Internal\Jit::refuse();
+        \Phit\Polyfill\Internal\Deprecation::alias('Phit\fit_lm', 'Phit\fit_ols');
 
-        return \Phit\Polyfill\Lm::fit($formula, $data, $missing, $weights);
+        return \Phit\Polyfill\Internal\CalledAs::run('Phit\fit_lm', static fn (): array => \Phit\Polyfill\Lm::fit($formula, $data, $missing, $weights));
     }
 }
 
@@ -1850,13 +1862,24 @@ if (! function_exists('Phit\fit_lmer')) {
     function fit_lmer(string $formula, mixed $data, bool $reml = true, string $missing = 'drop', mixed $weights = null, ?array $start = null, int $maxEvaluations = 20000, float $tolerance = 1.0E-7, string $optimizer = 'bobyqa', float $objectiveTolerance = 1.0E-12): array
     {
         \Phit\Polyfill\Internal\Jit::refuse();
+        \Phit\Polyfill\Internal\Deprecation::alias('Phit\fit_lmer', 'Phit\fit_mixed_gaussian');
 
-        return \Phit\Polyfill\MixedFormula::lmer($formula, $data, $reml, $missing, $weights, $start, $maxEvaluations, $tolerance, $optimizer, $objectiveTolerance);
+        return \Phit\Polyfill\Internal\CalledAs::run('Phit\fit_lmer', static fn (): array => \Phit\Polyfill\MixedFormula::lmer($formula, $data, $reml, $missing, $weights, $start, $maxEvaluations, $tolerance, $optimizer, $objectiveTolerance));
     }
 }
 
 if (! function_exists('Phit\fit_logistic')) {
     function fit_logistic(array $x, array $y, string $missing = 'drop', ?array $weights = null, ?array $offset = null, bool $intercept = true): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+        \Phit\Polyfill\Internal\Deprecation::alias('Phit\fit_logistic', 'Phit\fit_logistic_matrix');
+
+        return \Phit\Polyfill\Internal\CalledAs::run('Phit\fit_logistic', static fn (): array => \Phit\Polyfill\Logistic::fit($x, $y, $missing, $weights, $offset, $intercept));
+    }
+}
+
+if (! function_exists('Phit\fit_logistic_matrix')) {
+    function fit_logistic_matrix(array $x, array $y, string $missing = 'drop', ?array $weights = null, ?array $offset = null, bool $intercept = true): array
     {
         \Phit\Polyfill\Internal\Jit::refuse();
 
@@ -1868,13 +1891,42 @@ if (! function_exists('Phit\fit_logistic_mixed')) {
     function fit_logistic_mixed(array $x, array $y, array $groups, string $missing = 'drop', ?array $weights = null, ?array $offset = null, int $quadraturePoints = 1, int $maxEvaluations = 20000, float $tolerance = 1.0E-7, bool $intercept = true): array
     {
         \Phit\Polyfill\Internal\Jit::refuse();
+        \Phit\Polyfill\Internal\Deprecation::alias('Phit\fit_logistic_mixed', 'Phit\fit_mixed_logistic_matrix');
 
-        return \Phit\Polyfill\MixedModels::logisticMixed($x, $y, $groups, $missing, $weights, $offset, $quadraturePoints, $maxEvaluations, $tolerance, $intercept);
+        return \Phit\Polyfill\Internal\CalledAs::run('Phit\fit_logistic_mixed', static fn (): array => \Phit\Polyfill\MixedModels::logisticMixed($x, $y, $groups, $missing, $weights, $offset, $quadraturePoints, $maxEvaluations, $tolerance, $intercept));
     }
 }
 
 if (! function_exists('Phit\fit_mixed')) {
     function fit_mixed(array $x, array $y, array $random, string $missing = 'drop', bool $reml = false, ?array $weights = null, ?array $offset = null, ?array $start = null, int $maxEvaluations = 20000, float $tolerance = 1.0E-7, string $optimizer = 'bobyqa', float $objectiveTolerance = 1.0E-12, bool $intercept = true): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+        \Phit\Polyfill\Internal\Deprecation::alias('Phit\fit_mixed', 'Phit\fit_mixed_gaussian_matrix');
+
+        return \Phit\Polyfill\Internal\CalledAs::run('Phit\fit_mixed', static fn (): array => \Phit\Polyfill\MixedModels::lmmFit($x, $y, $random, $missing, $reml, $weights, $offset, $start, $maxEvaluations, $tolerance, $optimizer, $objectiveTolerance, $intercept));
+    }
+}
+
+if (! function_exists('Phit\fit_mixed_gaussian')) {
+    function fit_mixed_gaussian(string $formula, mixed $data, bool $reml = true, string $missing = 'drop', mixed $weights = null, ?array $start = null, int $maxEvaluations = 20000, float $tolerance = 1.0E-7, string $optimizer = 'bobyqa', float $objectiveTolerance = 1.0E-12): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\MixedFormula::lmer($formula, $data, $reml, $missing, $weights, $start, $maxEvaluations, $tolerance, $optimizer, $objectiveTolerance);
+    }
+}
+
+if (! function_exists('Phit\fit_mixed_gaussian_intercept_matrix')) {
+    function fit_mixed_gaussian_intercept_matrix(array $x, array $y, array $groups, string $missing = 'drop', bool $intercept = true): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\MixedModels::lmm($x, $y, $groups, $missing, $intercept);
+    }
+}
+
+if (! function_exists('Phit\fit_mixed_gaussian_matrix')) {
+    function fit_mixed_gaussian_matrix(array $x, array $y, array $random, string $missing = 'drop', bool $reml = false, ?array $weights = null, ?array $offset = null, ?array $start = null, int $maxEvaluations = 20000, float $tolerance = 1.0E-7, string $optimizer = 'bobyqa', float $objectiveTolerance = 1.0E-12, bool $intercept = true): array
     {
         \Phit\Polyfill\Internal\Jit::refuse();
 
@@ -1886,13 +1938,41 @@ if (! function_exists('Phit\fit_mixed_intercept')) {
     function fit_mixed_intercept(array $x, array $y, array $groups, string $missing = 'drop', bool $intercept = true): array
     {
         \Phit\Polyfill\Internal\Jit::refuse();
+        \Phit\Polyfill\Internal\Deprecation::alias('Phit\fit_mixed_intercept', 'Phit\fit_mixed_gaussian_intercept_matrix');
 
-        return \Phit\Polyfill\MixedModels::lmm($x, $y, $groups, $missing, $intercept);
+        return \Phit\Polyfill\Internal\CalledAs::run('Phit\fit_mixed_intercept', static fn (): array => \Phit\Polyfill\MixedModels::lmm($x, $y, $groups, $missing, $intercept));
+    }
+}
+
+if (! function_exists('Phit\fit_mixed_logistic')) {
+    function fit_mixed_logistic(string $formula, mixed $data, string $missing = 'drop', mixed $weights = null, int $quadraturePoints = 1, int $maxEvaluations = 20000, float $tolerance = 1.0E-7): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\MixedFormula::mixedLogistic($formula, $data, $missing, $weights, $quadraturePoints, $maxEvaluations, $tolerance);
+    }
+}
+
+if (! function_exists('Phit\fit_mixed_logistic_matrix')) {
+    function fit_mixed_logistic_matrix(array $x, array $y, array $groups, string $missing = 'drop', ?array $weights = null, ?array $offset = null, int $quadraturePoints = 1, int $maxEvaluations = 20000, float $tolerance = 1.0E-7, bool $intercept = true): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\MixedModels::logisticMixed($x, $y, $groups, $missing, $weights, $offset, $quadraturePoints, $maxEvaluations, $tolerance, $intercept);
     }
 }
 
 if (! function_exists('Phit\fit_ols')) {
-    function fit_ols(array $x, array $y, string $missing = 'drop', ?array $weights = null, ?array $offset = null, bool $intercept = true): array
+    function fit_ols(mixed $formula = null, mixed $data = null, string $missing = 'drop', mixed $weights = null, ?array $offset = null, bool $intercept = true, ?array $x = null, ?array $y = null): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\FitOls::fit($formula, $data, $missing, $weights, $offset, $intercept, $x, $y);
+    }
+}
+
+if (! function_exists('Phit\fit_ols_matrix')) {
+    function fit_ols_matrix(array $x, array $y, string $missing = 'drop', ?array $weights = null, ?array $offset = null, bool $intercept = true): array
     {
         \Phit\Polyfill\Internal\Jit::refuse();
 
@@ -1904,6 +1984,16 @@ if (! function_exists('Phit\fit_poisson')) {
     function fit_poisson(array $x, array $y, string $missing = 'drop', ?array $weights = null, ?array $offset = null, bool $intercept = true): array
     {
         \Phit\Polyfill\Internal\Jit::refuse();
+        \Phit\Polyfill\Internal\Deprecation::alias('Phit\fit_poisson', 'Phit\fit_poisson_matrix');
+
+        return \Phit\Polyfill\Internal\CalledAs::run('Phit\fit_poisson', static fn (): array => \Phit\Polyfill\Poisson::fit($x, $y, $missing, $weights, $offset, $intercept));
+    }
+}
+
+if (! function_exists('Phit\fit_poisson_matrix')) {
+    function fit_poisson_matrix(array $x, array $y, string $missing = 'drop', ?array $weights = null, ?array $offset = null, bool $intercept = true): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
 
         return \Phit\Polyfill\Poisson::fit($x, $y, $missing, $weights, $offset, $intercept);
     }
@@ -1911,6 +2001,16 @@ if (! function_exists('Phit\fit_poisson')) {
 
 if (! function_exists('Phit\fit_probit')) {
     function fit_probit(array $x, array $y, string $missing = 'drop', ?array $weights = null, ?array $offset = null, bool $intercept = true): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+        \Phit\Polyfill\Internal\Deprecation::alias('Phit\fit_probit', 'Phit\fit_probit_matrix');
+
+        return \Phit\Polyfill\Internal\CalledAs::run('Phit\fit_probit', static fn (): array => \Phit\Polyfill\Probit::fit($x, $y, $missing, $weights, $offset, $intercept));
+    }
+}
+
+if (! function_exists('Phit\fit_probit_matrix')) {
+    function fit_probit_matrix(array $x, array $y, string $missing = 'drop', ?array $weights = null, ?array $offset = null, bool $intercept = true): array
     {
         \Phit\Polyfill\Internal\Jit::refuse();
 

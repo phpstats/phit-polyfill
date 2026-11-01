@@ -7,7 +7,7 @@ namespace Phit\Polyfill;
 use Phit\Polyfill\Internal\Family\ProbitFamily;
 
 /**
- * Binary or grouped-binomial probit regression by Fisher scoring (Phit\fit_probit).
+ * Binary or grouped-binomial probit regression by Fisher scoring (Phit\fit_probit_matrix).
  */
 final class Probit
 {
@@ -19,6 +19,6 @@ final class Probit
         ?array $offset = null,
         bool $intercept = true,
     ): array {
-        return (new ProbitFamily())->run($x, $y, $missing, $weights, $offset, $intercept, 'binary', 'Phit\fit_probit');
+        return (new ProbitFamily())->run($x, $y, $missing, $weights, $offset, $intercept, 'binary', 'Phit\fit_probit_matrix');
     }
 }

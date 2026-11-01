@@ -105,12 +105,12 @@ $quiet = function (callable $f): mixed {
 };
 
 // Regression models against R (glm/lm) fixtures.
-$models = ['Phit\fit_ols' => 'ols-r.json', 'Phit\fit_logistic' => 'logistic-r.json', 'Phit\fit_probit' => 'probit-r.json', 'Phit\fit_poisson' => 'poisson-r.json'];
+$models = ['Phit\fit_ols_matrix' => 'ols-r.json', 'Phit\fit_logistic_matrix' => 'logistic-r.json', 'Phit\fit_probit_matrix' => 'probit-r.json', 'Phit\fit_poisson_matrix' => 'poisson-r.json'];
 foreach ($models as $fn => $file) {
     foreach (fixture($file)['cases'] as $case) {
         $result = $quiet(fn () => Polyfill::implementation($fn)($case['x'], $case['y'], 'drop', null, null, false));
         foreach ($case['expected'] as $key => $expected) {
-            if ($fn === 'Phit\fit_ols' && in_array($case['name'], ['perfect', 'zero'], true)
+            if ($fn === 'Phit\fit_ols_matrix' && in_array($case['name'], ['perfect', 'zero'], true)
                 && in_array($key, ['t_statistics', 'p_values', 'log_likelihood', 'r_squared', 'adj_r_squared', 'conf_int'], true)) {
                 continue;
             }
@@ -120,7 +120,7 @@ foreach ($models as $fn => $file) {
 }
 foreach (['r-compatibility.json', 'stress-r.json'] as $file) {
     foreach (fixture($file)['cases'] as $case) {
-        $fn = 'Phit\fit_'.$case['model'];
+        $fn = 'Phit\fit_'.$case['model'].'_matrix';
         $result = $quiet(fn () => Polyfill::implementation($fn)($case['x'], $case['y'], 'drop', $case['weights'], $case['offset'], false));
         foreach ($case['expected'] as $key => $expected) {
             $actualKey = $key === 'statistics' ? ($case['model'] === 'ols' ? 't_statistics' : 'z_statistics') : $key;
@@ -143,7 +143,7 @@ foreach (['r-compatibility.json', 'stress-r.json'] as $file) {
 $formulas = fixture('formula-r.json');
 foreach ($formulas['cases'] as $case) {
     $data = $formulas['datasets'][$case['dataset']];
-    $fn = $case['function'] === 'model_matrix' ? 'Phit\model_matrix' : 'Phit\fit_'.$case['function'];
+    $fn = ['model_matrix' => 'Phit\model_matrix', 'lm' => 'Phit\fit_ols', 'glm' => 'Phit\fit_generalized_linear'][$case['function']];
     $result = $quiet(fn () => match ($case['function']) {
         'model_matrix' => Polyfill::implementation($fn)($case['formula'], $data),
         'lm' => Polyfill::implementation($fn)($case['formula'], $data, weights: $case['weights']),

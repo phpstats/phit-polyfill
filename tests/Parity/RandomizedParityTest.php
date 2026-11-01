@@ -223,10 +223,10 @@ it('fits regressions exactly like the extension', function () {
         $intercept = mt_rand(0, 5) > 0;
         set_error_handler(fn () => true);
         try {
-            randomParityCompare('Phit\fit_ols', [$x, $y, 'drop', $weights, $offset, $intercept]);
-            randomParityCompare('Phit\fit_logistic', [$x, $binary, 'drop', $weights, $offset, $intercept]);
-            randomParityCompare('Phit\fit_probit', [$x, $binary, 'drop', $weights, $offset, $intercept]);
-            randomParityCompare('Phit\fit_poisson', [$x, $counts, 'drop', $weights, $offset, $intercept]);
+            randomParityCompare('Phit\fit_ols_matrix', [$x, $y, 'drop', $weights, $offset, $intercept]);
+            randomParityCompare('Phit\fit_logistic_matrix', [$x, $binary, 'drop', $weights, $offset, $intercept]);
+            randomParityCompare('Phit\fit_probit_matrix', [$x, $binary, 'drop', $weights, $offset, $intercept]);
+            randomParityCompare('Phit\fit_poisson_matrix', [$x, $counts, 'drop', $weights, $offset, $intercept]);
             $values = array_map(fn () => randomUniform(-5, 5) * 10 ** mt_rand(-3, 6), range(1, $n));
             randomParityCompare('Phit\stat_mean', [$values]);
             randomParityCompare('Phit\stat_var', [$values]);
@@ -249,13 +249,13 @@ it('fits mixed models exactly like the extension', function () {
         [$x, $y, $binary, , $labels] = randomDesign($n, $p, $groups);
         set_error_handler(fn () => true);
         try {
-            randomParityCompare('Phit\fit_mixed_intercept', [$x, $y, $labels]);
+            randomParityCompare('Phit\fit_mixed_gaussian_intercept_matrix', [$x, $y, $labels]);
             $intercepts = array_fill(0, $n, [1.0]);
             $slopes = array_map(fn ($row) => [1.0, $row[0] ?? 0.0], $x);
-            randomParityCompare('Phit\fit_mixed', [$x, $y, [['z' => $intercepts, 'groups' => $labels]], 'reml' => mt_rand(0, 1) === 1]);
-            randomParityCompare('Phit\fit_mixed', [$x, $y, [['z' => $slopes, 'groups' => $labels, 'correlated' => mt_rand(0, 1) === 1]],
+            randomParityCompare('Phit\fit_mixed_gaussian_matrix', [$x, $y, [['z' => $intercepts, 'groups' => $labels]], 'reml' => mt_rand(0, 1) === 1]);
+            randomParityCompare('Phit\fit_mixed_gaussian_matrix', [$x, $y, [['z' => $slopes, 'groups' => $labels, 'correlated' => mt_rand(0, 1) === 1]],
                 'optimizer' => mt_rand(0, 2) === 0 ? 'nelder_mead' : 'bobyqa']);
-            randomParityCompare('Phit\fit_logistic_mixed', [$x, $binary, $labels, 'quadraturePoints' => [1, 1, 3, 9][mt_rand(0, 3)]]);
+            randomParityCompare('Phit\fit_mixed_logistic_matrix', [$x, $binary, $labels, 'quadraturePoints' => [1, 1, 3, 9][mt_rand(0, 3)]]);
             $data = ['y' => $y, 'b' => $binary, 'g' => array_map('strval', $labels)];
             foreach ($x as $i => $row) {
                 foreach ($row as $j => $v) {
@@ -263,8 +263,8 @@ it('fits mixed models exactly like the extension', function () {
                 }
             }
             $rhs = implode(' + ', array_map(fn ($j) => "x$j", range(0, $p - 1)));
-            randomParityCompare('Phit\fit_lmer', ["y ~ $rhs + (1 | g)", $data]);
-            randomParityCompare('Phit\fit_glmer', ["b ~ $rhs + (1 | g)", $data]);
+            randomParityCompare('Phit\fit_mixed_gaussian', ["y ~ $rhs + (1 | g)", $data]);
+            randomParityCompare('Phit\fit_mixed_logistic', ["b ~ $rhs + (1 | g)", $data]);
         } finally {
             restore_error_handler();
         }
@@ -299,11 +299,11 @@ it('predicts exactly like the extension', function () {
         set_error_handler(fn () => true);
         try {
             foreach ([
-                fn () => \Phit\fit_lm("y ~ $rhs", $train),
-                fn () => \Phit\fit_glm("b ~ $rhs", $train, family: 'binomial'),
-                fn () => \Phit\fit_glm("b ~ $rhs", $train, family: 'binomial', link: 'probit'),
-                fn () => \Phit\fit_lmer('y ~ x + (1 | f)', $train),
-                fn () => \Phit\fit_glmer('b ~ x + (1 | f)', $train),
+                fn () => \Phit\fit_ols("y ~ $rhs", $train),
+                fn () => \Phit\fit_generalized_linear("b ~ $rhs", $train, family: 'binomial'),
+                fn () => \Phit\fit_generalized_linear("b ~ $rhs", $train, family: 'binomial', link: 'probit'),
+                fn () => \Phit\fit_mixed_gaussian('y ~ x + (1 | f)', $train),
+                fn () => \Phit\fit_mixed_logistic('b ~ x + (1 | f)', $train),
             ] as $fit) {
                 try {
                     $fits[] = $fit();

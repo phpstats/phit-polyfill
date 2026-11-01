@@ -145,16 +145,16 @@ $write('models', [
         .'Regression designs have 10,000 rows and 10 standard normal predictors plus an intercept. '
         ."Mixed models have 2,000 rows in 50 groups with two predictors. Each case runs once to warm up and then $repeat times.",
     'rows' => array_merge(
-        $rows('fit_ols, n = 10,000', 'Phit\fit_ols', [$x, $continuous]),
-        $rows('fit_logistic, n = 10,000', 'Phit\fit_logistic', [$x, $binary]),
-        $rows('fit_probit, n = 10,000', 'Phit\fit_probit', [$x, $binary]),
-        $rows('fit_poisson, n = 10,000', 'Phit\fit_poisson', [$x, $counts]),
-        $rows('fit_lm, n = 10,000', 'Phit\fit_lm', ["y ~ $rhs", $data]),
-        $rows('fit_glm (binomial), n = 10,000', 'Phit\fit_glm', ["b ~ $rhs", $data, 'binomial']),
-        $rows('fit_mixed_intercept, n = 2,000', 'Phit\fit_mixed_intercept', [$mx, $my, $labels]),
-        $rows('fit_lmer, n = 2,000', 'Phit\fit_lmer', ['y ~ x1 + x2 + (1 | g)', $mixed]),
-        $rows('fit_logistic_mixed, n = 2,000', 'Phit\fit_logistic_mixed', [$mx, $mb, $labels]),
-        $rows('fit_glmer, n = 2,000', 'Phit\fit_glmer', ['b ~ x1 + x2 + (1 | g)', $mixed]),
+        $rows('fit_ols_matrix, n = 10,000', 'Phit\fit_ols_matrix', [$x, $continuous]),
+        $rows('fit_logistic_matrix, n = 10,000', 'Phit\fit_logistic_matrix', [$x, $binary]),
+        $rows('fit_probit_matrix, n = 10,000', 'Phit\fit_probit_matrix', [$x, $binary]),
+        $rows('fit_poisson_matrix, n = 10,000', 'Phit\fit_poisson_matrix', [$x, $counts]),
+        $rows('fit_ols, n = 10,000', 'Phit\fit_ols', ["y ~ $rhs", $data]),
+        $rows('fit_generalized_linear (binomial), n = 10,000', 'Phit\fit_generalized_linear', ["b ~ $rhs", $data, 'binomial']),
+        $rows('fit_mixed_gaussian_intercept_matrix, n = 2,000', 'Phit\fit_mixed_gaussian_intercept_matrix', [$mx, $my, $labels]),
+        $rows('fit_mixed_gaussian, n = 2,000', 'Phit\fit_mixed_gaussian', ['y ~ x1 + x2 + (1 | g)', $mixed]),
+        $rows('fit_mixed_logistic_matrix, n = 2,000', 'Phit\fit_mixed_logistic_matrix', [$mx, $mb, $labels]),
+        $rows('fit_mixed_logistic, n = 2,000', 'Phit\fit_mixed_logistic', ['b ~ x1 + x2 + (1 | g)', $mixed]),
     ),
 ]);
 

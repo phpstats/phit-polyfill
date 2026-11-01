@@ -11,13 +11,13 @@ use Phit\Polyfill\Internal\ModelData;
 use Phit\Polyfill\Internal\RandomIntercept;
 
 /**
- * Mixed models: Phit\fit_mixed_intercept, Phit\fit_mixed, and Phit\fit_logistic_mixed (the
+ * Mixed models: Phit\fit_mixed_gaussian_intercept_matrix, Phit\fit_mixed_gaussian_matrix, and Phit\fit_mixed_logistic_matrix (the
  * extension's lib.rs glue around stats-core mixed.rs, lmm.rs, and
  * logistic_mixed.rs).
  */
 final class MixedModels
 {
-    /** Phit\fit_mixed_intercept */
+    /** Phit\fit_mixed_gaussian_intercept_matrix */
     public static function lmm(array $x, array $y, array $groups, string $missing = 'drop', bool $intercept = true): array
     {
         $data = ModelData::prepare($x, $y, $missing, 'continuous', null, null, $intercept, $groups);
@@ -52,10 +52,10 @@ final class MixedModels
             'converged' => true,
         ];
 
-        return $data->finish($output, 'Phit\fit_mixed_intercept', 'profile_variance_search');
+        return $data->finish($output, 'Phit\fit_mixed_gaussian_intercept_matrix', 'profile_variance_search');
     }
 
-    /** Phit\fit_mixed */
+    /** Phit\fit_mixed_gaussian_matrix */
     public static function lmmFit(
         array $x,
         array $y,
@@ -189,11 +189,11 @@ final class MixedModels
         );
 
         return ModelData::accounting($n, $retained, $dropped)
-            ->finish(self::lmmOutput($result, $reml, $termLabels), 'Phit\fit_mixed', $method);
+            ->finish(self::lmmOutput($result, $reml, $termLabels), 'Phit\fit_mixed_gaussian_matrix', $method);
     }
 
     /**
-     * The Phit\fit_mixed / Phit\fit_lmer result table.
+     * The Phit\fit_mixed_gaussian_matrix / Phit\fit_mixed_gaussian result table.
      *
      * @param  list<list<int|string>>  $termLabels
      */
@@ -239,7 +239,7 @@ final class MixedModels
         ];
     }
 
-    /** Phit\fit_logistic_mixed */
+    /** Phit\fit_mixed_logistic_matrix */
     public static function logisticMixed(
         array $x,
         array $y,
@@ -276,11 +276,11 @@ final class MixedModels
             'tolerance' => $tolerance,
         ]);
 
-        return $data->finish(self::logisticMixedOutput($r, $labels), 'Phit\fit_logistic_mixed', 'bobyqa');
+        return $data->finish(self::logisticMixedOutput($r, $labels), 'Phit\fit_mixed_logistic_matrix', 'bobyqa');
     }
 
     /**
-     * The Phit\fit_logistic_mixed / Phit\fit_glmer result table.
+     * The Phit\fit_mixed_logistic_matrix / Phit\fit_mixed_logistic result table.
      *
      * @param  list<int|string>  $labels
      */

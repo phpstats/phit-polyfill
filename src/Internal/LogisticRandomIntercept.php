@@ -11,8 +11,8 @@ use Phit\Polyfill\Internal\Family\LogisticFamily;
 /**
  * Binomial logit with one Gaussian random intercept, by marginal maximum
  * likelihood with the Laplace approximation or adaptive Gauss-Hermite
- * quadrature (stats-core logistic_mixed.rs, behind Phit\fit_logistic_mixed and
- * Phit\fit_glmer). BOBYQA maximizes over the scaled fixed effects and tau.
+ * quadrature (stats-core logistic_mixed.rs, behind Phit\fit_mixed_logistic_matrix and
+ * Phit\fit_mixed_logistic). BOBYQA maximizes over the scaled fixed effects and tau.
  *
  * @internal
  */

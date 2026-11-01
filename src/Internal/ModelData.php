@@ -255,7 +255,7 @@ final class ModelData
         if (($output['singular'] ?? null) === true) {
             $warnings[] = 'random-effect covariance is singular or near singular';
         }
-        if (in_array($function, ['Phit\fit_logistic_mixed', 'Phit\fit_glmer'], true) && ($output['quadrature_points'] ?? null) === 1) {
+        if (in_array($function, ['Phit\fit_mixed_logistic_matrix', 'Phit\fit_mixed_logistic'], true) && ($output['quadrature_points'] ?? null) === 1) {
             $warnings[] = 'Laplace integration is approximate; assess quadrature sensitivity for rare events or small groups';
         }
         $diagnostics['warnings'] = $warnings;
@@ -267,9 +267,11 @@ final class ModelData
         $output['dropped_rows'] = $this->dropped;
         if ($dropped > 0) {
             // Userland code cannot raise E_WARNING itself; E_USER_WARNING is the closest
-            // equivalent. The "fn(): " prefix matches what PHP adds to native warnings.
+            // equivalent. The "fn(): " prefix matches what PHP adds to native warnings:
+            // the name the caller used, which differs through an alias.
+            $caller = CalledAs::name() ?? $function;
             trigger_error(
-                "$function(): $function dropped $dropped of {$this->nInput} observations with missing values (listwise deletion)",
+                "{$caller}(): $function dropped $dropped of {$this->nInput} observations with missing values (listwise deletion)",
                 E_USER_WARNING,
             );
         }

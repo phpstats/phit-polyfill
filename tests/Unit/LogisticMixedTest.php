@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-// Port of the extension's tests/logistic-mixed.php: Phit\fit_logistic_mixed against
+// Port of the extension's tests/logistic-mixed.php: Phit\fit_mixed_logistic_matrix against
 // 28 lme4 glmer fits (logistic-mixed-r.json) with Laplace and adaptive
 // Gauss-Hermite quadrature, plus union deletion, invalid inputs and typed group
 // labels. The polyfill raises E_USER_WARNING where the extension raises
@@ -53,11 +53,11 @@ function logisticMixedOffsetCase(): array
     return $c;
 }
 
-describe('Phit\fit_logistic_mixed against lme4', function () {
+describe('Phit\fit_mixed_logistic_matrix against lme4', function () {
     foreach (loadFixture('logistic-mixed-r.json')['cases'] as $case) {
         it("matches glmer on {$case['name']}", function () use ($case) {
             skipMixedFitsUnderJit();
-            $r = pf('Phit\fit_logistic_mixed', $case['x'], $case['y'], $case['groups'],
+            $r = pf('Phit\fit_mixed_logistic_matrix', $case['x'], $case['y'], $case['groups'],
                 weights: $case['weights'], offset: $case['offset'],
                 quadraturePoints: $case['quadrature_points'], intercept: false);
             foreach ($case['expected'] as $key => $expected) {
@@ -78,18 +78,18 @@ describe('Phit\fit_logistic_mixed against lme4', function () {
     }
 });
 
-describe('Phit\fit_logistic_mixed inputs', function () {
+describe('Phit\fit_mixed_logistic_matrix inputs', function () {
     it('deletes the union of missing rows with one warning and keeps alignment', function () {
         skipMixedFitsUnderJit();
         $c = logisticMixedOffsetCase();
-        $warnings = warnings(fn () => pf('Phit\fit_logistic_mixed', $c['x'], $c['y'], $c['groups'],
+        $warnings = warnings(fn () => pf('Phit\fit_mixed_logistic_matrix', $c['x'], $c['y'], $c['groups'],
             weights: $c['weights'], offset: $c['offset'], quadraturePoints: 9, intercept: false), $r);
         expect($r['dropped_rows'])->toBe([2, 4, 6, 8, 10])
             ->and($warnings)->toHaveCount(1)
             ->and($warnings[0][0])->toBe(E_USER_WARNING);
 
         $select = fn ($v) => array_values(array_filter($v, fn ($i) => ! in_array($i, [2, 4, 6, 8, 10], true), ARRAY_FILTER_USE_KEY));
-        $complete = pf('Phit\fit_logistic_mixed', $select($c['x']), $select($c['y']), $select($c['groups']),
+        $complete = pf('Phit\fit_mixed_logistic_matrix', $select($c['x']), $select($c['y']), $select($c['groups']),
             weights: $select($c['weights']), offset: $select($c['offset']), quadraturePoints: 9, intercept: false);
         mixedCompare($r['fitted'], $complete['fitted'], 'retained alignment', 1e-10, 1e-10);
     });
@@ -104,7 +104,7 @@ describe('Phit\fit_logistic_mixed inputs', function () {
             ['weights' => array_fill(0, $n, 0.5)], ['weights' => array_fill(0, $n, 1000001)], ['y' => array_fill(0, $n, 1)],
         ] as $options) {
             $arguments = array_replace(['x' => $c['x'], 'y' => $c['y'], 'groups' => $c['groups'], 'weights' => $c['weights'], 'offset' => $c['offset']], $options);
-            expect(thrownCode(fn () => pf('Phit\fit_logistic_mixed', ...$arguments, intercept: false)))
+            expect(thrownCode(fn () => pf('Phit\fit_mixed_logistic_matrix', ...$arguments, intercept: false)))
                 ->not->toBeNull('invalid logistic mixed inputs: '.implode(',', array_keys($options)));
         }
     });
@@ -113,13 +113,13 @@ describe('Phit\fit_logistic_mixed inputs', function () {
         $c = logisticMixedOffsetCase();
         $bad = $c['x'];
         $bad[2][0] = INF;
-        expect(thrownCode(fn () => pf('Phit\fit_logistic_mixed', $bad, $c['y'], $c['groups'],
+        expect(thrownCode(fn () => pf('Phit\fit_mixed_logistic_matrix', $bad, $c['y'], $c['groups'],
             weights: $c['weights'], offset: $c['offset'], intercept: false)))->not->toBeNull();
     });
 
     it('keeps typed IDs distinct and reports an exact boundary', function () {
         skipMixedFitsUnderJit();
-        $r = pf('Phit\fit_logistic_mixed', array_fill(0, 8, [1]), [0, 1, 0, 1, 0, 1, 0, 1], [1, 1, '1', '1', 'A', 'A', 'B', 'B'], intercept: false);
+        $r = pf('Phit\fit_mixed_logistic_matrix', array_fill(0, 8, [1]), [0, 1, 0, 1, 0, 1, 0, 1], [1, 1, '1', '1', 'A', 'A', 'B', 'B'], intercept: false);
         expect($r['group_labels'])->toBe([1, '1', 'A', 'B'])
             ->and($r['boundary'])->toBeTruthy();
     });

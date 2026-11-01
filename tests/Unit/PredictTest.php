@@ -32,10 +32,10 @@ function predictFit(array $case, array $data): array
     $result = null;
     warnings(function () use ($case, $data, $args, &$result) {
         $result = match ($case['function']) {
-            'lm' => pf('Phit\fit_lm', $case['formula'], $data, weights: $args['weights'] ?? null),
-            'glm' => pf('Phit\fit_glm', $case['formula'], $data, family: $args['family'], link: $args['link']),
-            'lmer' => pf('Phit\fit_lmer', $case['formula'], $data, reml: $args['reml'] ?? true),
-            'glmer' => pf('Phit\fit_glmer', $case['formula'], $data),
+            'lm' => pf('Phit\fit_ols', $case['formula'], $data, weights: $args['weights'] ?? null),
+            'glm' => pf('Phit\fit_generalized_linear', $case['formula'], $data, family: $args['family'], link: $args['link']),
+            'lmer' => pf('Phit\fit_mixed_gaussian', $case['formula'], $data, reml: $args['reml'] ?? true),
+            'glmer' => pf('Phit\fit_mixed_logistic', $case['formula'], $data),
         };
     });
 
@@ -85,13 +85,13 @@ foreach ($fixture['cases'] as $case) {
 
 it('reproduces fitted values on the training data', function () use ($fixture) {
     $cars = $fixture['datasets']['cars'];
-    $fit = pf('Phit\fit_lm', 'mpg ~ poly(hp, 3) + factor(cyl) + wt:am', $cars);
+    $fit = pf('Phit\fit_ols', 'mpg ~ poly(hp, 3) + factor(cyl) + wt:am', $cars);
     predictCompare(pf('Phit\predict', $fit, $cars)['fit'], $fit['fitted'], 'lm training data', 1e-12, 1e-12);
-    $fit = pf('Phit\fit_glm', 'am ~ wt + hp', $cars, family: 'binomial');
+    $fit = pf('Phit\fit_generalized_linear', 'am ~ wt + hp', $cars, family: 'binomial');
     predictCompare(pf('Phit\predict', $fit, $cars, type: 'response')['fit'], $fit['fitted'], 'glm training data', 1e-12, 1e-10);
     skipMixedFitsUnderJit();
     $schools = $fixture['datasets']['schools'];
-    $fit = pf('Phit\fit_lmer', 'score ~ study_hours + (1 | school)', $schools);
+    $fit = pf('Phit\fit_mixed_gaussian', 'score ~ study_hours + (1 | school)', $schools);
     predictCompare(pf('Phit\predict', $fit, $schools)['fit'], $fit['fitted'], 'lmer training data', 1e-10, 1e-10);
     predictCompare(pf('Phit\predict', $fit, $schools, random: false)['fit'], $fit['fixed_fitted'], 'lmer population', 1e-10, 1e-10);
 });
@@ -100,9 +100,9 @@ it("raises R's errors", function () use ($fixture) {
     skipMixedFitsUnderJit();
     $cars = $fixture['datasets']['cars'];
     $schools = $fixture['datasets']['schools'];
-    $fit = pf('Phit\fit_lm', 'mpg ~ wt + gear_label', $cars);
-    $lmer = pf('Phit\fit_lmer', 'score ~ study_hours + (1 | school)', $schools);
-    $glm = pf('Phit\fit_glm', 'am ~ wt', $cars, family: 'binomial');
+    $fit = pf('Phit\fit_ols', 'mpg ~ wt + gear_label', $cars);
+    $lmer = pf('Phit\fit_mixed_gaussian', 'score ~ study_hours + (1 | school)', $schools);
+    $glm = pf('Phit\fit_generalized_linear', 'am ~ wt', $cars, family: 'binomial');
     $cases = [
         'factor gear_label has new level six' => fn () => pf('Phit\predict', $fit, ['wt' => [3.0], 'gear_label' => ['six']]),
         'was a factor' => fn () => pf('Phit\predict', $fit, ['wt' => [3.0], 'gear_label' => [4]]),
@@ -111,7 +111,7 @@ it("raises R's errors", function () use ($fixture) {
         'type must be' => fn () => pf('Phit\predict', $fit, ['wt' => [3.0], 'gear_label' => ['four']], type: 'probability'),
         'new levels detected in newdata: school=nowhere' => fn () => pf('Phit\predict', $lmer, ['study_hours' => [3.0], 'school' => ['nowhere']]),
         'not available for mixed' => fn () => pf('Phit\predict', $lmer, ['study_hours' => [3.0], 'school' => ['nowhere']], seFit: true),
-        'intervals are available for Phit\fit_lm' => fn () => pf('Phit\predict', $glm, $cars, interval: 'confidence'),
+        'intervals are available for Phit\fit_ols' => fn () => pf('Phit\predict', $glm, $cars, interval: 'confidence'),
         'fit must be a result' => fn () => pf('Phit\predict', ['formula' => 'y ~ x'], $cars),
     ];
     foreach ($cases as $needle => $f) {
@@ -128,7 +128,7 @@ it('reports the fitted factor levels and poly() coefficients', function () {
         'x' => [1, 2, 3, 5, 8, 9, 4, 6, 7, 2],
         'a' => ['p', 'q', 'p', 'r', 'q', 'p', 'r', 'r', 'q', 'p'],
     ];
-    $fit = pf('Phit\fit_lm', 'y ~ poly(x, 2) + a + I(x > 3)', $data);
+    $fit = pf('Phit\fit_ols', 'y ~ poly(x, 2) + a + I(x > 3)', $data);
     expect($fit['predvars']['levels'])->toBe(['a' => ['p', 'q', 'r'], 'I(x > 3)' => ['FALSE', 'TRUE']])
         ->and(array_keys($fit['predvars']['poly']))->toBe(['poly(x, 2)'])
         ->and($fit['predvars']['poly']['poly(x, 2)']['norm2'][0])->toBe(1.0)

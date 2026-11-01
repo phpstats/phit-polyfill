@@ -7,7 +7,7 @@ namespace Phit\Polyfill;
 use Phit\Polyfill\Internal\Family\LogisticFamily;
 
 /**
- * Binary or grouped-binomial logistic regression by damped Newton IRLS (Phit\fit_logistic).
+ * Binary or grouped-binomial logistic regression by damped Newton IRLS (Phit\fit_logistic_matrix).
  */
 final class Logistic
 {
@@ -19,6 +19,6 @@ final class Logistic
         ?array $offset = null,
         bool $intercept = true,
     ): array {
-        return (new LogisticFamily())->run($x, $y, $missing, $weights, $offset, $intercept, 'binary', 'Phit\fit_logistic');
+        return (new LogisticFamily())->run($x, $y, $missing, $weights, $offset, $intercept, 'binary', 'Phit\fit_logistic_matrix');
     }
 }

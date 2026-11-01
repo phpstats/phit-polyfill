@@ -55,7 +55,7 @@ final class Predict
             ($interval === 'confidence' || $interval === 'prediction') && $isLm => $interval === 'prediction',
             $interval === 'confidence' || $interval === 'prediction' => throw ErrorCode::exception(
                 ErrorCode::UNSUPPORTED,
-                'intervals are available for Phit\fit_lm fits; use seFit for GLMs',
+                'intervals are available for Phit\fit_ols fits; use seFit for GLMs',
             ),
             default => throw ErrorCode::exception(ErrorCode::INVALID_INPUT, "interval must be 'none', 'confidence' or 'prediction'"),
         };
@@ -214,7 +214,7 @@ final class Predict
 
     private static function malformed(string $detail): \Exception
     {
-        return ErrorCode::exception(ErrorCode::INVALID_INPUT, "fit must be a result of Phit\\fit_lm, Phit\\fit_glm, Phit\\fit_lmer or Phit\\fit_glmer: $detail");
+        return ErrorCode::exception(ErrorCode::INVALID_INPUT, "fit must be a result of Phit\\fit_ols, Phit\\fit_generalized_linear, Phit\\fit_mixed_gaussian or Phit\\fit_mixed_logistic: $detail");
     }
 
     /** @return list<float> */
@@ -299,7 +299,7 @@ final class Predict
             throw $malformed();
         }
         if (is_array($fit['random_effects'] ?? null)) {
-            // Phit\fit_glmer: one random intercept with top-level effects and labels.
+            // Phit\fit_mixed_logistic: one random intercept with top-level effects and labels.
             $labels = $fit['group_labels'] ?? null;
             if (! is_array($labels)) {
                 throw $malformed();

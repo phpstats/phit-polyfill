@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-// Polyfill vs native extension for Phit\model_matrix, Phit\fit_lm and Phit\fit_glm:
+// Polyfill vs native extension for Phit\model_matrix, Phit\fit_ols and Phit\fit_generalized_linear:
 // the same keys in the same order, identical design matrices, names and row
 // accounting, fit values within a scale-aware tolerance, the same warning text
 // and the same exception codes. Runs only when phit is loaded.
@@ -128,7 +128,7 @@ function assertFormulaParity(string $fn, array $arguments, string $group, float 
 
         return;
     }
-    if ($fn !== 'Phit\fit_lm' && ($b['link'] ?? 'identity') !== 'identity') {
+    if ($fn !== 'Phit\fit_ols' && ($b['link'] ?? 'identity') !== 'identity') {
         // Iterative fits stop once the full step is below 1e-8 relative.
         $tolerance = max($tolerance, 1e-7);
     }
@@ -216,8 +216,8 @@ it('agrees with the extension on the R reference cases', function () {
         $data = $fixture['datasets'][$case['dataset']];
         [$fn, $arguments] = match ($case['function']) {
             'model_matrix' => ['Phit\model_matrix', [$case['formula'], $data]],
-            'lm' => ['Phit\fit_lm', [$case['formula'], $data, 'drop', $case['weights']]],
-            'glm' => ['Phit\fit_glm', [$case['formula'], $data, $case['family'], $case['link'], 'drop', $case['weights']]],
+            'lm' => ['Phit\fit_ols', [$case['formula'], $data, 'drop', $case['weights']]],
+            'glm' => ['Phit\fit_generalized_linear', [$case['formula'], $data, $case['family'], $case['link'], 'drop', $case['weights']]],
         };
         assertFormulaParity($fn, $arguments, 'fixtures');
         if ($case['function'] !== 'model_matrix') {
@@ -260,8 +260,8 @@ it('agrees on every supported syntax form and transform', function () {
     foreach ($formulas as $formula) {
         assertFormulaParity('Phit\model_matrix', [$formula, $data], 'syntax');
         assertFormulaParity('Phit\model_matrix', [$formula, $data, 'raise'], 'syntax');
-        assertFormulaParity('Phit\fit_lm', [$formula, $data], 'syntax');
-        assertFormulaParity('Phit\fit_glm', [$formula, $data], 'syntax');
+        assertFormulaParity('Phit\fit_ols', [$formula, $data], 'syntax');
+        assertFormulaParity('Phit\fit_generalized_linear', [$formula, $data], 'syntax');
     }
 });
 
@@ -287,8 +287,8 @@ it('agrees on malformed formulas', function () {
     ];
     foreach ($formulas as $formula) {
         assertFormulaParity('Phit\model_matrix', [$formula, $data], 'malformed');
-        assertFormulaParity('Phit\fit_lm', [$formula, $data], 'malformed');
-        assertFormulaParity('Phit\fit_glm', [$formula, $data, 'binomial'], 'malformed');
+        assertFormulaParity('Phit\fit_ols', [$formula, $data], 'malformed');
+        assertFormulaParity('Phit\fit_generalized_linear', [$formula, $data, 'binomial'], 'malformed');
     }
 });
 
@@ -306,7 +306,7 @@ it('agrees on level ordering, collation and unused levels', function () {
         'y ~ s:d', 'y ~ d * od', 'y ~ factor(s)', 'y ~ bad', 'y ~ x + (1 | s)', 'y ~ x + (1 | num)', 'y ~ x + (1 | d:s)',
         'y ~ I(s == "é")', 's ~ x', 'd ~ x'] as $formula) {
         assertFormulaParity('Phit\model_matrix', [$formula, $data], 'levels');
-        assertFormulaParity('Phit\fit_lm', [$formula, $data], 'levels');
+        assertFormulaParity('Phit\fit_ols', [$formula, $data], 'levels');
     }
     // Rows that remove a level: kept by model_matrix, dropped by the fits.
     $sparse = $data;
@@ -314,8 +314,8 @@ it('agrees on level ordering, collation and unused levels', function () {
     $sparse['y'][3] = null;
     foreach (['y ~ s + x', 'y ~ 0 + s', 'y ~ d + x', 'y ~ od + x', 'y ~ factor(s)'] as $formula) {
         assertFormulaParity('Phit\model_matrix', [$formula, $sparse], 'levels');
-        assertFormulaParity('Phit\fit_lm', [$formula, $sparse], 'levels');
-        assertFormulaParity('Phit\fit_glm', [$formula, $sparse], 'levels');
+        assertFormulaParity('Phit\fit_ols', [$formula, $sparse], 'levels');
+        assertFormulaParity('Phit\fit_generalized_linear', [$formula, $sparse], 'levels');
     }
 });
 
@@ -324,8 +324,8 @@ it('agrees on missing values under drop and raise, and on weights', function () 
     foreach (['drop', 'raise', 'keep', 'DROP', ''] as $missing) {
         foreach (['y ~ x', 'y ~ x + l', 'y ~ o + x', 'z ~ x', 'y ~ log(neg)'] as $formula) {
             assertFormulaParity('Phit\model_matrix', [$formula, $data, $missing], 'missing');
-            assertFormulaParity('Phit\fit_lm', [$formula, $data, $missing], 'missing');
-            assertFormulaParity('Phit\fit_glm', [$formula, $data, 'gaussian', '', $missing], 'missing');
+            assertFormulaParity('Phit\fit_ols', [$formula, $data, $missing], 'missing');
+            assertFormulaParity('Phit\fit_generalized_linear', [$formula, $data, 'gaussian', '', $missing], 'missing');
         }
     }
     $n = count($data['x']);
@@ -338,12 +338,12 @@ it('agrees on missing values under drop and raise, and on weights', function () 
         array_combine(array_map(fn ($i) => "k$i", range(1, $n)), $data['w']), $data['trials'],
     ];
     foreach ($weights as $w) {
-        assertFormulaParity('Phit\fit_lm', ['y ~ x + f', $data, 'drop', $w], 'weights');
-        assertFormulaParity('Phit\fit_lm', ['y ~ x + f', $data, 'raise', $w], 'weights');
-        assertFormulaParity('Phit\fit_glm', ['y ~ x + offset(z)', $data, 'gaussian', '', 'drop', $w], 'weights');
-        assertFormulaParity('Phit\fit_glm', ['cnt ~ x', $data, 'poisson', '', 'drop', $w], 'weights');
-        assertFormulaParity('Phit\fit_glm', ['bin ~ x', $data, 'binomial', '', 'drop', $w], 'weights');
-        assertFormulaParity('Phit\fit_glm', ['cbind(succ, trials - succ) ~ x', $data, 'binomial', 'probit', 'drop', $w], 'weights');
+        assertFormulaParity('Phit\fit_ols', ['y ~ x + f', $data, 'drop', $w], 'weights');
+        assertFormulaParity('Phit\fit_ols', ['y ~ x + f', $data, 'raise', $w], 'weights');
+        assertFormulaParity('Phit\fit_generalized_linear', ['y ~ x + offset(z)', $data, 'gaussian', '', 'drop', $w], 'weights');
+        assertFormulaParity('Phit\fit_generalized_linear', ['cnt ~ x', $data, 'poisson', '', 'drop', $w], 'weights');
+        assertFormulaParity('Phit\fit_generalized_linear', ['bin ~ x', $data, 'binomial', '', 'drop', $w], 'weights');
+        assertFormulaParity('Phit\fit_generalized_linear', ['cbind(succ, trials - succ) ~ x', $data, 'binomial', 'probit', 'drop', $w], 'weights');
     }
 });
 
@@ -364,10 +364,10 @@ it('agrees on every family and link, and rejects the others', function () {
     ];
     foreach ($combinations as [$family, $link]) {
         foreach ($formulas as $formula) {
-            assertFormulaParity('Phit\fit_glm', [$formula, $data, $family, $link], 'families');
+            assertFormulaParity('Phit\fit_generalized_linear', [$formula, $data, $family, $link], 'families');
         }
-        assertFormulaParity('Phit\fit_glm', ['I(succ / trials) ~ x', $data, $family, $link, 'drop', 'trials'], 'families');
-        assertFormulaParity('Phit\fit_glm', ['I(succ / trials) ~ x', $data, $family, $link, 'drop', 'w'], 'families');
+        assertFormulaParity('Phit\fit_generalized_linear', ['I(succ / trials) ~ x', $data, $family, $link, 'drop', 'trials'], 'families');
+        assertFormulaParity('Phit\fit_generalized_linear', ['I(succ / trials) ~ x', $data, $family, $link, 'drop', 'w'], 'families');
     }
 });
 
@@ -456,7 +456,7 @@ it('agrees on data shapes', function () {
     foreach ($shapes as $data) {
         foreach (['y ~ x', 'y ~ x + g', 'y ~ .'] as $formula) {
             assertFormulaParity('Phit\model_matrix', [$formula, $data], 'shapes');
-            assertFormulaParity('Phit\fit_lm', [$formula, $data], 'shapes');
+            assertFormulaParity('Phit\fit_ols', [$formula, $data], 'shapes');
         }
     }
 });
@@ -484,10 +484,10 @@ it('agrees on random designs with factors, transforms, offsets and weights', fun
         $weights = $trial % 2 ? 'wt' : null;
         foreach (['y ~ x1 * f + log(x2 + 1)', 'y ~ poly(x2, 2) + f:h', 'y ~ (x1 + f + h)^2 + offset(x2 / 10)'] as $formula) {
             assertFormulaParity('Phit\model_matrix', [$formula, $data], 'random');
-            assertFormulaParity('Phit\fit_lm', [$formula, $data, 'drop', $weights], 'random');
-            assertFormulaParity('Phit\fit_glm', [$formula, $data, 'gaussian', '', 'drop', $weights], 'random');
+            assertFormulaParity('Phit\fit_ols', [$formula, $data, 'drop', $weights], 'random');
+            assertFormulaParity('Phit\fit_generalized_linear', [$formula, $data, 'gaussian', '', 'drop', $weights], 'random');
         }
-        assertFormulaParity('Phit\fit_glm', ['b ~ x1 + f + I(x2^2)', $data, 'binomial', $trial % 3 ? 'logit' : 'probit', 'drop', $weights], 'random');
-        assertFormulaParity('Phit\fit_glm', ['c ~ x1 + h + offset(log(x2 + 1))', $data, 'poisson', '', 'drop', $weights], 'random');
+        assertFormulaParity('Phit\fit_generalized_linear', ['b ~ x1 + f + I(x2^2)', $data, 'binomial', $trial % 3 ? 'logit' : 'probit', 'drop', $weights], 'random');
+        assertFormulaParity('Phit\fit_generalized_linear', ['c ~ x1 + h + offset(log(x2 + 1))', $data, 'poisson', '', 'drop', $weights], 'random');
     }
 });

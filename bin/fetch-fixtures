@@ -42,3 +42,10 @@ for file in "${files[@]}"; do
     git -C "$source" show "$commit:tests/fixtures/$file" > "$root/tests/fixtures/$file"
     echo "fetched $file"
 done
+# Datasets from phit's docs that its alias tests read (tests/aliases.php).
+data=(schools.csv cbpp.csv)
+mkdir -p "$root/tests/fixtures/data"
+for file in "${data[@]}"; do
+    git -C "$source" show "$commit:docs/data/$file" > "$root/tests/fixtures/data/$file"
+    echo "fetched data/$file"
+done

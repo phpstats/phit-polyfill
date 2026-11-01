@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-// Port of the extension's tests/formula-mixed.php: Phit\fit_lmer and Phit\fit_glmer
+// Port of the extension's tests/formula-mixed.php: Phit\fit_mixed_gaussian and Phit\fit_mixed_logistic
 // formulas against lme4 (formula-lme4-r.json, from
 // tests/generate-formula-lme4-fixtures.R), with tolerances that follow
 // lmm-expanded-r (lmer) and logistic-mixed-r (glmer). Also checks that formula
@@ -58,7 +58,7 @@ function mixedCondVarCompare(array $blocks, array $labels, array $reference, str
     }
 }
 
-describe('Phit\fit_lmer and Phit\fit_glmer against lme4', function () {
+describe('Phit\fit_mixed_gaussian and Phit\fit_mixed_logistic against lme4', function () {
     $fixture = loadFixture('formula-lme4-r.json');
     foreach ($fixture['cases'] as $case) {
         it("matches {$case['function']} on {$case['name']}", function () use ($fixture, $case) {
@@ -66,8 +66,8 @@ describe('Phit\fit_lmer and Phit\fit_glmer against lme4', function () {
             $data = $fixture['datasets'][$case['dataset']];
             $name = $case['name'];
             warnings(fn () => $case['function'] === 'lmer'
-                ? pf('Phit\fit_lmer', $case['formula'], $data, reml: $case['reml'])
-                : pf('Phit\fit_glmer', $case['formula'], $data, quadraturePoints: $case['quadrature_points']), $result);
+                ? pf('Phit\fit_mixed_gaussian', $case['formula'], $data, reml: $case['reml'])
+                : pf('Phit\fit_mixed_logistic', $case['formula'], $data, quadraturePoints: $case['quadrature_points']), $result);
             $expected = $case['expected'];
             expect($result['columns'])->toBe($expected['columns'], "$name: columns")
                 ->and($result['n_observations'])->toBe($expected['n_observations'], "$name: observations")
@@ -105,31 +105,31 @@ describe('Phit\fit_lmer and Phit\fit_glmer against lme4', function () {
 });
 
 describe('mixed formula interfaces', function () {
-    it('fits Phit\fit_lmer exactly as the Phit\fit_mixed matrix interface it wraps', function () {
+    it('fits Phit\fit_mixed_gaussian exactly as the Phit\fit_mixed_gaussian_matrix matrix interface it wraps', function () {
         skipMixedFitsUnderJit();
         $schools = loadFixture('formula-lme4-r.json')['datasets']['schools'];
-        $lmer = pf('Phit\fit_lmer', 'score ~ study_hours + (1 | school)', $schools, reml: false);
-        $matrix = pf('Phit\fit_mixed', array_map(fn ($h) => [$h], $schools['study_hours']), $schools['score'],
+        $lmer = pf('Phit\fit_mixed_gaussian', 'score ~ study_hours + (1 | school)', $schools, reml: false);
+        $matrix = pf('Phit\fit_mixed_gaussian_matrix', array_map(fn ($h) => [$h], $schools['study_hours']), $schools['score'],
             [['z' => array_fill(0, count($schools['score']), [1]), 'groups' => $schools['school']]]);
-        mixedCompare($lmer['coefficients'], $matrix['coefficients'], 'lmer equals Phit\fit_mixed', 1e-12, 1e-12);
+        mixedCompare($lmer['coefficients'], $matrix['coefficients'], 'lmer equals Phit\fit_mixed_gaussian_matrix', 1e-12, 1e-12);
         expect($lmer['method'])->toBe('ML')
             ->and($lmer['random'][0]['label'])->toBe('1 | school')
             ->and($lmer['random'][0]['group_labels'])->toBe($matrix['random'][0]['group_labels']);
     });
 
-    it('reports the same Phit\fit_mixed_intercept conditional variances as lme4', function () {
+    it('reports the same Phit\fit_mixed_gaussian_intercept_matrix conditional variances as lme4', function () {
         $fixture = loadFixture('formula-lme4-r.json');
         $schools = $fixture['datasets']['schools'];
         $ml = array_values(array_filter($fixture['cases'], fn ($c) => $c['name'] === 'lmer_schools_intercept_ml'))[0];
-        $lmm = pf('Phit\fit_mixed_intercept', array_map(null, $schools['study_hours'], $schools['prior_score']), $schools['score'], $schools['school']);
+        $lmm = pf('Phit\fit_mixed_gaussian_intercept_matrix', array_map(null, $schools['study_hours'], $schools['prior_score']), $schools['score'], $schools['school']);
         mixedCondVarCompare(array_map(fn ($v) => [[$v]], $lmm['random_effects_cond_var']), $lmm['group_labels'],
-            $ml['expected']['random_cond_var'][0], 'Phit\fit_mixed_intercept/random_effects_cond_var', 1e-5, 1e-5);
+            $ml['expected']['random_cond_var'][0], 'Phit\fit_mixed_gaussian_intercept_matrix/random_effects_cond_var', 1e-5, 1e-5);
     });
 
-    it('reports Phit\fit_glmer metadata', function () {
+    it('reports Phit\fit_mixed_logistic metadata', function () {
         skipMixedFitsUnderJit();
         $panel = loadFixture('formula-lme4-r.json')['datasets']['panel'];
-        warnings(fn () => pf('Phit\fit_glmer', 'yb ~ x + (1 | subject)', $panel), $glmer);
+        warnings(fn () => pf('Phit\fit_mixed_logistic', 'yb ~ x + (1 | subject)', $panel), $glmer);
         expect($glmer['family'])->toBe('binomial')
             ->and($glmer['random'][0]['group'])->toBe('subject')
             ->and($glmer['n_dropped'])->toBe(2);
@@ -140,13 +140,13 @@ describe('mixed formula interfaces', function () {
         $schools = $fixture['datasets']['schools'];
         $panel = $fixture['datasets']['panel'];
         foreach ([
-            ['no random term', fn () => pf('Phit\fit_lmer', 'score ~ study_hours', $schools), 1001, 'random-effect term'],
-            ['glmer slopes', fn () => pf('Phit\fit_glmer', 'yb ~ x + (x | subject)', $panel), 1007, 'exactly one random intercept'],
-            ['glmer two terms', fn () => pf('Phit\fit_glmer', 'yb ~ x + (1 | subject) + (1 | item)', $panel), 1007, 'exactly one random intercept'],
-            ['glmer family', fn () => pf('Phit\fit_glmer', 'yb ~ x + (1 | subject)', $panel, 'poisson'), 1007, 'binomial'],
-            ['glmer link', fn () => pf('Phit\fit_glmer', 'yb ~ x + (1 | subject)', $panel, link: 'probit'), 1007, 'logit'],
-            ['lmer optimizer', fn () => pf('Phit\fit_lmer', 'y ~ x + (1 | subject)', $panel, optimizer: 'nloptwrap'), 1007, 'optimizer'],
-            ['lmer raise', fn () => pf('Phit\fit_lmer', 'y ~ x + (1 | subject)', $panel, missing: 'raise'), 1001, "missing='raise'"],
+            ['no random term', fn () => pf('Phit\fit_mixed_gaussian', 'score ~ study_hours', $schools), 1001, 'random-effect term'],
+            ['glmer slopes', fn () => pf('Phit\fit_mixed_logistic', 'yb ~ x + (x | subject)', $panel), 1007, 'exactly one random intercept'],
+            ['glmer two terms', fn () => pf('Phit\fit_mixed_logistic', 'yb ~ x + (1 | subject) + (1 | item)', $panel), 1007, 'exactly one random intercept'],
+            ['glmer family', fn () => @pf('Phit\fit_glmer', 'yb ~ x + (1 | subject)', $panel, 'poisson'), 1007, 'binomial'],
+            ['glmer link', fn () => @pf('Phit\fit_glmer', 'yb ~ x + (1 | subject)', $panel, link: 'probit'), 1007, 'logit'],
+            ['lmer optimizer', fn () => pf('Phit\fit_mixed_gaussian', 'y ~ x + (1 | subject)', $panel, optimizer: 'nloptwrap'), 1007, 'optimizer'],
+            ['lmer raise', fn () => pf('Phit\fit_mixed_gaussian', 'y ~ x + (1 | subject)', $panel, missing: 'raise'), 1001, "missing='raise'"],
         ] as [$label, $call, $code, $fragment]) {
             $thrown = null;
             try {
@@ -160,13 +160,13 @@ describe('mixed formula interfaces', function () {
         }
     });
 
-    it('warns once when Phit\fit_lmer deletes rows', function () {
+    it('warns once when Phit\fit_mixed_gaussian deletes rows', function () {
         skipMixedFitsUnderJit();
         $panel = loadFixture('formula-lme4-r.json')['datasets']['panel'];
-        $warnings = warnings(fn () => pf('Phit\fit_lmer', 'y ~ x + (1 | subject)', $panel), $r);
+        $warnings = warnings(fn () => pf('Phit\fit_mixed_gaussian', 'y ~ x + (1 | subject)', $panel), $r);
         expect($warnings)->toHaveCount(1)
             ->and($warnings[0][0])->toBe(E_USER_WARNING)
-            ->and($warnings[0][1])->toContain('Phit\fit_lmer dropped 5 of 384')
+            ->and($warnings[0][1])->toContain('Phit\fit_mixed_gaussian dropped 5 of 384')
             ->and($r['dropped_rows'])->toBe([4, 39, 76, 210, 299]);
     });
 });

@@ -8,7 +8,7 @@ use Phit\Polyfill\ErrorCode;
 
 /**
  * Gaussian random-intercept maximum likelihood with one grouping factor
- * (stats-core mixed.rs, behind Phit\fit_mixed_intercept). The variance ratio rho = tau/sigma^2
+ * (stats-core mixed.rs, behind Phit\fit_mixed_gaussian_intercept_matrix). The variance ratio rho = tau/sigma^2
  * is profiled out on t = ln(1 + rho): a fixed grid of 64 steps, bisection of
  * every negative-to-positive score crossing, and the lowest objective wins.
  *

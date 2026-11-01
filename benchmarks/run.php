@@ -1,6 +1,6 @@
 <?php
 
-// Polyfill vs native phit timings for Phit\fit_ols and Phit\fit_logistic.
+// Polyfill vs native phit timings for Phit\fit_ols_matrix and Phit\fit_logistic_matrix.
 //
 // Run with the extension and JIT enabled, for example:
 //   php85 -d extension=.ext/libphit.dylib -d opcache.enable_cli=1 \
@@ -140,8 +140,8 @@ foreach ($sizes as $n) {
         $binary[] = (mt_rand() / mt_getrandmax()) < 1 / (1 + exp(-$eta)) ? 1 : 0;
     }
     $models = [
-        ['ols', Ols::fit(...), 'Phit\fit_ols', $continuous],
-        ['logistic', Logistic::fit(...), 'Phit\fit_logistic', $binary],
+        ['ols', Ols::fit(...), 'Phit\fit_ols_matrix', $continuous],
+        ['logistic', Logistic::fit(...), 'Phit\fit_logistic_matrix', $binary],
     ];
     foreach ($models as [$name, $polyfill, $fn, $y]) {
         $case = ['model' => $name, 'function' => $fn, 'n' => $n, 'p' => $p, 'implementations' => []];
