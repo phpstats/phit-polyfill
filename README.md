@@ -88,8 +88,7 @@ Polyfill::nativeLoaded();                           // whether phit is loaded
 
 ## Coverage
 
-The polyfill implements 242 of phit 0.4.4's 243 functions. Ten of the 242
-are the deprecated 0.3 model names (see [Names in phit 0.4](#names-in-phit-04)).
+The polyfill implements 234 of phit 0.5.0's 235 functions.
 
 | Area | Functions | Polyfill |
 |---|---|---|
@@ -98,7 +97,7 @@ are the deprecated 0.3 model names (see [Names in phit 0.4](#names-in-phit-04)).
 | Optimization | `optimize`, `uniroot` | Provided |
 | Models from a formula | `fit_ols`, `fit_generalized_linear`, `fit_mixed_gaussian`, `fit_mixed_logistic`, `model_matrix`, `predict` | Provided |
 | Models from a matrix | `fit_ols_matrix`, `fit_logistic_matrix`, `fit_probit_matrix`, `fit_poisson_matrix`, `fit_mixed_gaussian_matrix`, `fit_mixed_gaussian_intercept_matrix`, `fit_mixed_logistic_matrix` | Provided |
-| Deprecated 0.3 model names | `fit_lm`, `fit_glm`, `fit_lmer`, `fit_glmer`, `fit_logistic`, `fit_probit`, `fit_poisson`, `fit_mixed`, `fit_mixed_intercept`, `fit_logistic_mixed` | Provided |
+| Model summaries | `summary`, `tidy` | Provided |
 | Distributions | 13 families with 14 functions each | Provided |
 | Random numbers | `dist_<family>_rng` for the 13 families, `dist_uniform_rng`, `dist_categorical_rng`, `dist_categorical_rows_rng`, `permutation_rng` | Provided |
 | Posterior draws | `draws_moments`, `draws_covariance_map`, `draws_affine` | Provided |
@@ -111,41 +110,6 @@ without the extension, so `function_exists()` and `class_exists()` report
 them correctly. phibble's PHP CSV reader covers CSV input without the
 extension.
 
-## Names in phit 0.4
-
-phit 0.4.0 renamed the model functions. The formula fits have the short
-names, and the matrix fits end in `_matrix`. The polyfill follows it, and
-results are unchanged.
-
-| phit 0.3 | phit 0.4 | Input |
-|---|---|---|
-| `fit_lm` | `fit_ols` | formula |
-| `fit_glm` | `fit_generalized_linear` | formula |
-| `fit_lmer` | `fit_mixed_gaussian` | formula |
-| `fit_glmer` | `fit_mixed_logistic` | formula |
-| `fit_ols` (matrix) | `fit_ols_matrix` | matrix |
-| `fit_logistic` | `fit_logistic_matrix` | matrix |
-| `fit_probit` | `fit_probit_matrix` | matrix |
-| `fit_poisson` | `fit_poisson_matrix` | matrix |
-| `fit_mixed` | `fit_mixed_gaussian_matrix` | matrix |
-| `fit_mixed_intercept` | `fit_mixed_gaussian_intercept_matrix` | matrix |
-| `fit_logistic_mixed` | `fit_mixed_logistic_matrix` | matrix |
-
-- Each 0.3 name still works. It raises one `E_USER_DEPRECATED` that names
-  its replacement, for example `Phit\fit_lm(): Deprecated since phit 0.4.0;
-  use Phit\fit_ols() instead`, and returns exactly the replacement's result.
-- `fit_ols` chooses its form from its first argument. A formula string, or
-  named `formula:` and `data:`, is the formula fit. An array, or named `x:`
-  and `y:`, is the 0.3 matrix fit, with a deprecation that points to
-  `fit_ols_matrix()`.
-- `fit_mixed_logistic` takes no `family` or `link`. It fits a binomial logit
-  model with one random intercept. The deprecated `fit_glmer` still accepts
-  `family: 'binomial'` and the logit link.
-- Messages and warnings name the 0.4 functions, also when the call uses a
-  0.3 name.
-
-phit 0.5 will remove the 0.3 names, and `fit_ols` will reject a matrix.
-
 ## Versions
 
 Each release reproduces the phit commit pinned in `tests/fixtures/REFERENCE`,
@@ -156,6 +120,7 @@ extension.
 
 | Polyfill | phit |
 |---|---|
+| 0.5.0 | [v0.5.0](https://github.com/phpstats/phit/releases/tag/v0.5.0) (`17729a8`) |
 | 0.4.2 | [v0.4.4](https://github.com/phpstats/phit/releases/tag/v0.4.4) (`066e2e1`) |
 | 0.4.1 | [v0.4.3](https://github.com/phpstats/phit/releases/tag/v0.4.3) (`db75800`) |
 | 0.4.0 | [v0.4.0](https://github.com/phpstats/phit/releases/tag/v0.4.0) (`076f019`) |

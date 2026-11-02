@@ -10,6 +10,36 @@ from it.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-01
+
+Reproduces phit [v0.5.0](https://github.com/phpstats/phit/releases/tag/v0.5.0),
+commit [`17729a8`](https://github.com/phpstats/phit/commit/17729a89b46c3c4234417701e8e86cc22b480607).
+This release removes the deprecated names, so code that still calls them
+must move to the replacements first.
+
+### Added
+
+- `Phit\summary()` prints a fit from any model function in the layout of R's
+  `print(summary(fit))`, and `Phit\tidy()` returns its coefficient table as
+  columns, with optional Wald intervals (`confInt: true`). The text is
+  byte-identical to the extension's on phit's fixtures for every model
+  function.
+- Every model function's result has a `model` key: `linear`,
+  `generalized_linear`, `mixed_gaussian`, or `mixed_logistic`. `summary()` and
+  `tidy()` choose the printer from it.
+
+### Removed
+
+- The ten 0.3 model names, deprecated since 0.4.0, as phit 0.5.0 removes
+  them: `fit_lm`, `fit_glm`, `fit_lmer`, `fit_glmer`, `fit_logistic`,
+  `fit_probit`, `fit_poisson`, `fit_mixed_intercept`, `fit_mixed`, and
+  `fit_logistic_mixed`. Each replacement takes the same arguments, except that
+  `fit_mixed_logistic()` has no `family` or `link`.
+- The matrix form of `fit_ols()`. It takes only a formula, and its `offset`,
+  `intercept`, `x`, and `y` parameters are gone. Call `fit_ols_matrix()` for a
+  matrix.
+- `FunctionMap::DEPRECATED`, which listed the aliases.
+
 ## [0.4.2] - 2026-11-01
 
 Reproduces phit [v0.4.4](https://github.com/phpstats/phit/releases/tag/v0.4.4),
@@ -213,7 +243,8 @@ Requires PHP 8.3 or later.
   when the test suite runs the implementations directly, so that one CI job
   is informational; the `Phit\` functions refuse before any of that code runs.
 
-[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.5.0
 [0.4.2]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.4.2
 [0.4.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.4.1
 [0.4.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.4.0
