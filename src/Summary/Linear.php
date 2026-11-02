@@ -82,4 +82,9 @@ final readonly class Linear implements Printer
     {
         return (float) $this->dfResidual;
     }
+
+    public function randomTerms(): ?array
+    {
+        return null;
+    }
 }

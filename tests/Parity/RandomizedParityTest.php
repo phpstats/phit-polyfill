@@ -429,6 +429,12 @@ it('prints summaries and tidies fits exactly like the extension', function () {
             $fit[mt_rand(0, 1) ? 'singular' : 'boundary'] = mt_rand(0, 1) === 1;
             if (mt_rand(0, 2) === 0) {
                 $fit['random_intercept_variance'] = abs(randomUniform(0, 2));
+                if (mt_rand(0, 3) > 0) {
+                    $groups = $fit['n_groups'];
+                    $fit['random_effects'] = $list($groups, fn () => randomUniform(-2, 2));
+                    $fit['random_effects_cond_var'] = $list($groups + (mt_rand(0, 12) === 0 ? 1 : 0), fn () => randomUniform(0, 1));
+                    $fit['group_labels'] = $list($groups + (mt_rand(0, 12) === 0 ? -1 : 0), fn ($i) => mt_rand(0, 1) ? $i : "s$i");
+                }
             } else {
                 $fit['random'] = [];
                 for ($t = mt_rand(1, 3); $t > 0; $t--) {
@@ -448,6 +454,15 @@ it('prints summaries and tidies fits exactly like the extension', function () {
                     if (mt_rand(0, 2) === 0) {
                         $term['correlated'] = mt_rand(0, 1) === 1;
                     }
+                    if (mt_rand(0, 4) > 0) {
+                        // Conditional modes, sometimes the wrong size, with string, int, or float labels.
+                        $groups = count($term['group_labels']) + (mt_rand(0, 12) === 0 ? 1 : 0);
+                        $term['effects'] = $list($groups, fn () => $list($q + (mt_rand(0, 20) === 0 ? 1 : 0), fn () => randomUniform(-2, 2)));
+                        $term['effects_cond_var'] = $list($groups + (mt_rand(0, 12) === 0 ? -1 : 0), fn () => randomCovariance($q));
+                        $term['group_labels'] = $list(count($term['group_labels']), fn ($i) => [
+                            "g$i", $i, $i + 0.5, randomUniform(-1, 1) * 10 ** mt_rand(-30, 30), (float) $i,
+                        ][mt_rand(0, 4)]);
+                    }
                     $fit['random'][] = $term;
                 }
             }
@@ -456,6 +471,7 @@ it('prints summaries and tidies fits exactly like the extension', function () {
         $fit[$key] = $maybe($fit[$key]);
         randomParityCompare('Phit\summary', [$fit]);
         randomParityCompare('Phit\tidy', [$fit, mt_rand(0, 1) === 1, [0.95, 0.5, 0.99, 1.0, 0.0, NAN][mt_rand(0, 5)]]);
+        randomParityCompare('Phit\tidy', [$fit, mt_rand(0, 1) === 1, [0.95, 0.5, 1.0][mt_rand(0, 2)], ['ran_vals', 'ran_vals', 'fixed', 'random'][mt_rand(0, 3)]]);
         if (mt_rand(0, 9) === 0) {
             unset($fit['model']);
             randomParityCompare('Phit\summary', [$fit]);
@@ -486,6 +502,7 @@ it('prints summaries and tidies fits exactly like the extension', function () {
                 }
                 randomParityCompare('Phit\summary', [$fit]);
                 randomParityCompare('Phit\tidy', [$fit, true, randomUniform(0.5, 0.999)]);
+                randomParityCompare('Phit\tidy', [$fit, true, randomUniform(0.5, 0.999), 'ran_vals']);
             }
         } finally {
             restore_error_handler();

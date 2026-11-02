@@ -29,11 +29,15 @@ function summarySameToken(string $a, string $b): bool
 // where BOBYQA takes another path on Linux. The printed summary must still match byte for byte.
 function summarySameTidy(array $ours, array $expected): bool
 {
-    if (array_keys($ours) !== array_keys($expected) || $ours['term'] !== $expected['term']) {
+    if (array_keys($ours) !== array_keys($expected)) {
         return false;
     }
     foreach ($expected as $column => $values) {
-        if ($column === 'term') {
+        if (in_array($column, ['term', 'group', 'level'], true)) {
+            if ($ours[$column] !== $values) {
+                return false;
+            }
+
             continue;
         }
         foreach ($values as $i => $v) {
@@ -67,6 +71,24 @@ describe('Phit\summary and Phit\tidy on the fixture models', function () {
         $text = pf('Phit\summary', $fit);
         expect($text)->toBe($case['summary']);
         expect(summarySameTidy(pf('Phit\tidy', $fit, confInt: true), $case['tidy']))->toBeTrue("{$case['name']}: tidy differs");
+
+        // Random effects: the same rows as the fixture, and lme4's ranef(condVar = TRUE) to 1e-4 (scaled by
+        // max(1, |x|)), which absorbs lme4's optimizer tolerance. Matrix fits name their groups and columns generically.
+        if (isset($case['ran_vals'])) {
+            $values = pf('Phit\tidy', $fit, effects: 'ran_vals');
+            expect(summarySameTidy($values, $case['ran_vals']))->toBeTrue("{$case['name']}: ran_vals differ");
+            $r = $case['r_ran_vals'];
+            expect($values['level'])->toBe($r['level']);
+            if (! str_contains($case['function'], 'matrix')) {
+                expect($values['group'])->toBe($r['group'])
+                    ->and($values['term'])->toBe($r['term']);
+            }
+            foreach (['estimate', 'std_error'] as $column) {
+                foreach ($r[$column] as $i => $v) {
+                    expect(abs($values[$column][$i] - $v))->toBeLessThanOrEqual(1e-4 * max(1.0, abs($v)), "{$case['name']}: ran_vals $column $i");
+                }
+            }
+        }
 
         // Every number R prints in a coefficient row prints the same here.
         $lines = explode("\n", $text);
@@ -121,6 +143,38 @@ describe('Phit\summary and Phit\tidy errors', function () {
 
         expect(fn () => pf('Phit\summary', $short))->toThrow(Exception::class, "a random term's columns and covariance differ in size")
             ->and(fn () => pf('Phit\summary', $ragged))->toThrow(Exception::class, "a random term's covariance must be square");
+    });
+
+    it('rejects other effects, and ran_vals without random effects', function () {
+        $ols = pf('Phit\fit_ols', 'mpg ~ wt', loadFixture('summary/summary.json')['data']['mtcars']);
+
+        expect(fn () => pf('Phit\tidy', $ols, effects: 'random'))->toThrow(Exception::class, "effects must be 'fixed' or 'ran_vals'")
+            ->and(fn () => pf('Phit\tidy', $ols, effects: 'ran_vals'))->toThrow(Exception::class, "effects 'ran_vals' needs a mixed model fit");
+    });
+
+    it('gives ran_vals normal intervals', function () {
+        skipMixedFitsUnderJit();
+        $fit = pf('Phit\fit_mixed_gaussian', 'Reaction ~ Days + (Days | Subject)', loadFixture('summary/summary.json')['data']['sleepstudy']);
+        $values = pf('Phit\tidy', $fit, confInt: true, effects: 'ran_vals');
+
+        expect(abs($values['conf_high'][0] - $values['estimate'][0] - 1.959963984540054 * $values['std_error'][0]))->toBeLessThan(1e-9);
+    });
+
+    it('needs the random effects, their variances, and the labels to agree in size', function () {
+        skipMixedFitsUnderJit();
+        $fit = pf('Phit\fit_mixed_gaussian', 'Reaction ~ Days + (Days | Subject)', loadFixture('summary/summary.json')['data']['sleepstudy']);
+        $missing = $fit;
+        unset($missing['random'][0]['effects']);
+        $variances = $fit;
+        array_pop($variances['random'][0]['effects_cond_var']);
+        $labels = $fit;
+        array_pop($labels['random'][0]['group_labels']);
+        $prefix = 'fit must be a result of a Phit model function: ';
+
+        expect(pf('Phit\summary', $missing))->toBe(pf('Phit\summary', $fit))
+            ->and(fn () => pf('Phit\tidy', $missing, effects: 'ran_vals'))->toThrow(Exception::class, $prefix.'missing random effects')
+            ->and(fn () => pf('Phit\summary', $variances))->toThrow(Exception::class, $prefix.'random effects and their variances differ in size')
+            ->and(fn () => pf('Phit\summary', $labels))->toThrow(Exception::class, $prefix.'random effects and group labels differ in size');
     });
 
     it('throws code 1001', function () {

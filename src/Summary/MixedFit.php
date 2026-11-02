@@ -36,6 +36,12 @@ final readonly class MixedFit
         return $this->logLikelihood;
     }
 
+    /** @return list<RandomTerm> */
+    public function terms(): array
+    {
+        return $this->terms;
+    }
+
     /** The ML criteria table, as lme4 prints it: one decimal each. */
     public function criteria(): string
     {

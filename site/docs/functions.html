@@ -259,7 +259,7 @@ draws</a></li>
 id="toc-warnings-and-exceptions">Warnings and exceptions</a></li>
 </ul>
 </nav>
-<p>The polyfill implements 234 of phit 0.5.0’s 235 functions.
+<p>The polyfill implements 234 of phit 0.5.1’s 235 functions.
 Signatures, parameter names, defaults, and result keys are the
 extension’s, so phit’s documentation describes each function’s arguments
 and results.</p>
@@ -352,7 +352,13 @@ coefficient table as columns named <code>term</code>,
 and <code>p_value</code>. With <code>confInt</code>, it adds
 <code>conf_low</code> and <code>conf_high</code>, which are Wald
 intervals at <code>level</code>. For mixed fits, <code>tidy()</code>
-gives the fixed effects only.</p>
+gives the fixed effects by default. With
+<code>effects: 'ran_vals'</code>, it gives each group’s conditional
+modes and their standard errors instead, in columns named
+<code>group</code>, <code>level</code>, <code>term</code>,
+<code>estimate</code>, and <code>std_error</code>, as lme4’s
+<code>ranef(fit, condVar = TRUE)</code>. Their intervals use the normal
+distribution.</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode php"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\fit_ols<span class="ot">;</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\summary<span class="ot">;</span></span>

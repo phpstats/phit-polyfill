@@ -17,5 +17,7 @@ final readonly class RandomTerm
         public array $covariance,
         public bool $correlated,
         public int $nGroups,
+        /** Each group's conditional modes, when the fit reports them. */
+        public ?RandomValues $values,
     ) {}
 }

@@ -86,4 +86,9 @@ final readonly class GeneralizedLinear implements Printer
     {
         return $this->coefficients->statistic === 't' ? (float) $this->dfResidual : null;
     }
+
+    public function randomTerms(): ?array
+    {
+        return null;
+    }
 }

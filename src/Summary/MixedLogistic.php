@@ -59,4 +59,9 @@ final readonly class MixedLogistic implements Printer
     {
         return null;
     }
+
+    public function randomTerms(): ?array
+    {
+        return $this->fit->terms();
+    }
 }

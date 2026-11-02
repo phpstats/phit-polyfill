@@ -59,4 +59,9 @@ final readonly class MixedGaussian implements Printer
     {
         return null;
     }
+
+    public function randomTerms(): ?array
+    {
+        return $this->fit->terms();
+    }
 }

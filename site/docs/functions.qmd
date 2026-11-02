@@ -2,7 +2,7 @@
 title: "Functions"
 ---
 
-The polyfill implements 234 of phit 0.5.0's 235 functions. Signatures,
+The polyfill implements 234 of phit 0.5.1's 235 functions. Signatures,
 parameter names, defaults, and result keys are the extension's, so phit's
 documentation describes each function's arguments and results.
 
@@ -33,7 +33,10 @@ from it. `tidy()` returns the
 coefficient table as columns named `term`, `estimate`, `std_error`,
 `statistic`, and `p_value`. With `confInt`, it adds `conf_low` and
 `conf_high`, which are Wald intervals at `level`. For mixed fits, `tidy()`
-gives the fixed effects only.
+gives the fixed effects by default. With `effects: 'ran_vals'`, it gives each
+group's conditional modes and their standard errors instead, in columns named
+`group`, `level`, `term`, `estimate`, and `std_error`, as lme4's
+`ranef(fit, condVar = TRUE)`. Their intervals use the normal distribution.
 
 ```php
 use function Phit\fit_ols;

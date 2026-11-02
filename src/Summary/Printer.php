@@ -32,4 +32,11 @@ interface Printer
 
     /** Degrees of freedom for t confidence intervals, or null for normal intervals. */
     public function intervalDf(): ?float;
+
+    /**
+     * The random-effect terms of a mixed model, or null for a model without random effects.
+     *
+     * @return ?list<RandomTerm>
+     */
+    public function randomTerms(): ?array;
 }

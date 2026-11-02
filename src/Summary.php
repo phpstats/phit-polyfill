@@ -39,13 +39,23 @@ final class Summary
     }
 
     /** Phit\tidy */
-    public static function tidy(array $fit, bool $confInt = false, float $level = 0.95): array
+    public static function tidy(array $fit, bool $confInt = false, float $level = 0.95, string $effects = 'fixed'): array
     {
         // An explicit NaN test: opcache rewrites a negated float comparison (docs/notes/opcache-nan.md).
         if (is_nan($level) || $level <= 0.0 || $level >= 1.0) {
             throw ErrorCode::exception(ErrorCode::INVALID_INPUT, 'level must be in (0, 1)');
         }
+        if ($effects !== 'fixed' && $effects !== 'ran_vals') {
+            throw ErrorCode::exception(ErrorCode::INVALID_INPUT, "effects must be 'fixed' or 'ran_vals'");
+        }
         $printer = self::printer($fit);
+
+        return $effects === 'fixed' ? self::tidyFixed($printer, $confInt, $level) : self::tidyRandom($printer, $confInt, $level);
+    }
+
+    /** The fixed effects, as broom's tidy(). */
+    private static function tidyFixed(Printer $printer, bool $confInt, float $level): array
+    {
         $c = $printer->coefficients();
         $out = [
             'term' => $c->names,
@@ -56,6 +66,34 @@ final class Summary
         ];
         if ($confInt) {
             [$out['conf_low'], $out['conf_high']] = self::confidenceIntervals($c->estimates, $c->stdErrors, $printer->intervalDf(), $level);
+        }
+
+        return $out;
+    }
+
+    /**
+     * Each group's conditional modes and standard errors, as broom.mixed's tidy(effects = "ran_vals"): one row per
+     * term, column, and group, in that order. Intervals use the normal distribution.
+     */
+    private static function tidyRandom(Printer $printer, bool $confInt, float $level): array
+    {
+        $terms = $printer->randomTerms()
+            ?? throw ErrorCode::exception(ErrorCode::INVALID_INPUT, "effects 'ran_vals' needs a mixed model fit");
+        $out = ['group' => [], 'level' => [], 'term' => [], 'estimate' => [], 'std_error' => []];
+        foreach ($terms as $t) {
+            $values = $t->values ?? throw FitReader::notAFit('missing random effects');
+            foreach ($t->columns as $j => $name) {
+                foreach ($values->levels as $g => $label) {
+                    $out['group'][] = $t->group;
+                    $out['level'][] = $label;
+                    $out['term'][] = $name;
+                    $out['estimate'][] = $values->estimates[$g][$j];
+                    $out['std_error'][] = $values->stdErrors[$g][$j];
+                }
+            }
+        }
+        if ($confInt) {
+            [$out['conf_low'], $out['conf_high']] = self::confidenceIntervals($out['estimate'], $out['std_error'], null, $level);
         }
 
         return $out;

@@ -2099,11 +2099,11 @@ if (! function_exists('Phit\summary')) {
 }
 
 if (! function_exists('Phit\tidy')) {
-    function tidy(array $fit, bool $confInt = false, float $level = 0.95): array
+    function tidy(array $fit, bool $confInt = false, float $level = 0.95, string $effects = 'fixed'): array
     {
         \Phit\Polyfill\Internal\Jit::refuse();
 
-        return \Phit\Polyfill\Summary::tidy($fit, $confInt, $level);
+        return \Phit\Polyfill\Summary::tidy($fit, $confInt, $level, $effects);
     }
 }
 
