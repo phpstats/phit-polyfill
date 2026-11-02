@@ -44,6 +44,14 @@ for file in "${files[@]}"; do
     git -C "$source" show "$commit:tests/fixtures/$file" > "$root/tests/fixtures/$file"
     echo "fetched $file"
 done
+# The clean-room specifications' data tables (specs/cleanroom/data), which the
+# rewritten routines are checked against.
+spec_data=(approx.json coefmat.json dnorm.json format.json format_g.json format_pval.json optimize.json quantile7.json round.json special.json)
+mkdir -p "$root/tests/fixtures/cleanroom"
+for file in "${spec_data[@]}"; do
+    git -C "$source" show "$commit:specs/cleanroom/data/$file" > "$root/tests/fixtures/cleanroom/$file"
+    echo "fetched cleanroom/$file"
+done
 # Datasets from phit's docs that its alias tests read (tests/aliases.php).
 data=(schools.csv cbpp.csv)
 mkdir -p "$root/tests/fixtures/data"
