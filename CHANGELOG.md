@@ -10,11 +10,12 @@ from it.
 
 ## [Unreleased]
 
-## [0.6.1] - 2026-11-02
+## [0.6.2] - 2026-11-02
 
-Reproduces phit [v0.6.1](https://github.com/phpstats/phit/releases/tag/v0.6.1),
-commit [`1eee44a`](https://github.com/phpstats/phit/commit/1eee44af8734a90ba616a3344179f763e37a9cdf).
-Results are unchanged within the tested tolerances.
+Reproduces phit [v0.6.2](https://github.com/phpstats/phit/releases/tag/v0.6.2),
+commit [`d8caf83`](https://github.com/phpstats/phit/commit/d8caf831e11eefbcc6bfd202f12ec786be17a00f).
+There is no polyfill 0.6.1: phit 0.6.1 could hang on a beta shape parameter
+near the largest double, and this release follows the fix in phit 0.6.2.
 
 ### Changed
 
@@ -26,9 +27,17 @@ Results are unchanged within the tested tolerances.
   and the Stirling and deviance terms, the saddle-point Poisson and binomial
   log probabilities, and the incomplete gamma and beta series and continued
   fractions (`src/Distribution/Special.php` and `src/Distribution/Saddle.php`).
-  `THIRD_PARTY_NOTICES.md` names their sources.
+  `THIRD_PARTY_NOTICES.md` names their sources. Results are unchanged within
+  the tested tolerances.
 - The normal density with `sd = 1` uses the new standard normal density, as
-  phit 0.6.1 does.
+  phit does.
+
+### Fixed
+
+- The beta distribution no longer hangs when a shape parameter is near the
+  largest double, as in `Phit\dist_beta_logpdf(0.01, 12.2, 1e308)`, as in
+  phit 0.6.2. The deviance term evaluates at a quarter of the scale there,
+  which is exact, and returns the correct value.
 
 ### Added
 
@@ -306,8 +315,8 @@ Requires PHP 8.3 or later.
   when the test suite runs the implementations directly, so that one CI job
   is informational; the `Phit\` functions refuse before any of that code runs.
 
-[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.6.1...HEAD
-[0.6.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.6.1
+[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.6.2...HEAD
+[0.6.2]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.6.2
 [0.6.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.6.0
 [0.5.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.5.1
 [0.5.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.5.0

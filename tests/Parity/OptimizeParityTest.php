@@ -7,6 +7,8 @@ declare(strict_types=1);
 // and return the same bits, warnings (whose level differs: the polyfill can
 // only raise E_USER_WARNING) and exceptions.
 
+require_once __DIR__.'/../Support/optimize.php';
+
 /** Every point f was evaluated at, the outcome and the warning texts. */
 function optimizeTrace(callable $f, callable $call): array
 {

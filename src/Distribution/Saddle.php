@@ -26,6 +26,9 @@ final class Saddle
     /** Iteration cap for the series and continued fractions. */
     private const int MAX_ITER = 1_000_000;
 
+    /** Above this, x + np or 2x may overflow inside the deviance term. */
+    private const float DEVIANCE_SCALE_LIMIT = PHP_FLOAT_MAX / 4.0;
+
     /** Lentz's replacement for a zero denominator. */
     private const float LENTZ_TINY = 1e-300;
 
@@ -162,6 +165,23 @@ final class Saddle
     /** x ln(x / np) + np - x for x >= 0 and np > 0, accurate when x ≈ np. */
     public static function devianceTerm(float $x, float $np): float
     {
+        // D is homogeneous of degree one, D(cx, c·np) = c·D(x, np), and scaling by a power of two is exact. Near the
+        // top of the range, evaluate at a quarter of the scale, where x + np and 2x stay finite.
+        if ($x > self::DEVIANCE_SCALE_LIMIT || $np > self::DEVIANCE_SCALE_LIMIT) {
+            return 4.0 * self::devianceUnscaled(0.25 * $x, 0.25 * $np);
+        }
+        $d = self::devianceUnscaled($x, $np);
+        if ($d === INF) {
+            // x ln(x / np) overflowed although D may be finite; at a quarter scale only a D above the range overflows.
+            return 4.0 * self::devianceUnscaled(0.25 * $x, 0.25 * $np);
+        }
+
+        return $d;
+    }
+
+    /** The deviance term where x + np and 2x are finite. A tiny x scaled to zero also gives np. */
+    private static function devianceUnscaled(float $x, float $np): float
+    {
         if ($x == 0.0) {
             return $np;
         }
@@ -177,14 +197,13 @@ final class Saddle
             while (true) {
                 $pow *= $v2;
                 $next = $sum + $pow / $k;
-                if ($next == $sum) {
-                    break;
+                // A non-finite sum cannot settle, so it ends the series rather than looping.
+                if ($next == $sum || ! is_finite($next)) {
+                    return $next;
                 }
                 $sum = $next;
                 $k += 2.0;
             }
-
-            return $sum;
         }
         $ratio = fdiv($x, $np);
         $logRatio = is_finite($ratio) && $ratio > 0.0 ? log($ratio) : log($x) - log($np);

@@ -103,3 +103,40 @@ it('follows ln x when x is subnormal', function () {
     $got = Saddle::lnBetaLowerFraction($a, $b, $x, $lnX, log1p(-$x));
     expect(abs($got - $want))->toBeLessThanOrEqual(1e-13 * abs($want));
 });
+
+it('keeps the deviance term finite and right near the top of the double range', function () {
+    // x + np and 2x overflow here; the series once took 0 · ∞ = NaN for its first term and never settled.
+    // Expected values are x ln(x / np) + np - x at 60 digits (mpmath) for the exact doubles.
+    $cases = [
+        [1e308, 9.9e307, 5.033585350144054e303],
+        [PHP_FLOAT_MAX, 1.7e308, 2.7547670212519258e305],
+        [4.4e307, 6.6e305, 1.4144702342671678e308], // x ln(x / np) alone overflows, but D does not
+        [5e-324, 1e308, 1e308], // a quarter of x underflows to zero
+        [1e-300, 1e308, 1e308],
+    ];
+    foreach ($cases as [$x, $np, $want]) {
+        $got = Saddle::devianceTerm($x, $np);
+        expect(abs($got - $want) / $want)->toBeLessThanOrEqual(1e-13, "D($x, $np) = $got");
+    }
+    expect(Saddle::devianceTerm(PHP_FLOAT_MAX, PHP_FLOAT_MAX))->toBe(0.0)
+        ->and(Saddle::devianceTerm(1e308, 1e-300))->toBe(INF);
+});
+
+it('scales the deviance term exactly by powers of two', function () {
+    foreach ([[1.9, 1.8], [1.0, 1.05], [1.9, 0.2], [0.3, 1.9]] as [$x, $np]) {
+        $small = Saddle::devianceTerm($x, $np);
+        foreach ([1000, 1021, 1022, 1023] as $k) {
+            $c = 2.0 ** $k;
+            expect(Saddle::devianceTerm($x * $c, $np * $c))->toBe($small * $c, "D($x · 2^$k, $np · 2^$k)");
+        }
+    }
+});
+
+it('gives the beta log density with a shape parameter near the largest double', function () {
+    // ln f(x) = (a - 1) ln x + (b - 1) ln(1 - x) - ln B(a, b), at 400 digits (mpmath).
+    $logpdf = \Phit\Polyfill\Polyfill::implementation('Phit\dist_beta_logpdf');
+    foreach ([[0.01, -1.0050335853501442e306], [1.1868334525134252e-307, 707.0426934330717]] as [$x, $want]) {
+        $got = $logpdf($x, 12.2, 1e308);
+        expect(abs(($got - $want) / $want))->toBeLessThanOrEqual(1e-13, "logpdf($x) = $got");
+    }
+});

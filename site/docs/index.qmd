@@ -109,11 +109,12 @@ tests and the benchmarks use it to run both implementations in one process.
 Each polyfill release reproduces the phit commit pinned in
 `tests/fixtures/REFERENCE`. phit v0.3.1 changes only packaging and
 documentation, so it has the same functions as v0.3.0. phit v0.4.1 and
-v0.4.2 change only the CSV reader, which the polyfill leaves to the extension.
+v0.4.2 change only the CSV reader, which the polyfill leaves to the extension. phit v0.6.1 has no polyfill release; polyfill 0.6.2
+reproduces v0.6.2, which fixes a hang in v0.6.1.
 
 | Polyfill | phit |
 |---|---|
-| 0.6.1 | v0.6.1 (`1eee44a`) |
+| 0.6.2 | v0.6.2 (`d8caf83`) |
 | 0.6.0 | v0.6.0 (`00c0297`) |
 | 0.5.1 | v0.5.1 (`c60fb9b`) |
 | 0.5.0 | v0.5.0 (`17729a8`) |
