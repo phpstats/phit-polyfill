@@ -134,8 +134,8 @@ it exposed three more miscompiles (in `betaFrac`, `Dense::multiply`, and
   (`$next = \fdiv(...); $r0 = $r; $r = $next;`). Without the reordering the
   qualified version computed wrong values on arm64, because the JIT let the
   copy `$r0` see the call result written into `$r`.
-- `Saddle::lnGammaLowerSeries` reads `self::EPS * 0.5` into a local before its
-  loop instead of in the loop's stopping test. See
+- `Saddle::lnGammaLowerSeries` delegates its sum to `lowerSeriesSum`, which
+  reads both loop constants into locals and returns from inside the loop. See
   [A class constant in a loop test](#a-class-constant-in-a-loop-test-x86-64).
 - `tests/Unit/BobyqaTest.php` checks the reference in two tests. "it agrees
   with the crate on the status and the finiteness" asserts the status, its
@@ -172,7 +172,15 @@ temporary pull request ran copies of the loop, each in its own file:
   (`$halfEps = self::EPS * 0.5`) matched the run without OPcache bit for bit.
 - The same copies in the main script were all right, so the probe has to load
   the code from a separate file to reproduce it.
-- Moving the loop into its own function did not help.
+- Moving the loop into its own function alone did not help.
+
+Hoisting only EPS in the production function (158b663) still failed on
+x86-64. PR #3 (19eea33) extracts `lowerSeriesSum`, reads both EPS and
+MAX_ITER into locals, and returns the sum from inside the loop. The Linux
+PHP 8.4 and 8.5 jobs pass under both 1205 and 1235 with this form. The
+no-OPcache fixture checksum remains `ccfd8d22da8f` locally. These results
+verify the workaround; they do not isolate the compiler defect. PHP 8.3
+under 1235 still exits 139, the documented informational failure.
 
 `EPS / 2` is a power of two and the sum is at least 1, so `$sum * $halfEps`
 equals `$sum * EPS * 0.5` exactly, and the results are unchanged.
