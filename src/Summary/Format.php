@@ -423,7 +423,7 @@ final class Format
         }
     }
 
-    /** R's round(x, decimals). */
+    /** Round x to `decimals` places: the nearer decimal neighbour, ties to the even last digit. */
     public static function round(float $x, int $decimals): float
     {
         if (! is_finite($x)) {
@@ -625,13 +625,13 @@ final class Format
         return preg_replace('/['.self::WHITE_SPACE.']+$/u', '', $s) ?? $s;
     }
 
-    /** Rust's format!("{s:>width$}"): pad on the left to `width` characters. */
+    /** Right-align: pad on the left to `width` characters. */
     public static function padLeft(string $s, int $width): string
     {
         return str_repeat(' ', max(0, $width - self::width($s))).$s;
     }
 
-    /** Rust's format!("{s:<width$}"): pad on the right to `width` characters. */
+    /** Left-align: pad on the right to `width` characters. */
     private static function padRight(string $s, int $width): string
     {
         return $s.str_repeat(' ', max(0, $width - self::width($s)));

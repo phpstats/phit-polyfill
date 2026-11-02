@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phit\Polyfill\Distribution;
 
+use Phit\Polyfill\Smoothing;
+
 /** Normal distribution with mean and standard deviation. */
 final class Normal
 {
-    private const float INV_SQRT_2PI = 0.398_942_280_401_432_7;
-
     private function __construct(private readonly float $mean, private readonly float $sd) {}
 
     /** @internal */
@@ -110,22 +110,6 @@ final class Normal
     // ---------------------------------------------------------------- standard normal pieces (shared)
 
     /** @internal */
-    public static function stdPdf(float $z): float
-    {
-        if (is_infinite($z)) {
-            return 0.0;
-        }
-        if (abs($z) <= 5.0) {
-            return self::INV_SQRT_2PI * exp(-0.5 * $z * $z);
-        }
-        // Split z so that z² is formed exactly in its leading part (as R's dnorm).
-        $z1 = Support::round($z * 65536.0) / 65536.0;
-        $z2 = $z - $z1;
-
-        return self::INV_SQRT_2PI * exp(-0.5 * $z1 * $z1) * exp((-0.5 * $z2 - $z1) * $z2);
-    }
-
-    /** @internal */
     public static function stdLogpdf(float $z): float
     {
         return -0.5 * $z * $z - Special::LN_SQRT_2PI;
@@ -189,7 +173,7 @@ final class Normal
     public function pdfAt(float $x): float
     {
         if ($this->sd == 1.0) {
-            return self::stdPdf($this->z($x));
+            return Smoothing::standardNormalDensity($this->z($x));
         }
 
         return exp($this->logpdfAt($x));
