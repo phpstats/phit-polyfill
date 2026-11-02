@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phit\Polyfill\Internal;
 
 /**
- * Ports of the statrs 0.19 special functions the extension's estimators use
+ * The statrs 0.19 special functions the extension's estimators use
  * (erfc, ln_gamma, the regularized incomplete beta and Student's t tails),
  * kept identical so p-values and likelihood constants match to rounding.
  *

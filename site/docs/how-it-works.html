@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc 3.10" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>How it works</title>
+  <title>Implementation</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -179,7 +179,7 @@
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">How it works</h1>
+<h1 class="title">Implementation</h1>
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
@@ -196,10 +196,10 @@ multiply-add</a></li>
 <li><a href="#validation" id="toc-validation">Validation</a></li>
 </ul>
 </nav>
-<p>The polyfill ports phit’s Rust code to PHP. It does not reimplement
-the methods independently. Each port keeps the extension’s algorithm,
-constants, branch order, and floating-point operation order, so the two
-return the same bits.</p>
+<p>The polyfill is written in PHP from phit’s Rust code. It does not
+implement the methods independently. Each function keeps the extension’s
+algorithm, constants, branch order, and floating-point operation order,
+so the two return the same bits.</p>
 <section id="least-squares" class="level2">
 <h2>Least squares</h2>
 <p><code>fit_ols_matrix</code> scales the design columns to unit norm
@@ -228,25 +228,26 @@ the extension.</p>
 <p><code>fit_mixed_gaussian_intercept_matrix</code> profiles the
 variance ratio as the extension does.
 <code>fit_mixed_gaussian_matrix</code> and
-<code>fit_mixed_gaussian</code> port the extension’s general linear
+<code>fit_mixed_gaussian</code> follow the extension’s general linear
 mixed model, including its BOBYQA and Nelder–Mead optimizers.
 <code>fit_mixed_logistic_matrix</code> and
-<code>fit_mixed_logistic</code> port the likelihood (the Laplace
+<code>fit_mixed_logistic</code> follow its likelihood (the Laplace
 approximation, or adaptive Gauss–Hermite quadrature with 2 to 61 points)
-and the BOBYQA search. The optimizers are ported from the same crate
-versions, so they take the same steps.</p>
+and its BOBYQA search. The optimizers follow the Rust crates the
+extension uses, bobyqa 0.3.2 and argmin 0.11.0, so they take the same
+steps.</p>
 </section>
 <section id="distributions" class="level2">
 <h2>Distributions</h2>
-<p>The extension’s distribution layer is ported together with the parts
-of cdflib that it calls. These are TOMS 708 (incomplete beta), TOMS 654
-(incomplete gamma), Cody’s normal CDF, and the
-<code>dinvnr</code>/<code>dt1</code> quantile starts. Log-scale tails,
-Loader’s saddle-point densities, and the safeguarded quantile search are
-ported as well. The statrs routines that the estimators call (erfc,
-<span class="math inline">\(\ln \Gamma\)</span>, the regularized
-incomplete beta, and the inverse error function) are ported from the
-same crate version.</p>
+<p>The polyfill follows the extension’s distribution layer and the parts
+of the cdflib 0.4.3 crate that it calls. These are TOMS 708 (incomplete
+beta), TOMS 654 (incomplete gamma), Cody’s normal CDF, and the
+<code>dinvnr</code>/<code>dt1</code> quantile starts. It also follows
+the log-scale tails, Loader’s saddle-point densities, and the
+safeguarded quantile search. The statrs routines that the estimators
+call (erfc, <span class="math inline">\(\ln \Gamma\)</span>, the
+regularized incomplete beta, and the inverse error function) follow
+statrs 0.19.1.</p>
 </section>
 <section id="rounding-and-fused-multiply-add" class="level2">
 <h2>Rounding and fused multiply-add</h2>

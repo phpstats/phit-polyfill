@@ -6,14 +6,13 @@ phit-polyfill is a pure-PHP implementation of the
 [phit](https://github.com/phpstats/phit) extension's functions, except the
 CSV reader (`Phit\read_csv` and `Phit\CsvReader`), which needs the
 extension. When the extension is not loaded, the polyfill defines them in the
-`Phit` namespace with the
-extension's names, parameter names, defaults, result keys, warnings, and
+`Phit` namespace with the extension's names, parameter names, defaults, result keys, warnings, and
 exception codes. Code written against phit runs on hosts where the extension
 cannot be installed, such as shared hosting or a managed platform without
 custom extensions. When the extension is loaded, the polyfill defines nothing.
 
-The implementations are ports of phit's Rust code. On every input in the test
-suites, the polyfill returns the same bits as the extension. It is slower: the
+The implementations follow phit's Rust code operation for operation. On every
+input in the test suites, the polyfill returns the same bits as the extension. It is slower: the
 recorded regression fits take 9 to 23 times as long, and mixed models 13 to 78
 times as long (see [Compatibility and limitations](php-versions.qmd)).
 
@@ -27,8 +26,8 @@ The polyfill supports PHP 8.3, 8.4, and 8.5 (`composer.json` requires
 `>=8.3 <8.6`). CI tests all three. No PHP extension is required.
 
 Composer's autoloader loads the polyfill's `bootstrap.php`. If any version
-of the `phit` extension is loaded, the bootstrap defines nothing. Otherwise it declares each function the
-polyfill implements, unless a function of that name already exists.
+of the `phit` extension is loaded, the bootstrap defines nothing. Otherwise it
+declares each function the polyfill implements, unless a function of that name already exists.
 
 The polyfill's functions throw an exception with code 1007 while OPcache's JIT
 compiles the process. Set `opcache.jit=disable` where the polyfill runs.
@@ -39,32 +38,56 @@ Import functions with `use function`, or call them by their qualified names.
 
 This script runs in a new Composer project after
 `composer require phpstats/phit-polyfill`. Save it as `fit.php` there and run
-`php fit.php`.
+`php fit.php`. It reads mtcars from the
+[PHPstats datasets repository](https://github.com/phpstats/datasets) and
+prints the fit with `summary()`.
 
 ```php
 <?php
 
 require __DIR__.'/vendor/autoload.php';
 
-use function Phit\fit_ols;
+use function Phit\{fit_ols, summary};
 
-$data = [
-    'score' => [2.1, 4.2, 5.8, 8.1, 10.2],
-    'hours' => [1.2, 2.3, 3.1, 4.8, 5.0],
-    'absences' => [0.4, 1.1, 0.9, 2.2, 1.7],
-];
-
-$fit = fit_ols('score ~ hours + absences', $data);
-
-foreach ($fit['columns'] as $j => $term) {
-    printf("%-12s %8.4f  p = %.4f\n", $term, $fit['coefficients'][$j], $fit['p_values'][$j]);
+// mtcars from the PHPstats datasets repository, read into columns.
+$url = 'https://raw.githubusercontent.com/phpstats/datasets/main/csv/'
+    .'mtcars.csv';
+$rows = array_map(
+    fn (string $line) => str_getcsv($line, escape: ''),
+    file($url, FILE_IGNORE_NEW_LINES),
+);
+$cars = [];
+foreach (array_shift($rows) as $j => $name) {
+    $cars[$name] = array_map(
+        fn (string $v) => is_numeric($v) ? (float) $v : $v,
+        array_column($rows, $j),
+    );
 }
+
+$fit = fit_ols('mpg ~ wt + factor(cyl)', $cars);
+echo summary($fit);
 ```
 
-The coefficients are -0.2843 for the intercept, 2.5864 for `hours`, and
--1.6819 for `absences`. The same code runs with the extension loaded.
+```text
+Linear model fit by least squares
+Formula: mpg ~ wt + factor(cyl)
 
-## Checking what is available
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)
+(Intercept)   33.9908     1.8878  18.006  < 2e-16
+wt            -3.2056     0.7539  -4.252 0.000213
+factor(cyl)6  -4.2556     1.3861  -3.070 0.004718
+factor(cyl)8  -6.0709     1.6523  -3.674 0.000999
+
+Residual standard error: 2.557 on 28 degrees of freedom
+Multiple R-squared: 0.8374, Adjusted R-squared: 0.82
+F-statistic: 48.08 on 3 and 28 DF, p-value: 3.594e-11
+```
+
+The same code runs with the extension loaded. Without the extension,
+`Phit\read_csv` is undefined, so the script reads the CSV file itself.
+
+## Availability {#checking-what-is-available}
 
 `Phit\Polyfill\Polyfill` reports which functions the polyfill implements and
 whether the extension is loaded.
@@ -72,9 +95,9 @@ whether the extension is loaded.
 ```php
 use Phit\Polyfill\Polyfill;
 
-Polyfill::supports('Phit\fit_generalized_linear');  // true
-Polyfill::supports('Phit\read_csv');                // false: needs the extension
-Polyfill::nativeLoaded();                           // whether phit is loaded
+Polyfill::supports('Phit\fit_generalized_linear'); // true
+Polyfill::supports('Phit\read_csv');               // false: extension only
+Polyfill::nativeLoaded();                          // whether phit is loaded
 ```
 
 `Polyfill::implementation('Phit\fit_ols')` returns the polyfill's callable

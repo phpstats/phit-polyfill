@@ -3,90 +3,21 @@
 A pure-PHP implementation of the [phit](https://github.com/phpstats/phit)
 extension's functions, except the CSV reader (`Phit\read_csv` and
 `Phit\CsvReader`), which needs the extension. When the extension is not
-loaded, the polyfill defines them in the `Phit` namespace with the extension's names, parameter names,
-defaults, result keys, warnings, and exception codes. Code written against
+loaded, the polyfill defines them in the `Phit` namespace with the
+extension's names, parameter names, defaults, result keys, warnings, and
+exception codes. Code written against
 phit runs on hosts where the extension cannot be installed. When the extension
 is loaded, the polyfill defines nothing.
 
-The implementations are ports of phit's Rust code. On every input in the test
-suites they return the same bits as the extension. The documentation is in
+The implementations follow phit's Rust code operation for operation. On every
+input in the test suites they return the same bits as the extension. The documentation is in
 [`site/docs`](site/docs): [overview](site/docs/index.qmd),
 [functions](site/docs/functions.qmd),
 [compatibility and limitations](site/docs/php-versions.qmd),
-[how it works](site/docs/how-it-works.qmd), and
+[implementation](site/docs/how-it-works.qmd), and
 [development](site/docs/development.qmd).
 
-## Installation
-
-```bash
-composer require phpstats/phit-polyfill
-```
-
-The polyfill supports PHP 8.3, 8.4, and 8.5 (`composer.json` requires
-`>=8.3 <8.6`). CI tests all three on Linux and macOS. No PHP extension is
-required.
-
-Composer's autoloader loads `bootstrap.php`, which defines the functions. The
-polyfill's functions refuse to run while OPcache's JIT compiles the process.
-They throw an exception with code 1007. Set `opcache.jit=disable` where the
-polyfill runs. See [The JIT](site/docs/php-versions.qmd#the-jit).
-
-## Usage
-
-Import a function with `use function`, or call it by its qualified name.
-
-This script runs in a new Composer project after
-`composer require phpstats/phit-polyfill`. Save it as `fit.php` there and run
-`php fit.php`.
-
-```php
-<?php
-
-require __DIR__.'/vendor/autoload.php';
-
-use function Phit\fit_ols;
-
-$data = [
-    'score' => [2.1, 4.2, 5.8, 8.1, 10.2],
-    'hours' => [1.2, 2.3, 3.1, 4.8, 5.0],
-    'absences' => [0.4, 1.1, 0.9, 2.2, 1.7],
-];
-
-$fit = fit_ols('score ~ hours + absences', $data);
-
-foreach ($fit['columns'] as $j => $term) {
-    printf("%-12s %8.4f  p = %.4f\n", $term, $fit['coefficients'][$j], $fit['p_values'][$j]);
-}
-```
-
-The coefficients are -0.2843 for the intercept, 2.5864 for `hours`, and
--1.6819 for `absences`. The same code runs with the extension loaded.
-
-`Phit\Polyfill\Polyfill` reports what is available:
-
-```php
-use Phit\Polyfill\Polyfill;
-
-Polyfill::supports('Phit\fit_generalized_linear');  // true
-Polyfill::supports('Phit\read_csv');                // false: needs the extension
-Polyfill::nativeLoaded();                           // whether phit is loaded
-```
-
-## With the extension
-
-- When any version of the `phit` extension is loaded, `bootstrap.php` returns
-  before it defines anything, and every `Phit\` function is the extension's.
-  An extension older than the phit release the polyfill reproduces lacks the
-  newer functions, and the polyfill does not define them. Upgrade the
-  extension to that release to use them (see [Versions](#versions)).
-- `composer.json` declares `"provide": {"ext-phit": "*"}`, so Composer treats
-  a package that requires `ext-phit` as satisfied by the polyfill. The CSV
-  reader, `Phit\read_csv` and `Phit\CsvReader`, needs the extension.
-- `Polyfill::implementation('Phit\fit_ols')` returns the polyfill's callable
-  even when the extension is loaded. It skips the JIT check. The parity tests
-  and benchmarks use it to run both implementations in one process.
-
-## Coverage
+## Features
 
 The polyfill implements 234 of phit 0.5.1's 235 functions.
 
@@ -109,6 +40,100 @@ structures. Functions and classes marked "Extension only" stay undefined
 without the extension, so `function_exists()` and `class_exists()` report
 them correctly. phibble's PHP CSV reader covers CSV input without the
 extension.
+
+## Installation
+
+```bash
+composer require phpstats/phit-polyfill
+```
+
+The polyfill supports PHP 8.3, 8.4, and 8.5 (`composer.json` requires
+`>=8.3 <8.6`). CI tests all three on Linux and macOS. No PHP extension is
+required.
+
+Composer's autoloader loads `bootstrap.php`, which defines the functions. The
+polyfill's functions refuse to run while OPcache's JIT compiles the process.
+They throw an exception with code 1007. Set `opcache.jit=disable` where the
+polyfill runs. See [The JIT](site/docs/php-versions.qmd#the-jit).
+
+## Usage
+
+Import a function with `use function`, or call it by its qualified name.
+
+This script runs in a new Composer project after
+`composer require phpstats/phit-polyfill`. Save it as `fit.php` there and run
+`php fit.php`. It reads mtcars from the
+[PHPstats datasets repository](https://github.com/phpstats/datasets) and
+prints the fit with `summary()`.
+
+```php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+use function Phit\{fit_ols, summary};
+
+// mtcars from the PHPstats datasets repository, read into columns.
+$url = 'https://raw.githubusercontent.com/phpstats/datasets/main/csv/'
+    .'mtcars.csv';
+$rows = array_map(
+    fn (string $line) => str_getcsv($line, escape: ''),
+    file($url, FILE_IGNORE_NEW_LINES),
+);
+$cars = [];
+foreach (array_shift($rows) as $j => $name) {
+    $cars[$name] = array_map(
+        fn (string $v) => is_numeric($v) ? (float) $v : $v,
+        array_column($rows, $j),
+    );
+}
+
+$fit = fit_ols('mpg ~ wt + factor(cyl)', $cars);
+echo summary($fit);
+```
+
+```text
+Linear model fit by least squares
+Formula: mpg ~ wt + factor(cyl)
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)
+(Intercept)   33.9908     1.8878  18.006  < 2e-16
+wt            -3.2056     0.7539  -4.252 0.000213
+factor(cyl)6  -4.2556     1.3861  -3.070 0.004718
+factor(cyl)8  -6.0709     1.6523  -3.674 0.000999
+
+Residual standard error: 2.557 on 28 degrees of freedom
+Multiple R-squared: 0.8374, Adjusted R-squared: 0.82
+F-statistic: 48.08 on 3 and 28 DF, p-value: 3.594e-11
+```
+
+The same code runs with the extension loaded. Without the extension,
+`Phit\read_csv` is undefined, so the script reads the CSV file itself.
+
+`Phit\Polyfill\Polyfill` reports what is available:
+
+```php
+use Phit\Polyfill\Polyfill;
+
+Polyfill::supports('Phit\fit_generalized_linear'); // true
+Polyfill::supports('Phit\read_csv');               // false: extension only
+Polyfill::nativeLoaded();                          // whether phit is loaded
+```
+
+## Extension
+
+- When any version of the `phit` extension is loaded, `bootstrap.php` returns
+  before it defines anything, and every `Phit\` function is the extension's.
+  An extension older than the phit release the polyfill reproduces lacks the
+  newer functions, and the polyfill does not define them. Upgrade the
+  extension to that release to use them (see [Versions](#versions)).
+- `composer.json` declares `"provide": {"ext-phit": "*"}`, so Composer treats
+  a package that requires `ext-phit` as satisfied by the polyfill. The CSV
+  reader, `Phit\read_csv` and `Phit\CsvReader`, needs the extension.
+- `Polyfill::implementation('Phit\fit_ols')` returns the polyfill's callable
+  even when the extension is loaded. It skips the JIT check. The parity tests
+  and benchmarks use it to run both implementations in one process.
 
 ## Versions
 
@@ -175,7 +200,8 @@ The recorded run is in [benchmarks/results.json](benchmarks/results.json),
 with its full context. Reproduce it with:
 
 ```bash
-php -d extension=/path/to/libphit.so -d opcache.enable_cli=1 -d opcache.jit=disable \
+php -d extension=/path/to/libphit.so \
+    -d opcache.enable_cli=1 -d opcache.jit=disable \
     benchmarks/run.php --sizes=10000,100000 --repeat=5 --seed=5 \
     --json=benchmarks/results.json
 ```
@@ -207,10 +233,10 @@ under another one the extension does not load and the parity tests skip.
   verifications from a parity log (`PARITY_LOG=… vendor/bin/pest tests/Parity`)
   and the records of `bin/site-matrix`, which runs the suite under each
   OPcache and JIT mode.
-- `tests/Unit` holds the ports of the extension's suites. They call the
+- `tests/Unit` holds the extension's test suites, rewritten for Pest. They call the
   polyfill directly, so they test it whether or not the extension is loaded.
   `tests/Parity` runs only with the extension and compares the two.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Released under the MIT license. See [LICENSE](LICENSE).

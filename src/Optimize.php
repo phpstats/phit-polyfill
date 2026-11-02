@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phit\Polyfill;
 
 /**
- * One-dimensional minimization and root finding, ported from the phit
+ * One-dimensional minimization and root finding, following the phit
  * extension (stats-core optimize.rs plus the PHP glue), which follows R's C
  * Brent_fmin (behind stats::optimize) and R_zeroin2 (behind stats::uniroot)
  * step for step, so the same function is evaluated at the same points.

@@ -15,7 +15,7 @@ under another one the extension does not load and the parity tests skip.
 
 ## Tests
 
-- `tests/Unit` holds ports of the extension's own test suites. They call the
+- `tests/Unit` holds the extension's own test suites, rewritten for Pest. They call the
   polyfill directly through `Polyfill::implementation()`, so they test it
   whether or not the extension is loaded.
 - `tests/Parity` runs only with the extension loaded. It compares the polyfill

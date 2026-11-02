@@ -14,7 +14,7 @@ use Phit\Polyfill\Internal\Bobyqa\Status;
 use Phit\Polyfill\Internal\Bobyqa\Util;
 
 /**
- * A port of the Rust crate bobyqa 0.3.2 (Powell's BOBYQA, ported from PRIMA),
+ * Follows the Rust crate bobyqa 0.3.2 (Powell's BOBYQA, after PRIMA),
  * which the extension's mixed models minimize with. It reproduces the crate's
  * evaluation sequence and result bit for bit: same loops, same summation
  * order, Rust's NaN-losing f64::max/min, and PRIMA's single-precision literals.

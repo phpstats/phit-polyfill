@@ -6,7 +6,7 @@ use Phit\Polyfill\Internal\Jit;
 use Phit\Polyfill\Polyfill;
 
 /*
- * The ported suites call the polyfill implementation directly through pf(),
+ * The suites from the extension call the polyfill implementation directly through pf(),
  * so they test the polyfill whether or not the extension is loaded. The
  * Parity suite compares those implementations with the loaded extension.
  */

@@ -263,8 +263,8 @@ extension does not load and the parity tests skip.</p>
 <section id="tests" class="level2">
 <h2>Tests</h2>
 <ul>
-<li><code>tests/Unit</code> holds ports of the extension’s own test
-suites. They call the polyfill directly through
+<li><code>tests/Unit</code> holds the extension’s own test suites,
+rewritten for Pest. They call the polyfill directly through
 <code>Polyfill::implementation()</code>, so they test it whether or not
 the extension is loaded.</li>
 <li><code>tests/Parity</code> runs only with the extension loaded. It

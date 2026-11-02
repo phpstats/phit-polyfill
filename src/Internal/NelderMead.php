@@ -33,7 +33,7 @@ use Phit\Polyfill\Distribution\Support;
  * uses driftsort: without NaN costs any stable sort gives the same order, but
  * with one (NaN compares Equal to everything, which is no total order)
  * driftsort may order differently or panic ("user-provided comparison function
- * does not correctly implement a total order"); this port keeps insertion sort.
+ * does not correctly implement a total order"); this code keeps insertion sort.
  *
  * @internal
  */

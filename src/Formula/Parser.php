@@ -7,8 +7,8 @@ namespace Phit\Polyfill\Formula;
 use Phit\Polyfill\ErrorCode;
 
 /**
- * Tokenizer, Pratt parser and R-compatible deparser for model formulas, ported
- * from the extension's stats-core formula::parse.
+ * Tokenizer, Pratt parser, and R-compatible deparser for model formulas,
+ * following the extension's stats-core formula::parse.
  *
  * Operator precedence follows R's ?Syntax: ^ > unary -/+ > : > %in% > * / >
  * binary +/- > comparisons > ! > & > | > ~.

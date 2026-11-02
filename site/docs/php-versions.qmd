@@ -10,7 +10,7 @@ each version in five modes: without OPcache, with OPcache and no JIT, with the
 tracing JIT, with `opcache.jit=1205`, and with `opcache.jit=1235`. On macOS it
 runs the OPcache and `opcache.jit=1205` modes. No PHP extension is required.
 
-## With the extension
+## Extension {#with-the-extension}
 
 - When any version of the `phit` extension is loaded, the polyfill's
   bootstrap defines nothing, and every `Phit\` function is the extension's.

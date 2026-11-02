@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phit\Polyfill\Distribution;
 
 /**
- * Port of stats-core's distributions/special.rs: log-scale tails beyond the
+ * Follows stats-core's distributions/special.rs: log-scale tails beyond the
  * double range, Loader's saddle-point densities and logistic-scale helpers.
  *
  * @internal

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phit\Polyfill\Distribution;
 
 /**
- * Port of stats-core's distributions/quantile.rs: safeguarded Newton on the
+ * Follows stats-core's distributions/quantile.rs: safeguarded Newton on the
  * log scale for continuous quantiles and a bracketing search for discrete ones.
  *
  * @internal

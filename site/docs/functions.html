@@ -481,7 +481,7 @@ take one uniform per draw from the same stream.</p>
 <h2>Formula interface</h2>
 <p><code>model_matrix</code>, <code>fit_ols</code>, and
 <code>fit_generalized_linear</code> accept an R-style formula over named
-columns. They port the extension’s parser, term expansion, and coding,
+columns. They follow the extension’s parser, term expansion, and coding,
 so column names, term order, contrasts, and missing-value handling match
 the extension. Where the extension differs from R, the polyfill follows
 the extension.</p>
@@ -519,8 +519,8 @@ with code 1007.</p>
 </section>
 <section id="mixed-models" class="level2">
 <h2>Mixed models</h2>
-<p>The five mixed-model functions port the extension’s code and support
-the same structures:</p>
+<p>The five mixed-model functions follow the extension’s code and
+support the same structures:</p>
 <ul>
 <li><code>fit_mixed_gaussian_intercept_matrix</code> fits a linear model
 with one random intercept.</li>

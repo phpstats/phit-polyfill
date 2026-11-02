@@ -8,7 +8,7 @@ use Phit\Polyfill\Distribution\Support;
 use Phit\Polyfill\Internal\ChaCha20;
 
 /**
- * Uniform, categorical and permutation sampling, ported from the phit
+ * Uniform, categorical, and permutation sampling, following the phit
  * extension (stats-core distributions/rng.rs plus the PHP glue). Every draw
  * takes one Open01 uniform from the same freshly seeded ChaCha20 stream as
  * the Phit\dist_*_rng families, and the checks run in the extension's order.

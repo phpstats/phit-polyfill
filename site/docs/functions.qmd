@@ -101,7 +101,7 @@ from the same stream.
 ## Formula interface
 
 `model_matrix`, `fit_ols`, and `fit_generalized_linear` accept an R-style formula over named
-columns. They port the extension's parser, term expansion, and coding, so
+columns. They follow the extension's parser, term expansion, and coding, so
 column names, term order, contrasts, and missing-value handling match the
 extension. Where the extension differs from R, the polyfill follows the
 extension.
@@ -135,8 +135,8 @@ and poisson. Random-effect bars such as `(1 | g)` are accepted by
 
 ## Mixed models
 
-The five mixed-model functions port the extension's code and support the same
-structures:
+The five mixed-model functions follow the extension's code and support the
+same structures:
 
 - `fit_mixed_gaussian_intercept_matrix` fits a linear model with one random intercept.
 - `fit_mixed_gaussian_matrix` and `fit_mixed_gaussian` fit linear mixed models by REML (the default) or

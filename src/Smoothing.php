@@ -6,7 +6,7 @@ namespace Phit\Polyfill;
 
 /**
  * Kernel density estimation, rule-of-thumb bandwidths, interpolation and the
- * empirical CDF, ported from the phit extension (stats-core smoothing.rs plus
+ * empirical CDF, following the phit extension (stats-core smoothing.rs plus
  * the PHP glue), which follows R's stats::density, bw.nrd0, bw.nrd, approx
  * and ecdf. Data arrays follow the descriptive functions: null and NAN are
  * missing, rejected by missing: 'raise' or removed by 'drop'; infinite values

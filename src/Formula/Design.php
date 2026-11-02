@@ -7,8 +7,8 @@ namespace Phit\Polyfill\Formula;
 use Phit\Polyfill\ErrorCode;
 
 /**
- * R's model.frame()/model.matrix() for a formula over named columns, ported
- * from stats-core formula::model_design: listwise deletion over the variables
+ * R's model.frame()/model.matrix() for a formula over named columns,
+ * following stats-core formula::model_design: listwise deletion over the variables
  * the formula uses, treatment (unordered) or polynomial (ordered) contrasts,
  * R column names and term order, and random-effect bars as z designs.
  *

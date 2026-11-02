@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phit\Polyfill\Distribution;
 
 /**
- * Port of the cdflib 0.4.3 crate routines (TOMS 708 incomplete beta, TOMS 654
+ * Follows the cdflib 0.4.3 crate routines (TOMS 708 incomplete beta, TOMS 654
  * incomplete gamma, Cody's normal CDF and the CDFLIB helpers) that the
  * phit distribution API uses. Branches, constants and operation order
  * follow the Rust source so results agree with the extension to the last bit

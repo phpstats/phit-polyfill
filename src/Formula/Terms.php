@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phit\Polyfill\Formula;
 
 /**
- * R terms.formula semantics, ported from stats-core formula::terms: variables
+ * R terms.formula semantics, following stats-core formula::terms: variables
  * in order of first appearance, terms as sorted sets of variable indices
  * ordered by interaction order, and R's TermCode contrast/dummy heuristic.
  *

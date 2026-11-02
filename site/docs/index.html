@@ -248,7 +248,7 @@
 <li><a href="#installation" id="toc-installation">Installation</a></li>
 <li><a href="#usage" id="toc-usage">Usage</a></li>
 <li><a href="#checking-what-is-available"
-id="toc-checking-what-is-available">Checking what is available</a></li>
+id="toc-checking-what-is-available">Availability</a></li>
 <li><a href="#versions" id="toc-versions">Versions</a></li>
 </ul>
 </nav>
@@ -262,10 +262,10 @@ defaults, result keys, warnings, and exception codes. Code written
 against phit runs on hosts where the extension cannot be installed, such
 as shared hosting or a managed platform without custom extensions. When
 the extension is loaded, the polyfill defines nothing.</p>
-<p>The implementations are ports of phit’s Rust code. On every input in
-the test suites, the polyfill returns the same bits as the extension. It
-is slower: the recorded regression fits take 9 to 23 times as long, and
-mixed models 13 to 78 times as long (see <a
+<p>The implementations follow phit’s Rust code operation for operation.
+On every input in the test suites, the polyfill returns the same bits as
+the extension. It is slower: the recorded regression fits take 9 to 23
+times as long, and mixed models 13 to 78 times as long (see <a
 href="php-versions.qmd">Compatibility and limitations</a>).</p>
 <section id="installation" class="level2">
 <h2>Installation</h2>
@@ -289,39 +289,61 @@ where the polyfill runs.</p>
 their qualified names.</p>
 <p>This script runs in a new Composer project after
 <code>composer require phpstats/phit-polyfill</code>. Save it as
-<code>fit.php</code> there and run <code>php fit.php</code>.</p>
+<code>fit.php</code> there and run <code>php fit.php</code>. It reads
+mtcars from the <a href="https://github.com/phpstats/datasets">PHPstats
+datasets repository</a> and prints the fit with
+<code>summary()</code>.</p>
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode php"><code class="sourceCode php"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;?php</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">require</span> <span class="cn">__DIR__</span><span class="op">.</span><span class="st">&#39;/vendor/autoload.php&#39;</span><span class="ot">;</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\fit_ols<span class="ot">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\{fit_ols<span class="ot">,</span> summary}<span class="ot">;</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="va">$data</span> <span class="op">=</span> [</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;score&#39;</span> =&gt; [<span class="fl">2.1</span><span class="ot">,</span> <span class="fl">4.2</span><span class="ot">,</span> <span class="fl">5.8</span><span class="ot">,</span> <span class="fl">8.1</span><span class="ot">,</span> <span class="fl">10.2</span>]<span class="ot">,</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;hours&#39;</span> =&gt; [<span class="fl">1.2</span><span class="ot">,</span> <span class="fl">2.3</span><span class="ot">,</span> <span class="fl">3.1</span><span class="ot">,</span> <span class="fl">4.8</span><span class="ot">,</span> <span class="fl">5.0</span>]<span class="ot">,</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;absences&#39;</span> =&gt; [<span class="fl">0.4</span><span class="ot">,</span> <span class="fl">1.1</span><span class="ot">,</span> <span class="fl">0.9</span><span class="ot">,</span> <span class="fl">2.2</span><span class="ot">,</span> <span class="fl">1.7</span>]<span class="ot">,</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>]<span class="ot">;</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> fit_ols(<span class="st">&#39;score ~ hours + absences&#39;</span><span class="ot">,</span> <span class="va">$data</span>)<span class="ot">;</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="cf">foreach</span> (<span class="va">$fit</span>[<span class="st">&#39;columns&#39;</span>] <span class="kw">as</span> <span class="va">$j</span> =&gt; <span class="va">$term</span>) {</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">printf</span>(<span class="st">&quot;%-12s %8.4f  p = %.4f</span><span class="sc">\n</span><span class="st">&quot;</span><span class="ot">,</span> <span class="va">$term</span><span class="ot">,</span> <span class="va">$fit</span>[<span class="st">&#39;coefficients&#39;</span>][<span class="va">$j</span>]<span class="ot">,</span> <span class="va">$fit</span>[<span class="st">&#39;p_values&#39;</span>][<span class="va">$j</span>])<span class="ot">;</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>The coefficients are -0.2843 for the intercept, 2.5864 for
-<code>hours</code>, and -1.6819 for <code>absences</code>. The same code
-runs with the extension loaded.</p>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">// mtcars from the PHPstats datasets repository, read into columns.</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="va">$url</span> <span class="op">=</span> <span class="st">&#39;https://raw.githubusercontent.com/phpstats/datasets/main/csv/&#39;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="st">&#39;mtcars.csv&#39;</span><span class="ot">;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="va">$rows</span> <span class="op">=</span> <span class="fu">array_map</span>(</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">fn</span> (<span class="dt">string</span> <span class="va">$line</span>) =&gt; <span class="fu">str_getcsv</span>(<span class="va">$line</span><span class="ot">,</span> escape<span class="ot">:</span> <span class="st">&#39;&#39;</span>)<span class="ot">,</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">file</span>(<span class="va">$url</span><span class="ot">,</span> <span class="cn">FILE_IGNORE_NEW_LINES</span>)<span class="ot">,</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>)<span class="ot">;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="va">$cars</span> <span class="op">=</span> []<span class="ot">;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="cf">foreach</span> (<span class="fu">array_shift</span>(<span class="va">$rows</span>) <span class="kw">as</span> <span class="va">$j</span> =&gt; <span class="va">$name</span>) {</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="va">$cars</span>[<span class="va">$name</span>] <span class="op">=</span> <span class="fu">array_map</span>(</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="kw">fn</span> (<span class="dt">string</span> <span class="va">$v</span>) =&gt; <span class="fu">is_numeric</span>(<span class="va">$v</span>) <span class="ot">?</span> <span class="dt">(float)</span> <span class="va">$v</span> <span class="ot">:</span> <span class="va">$v</span><span class="ot">,</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">array_column</span>(<span class="va">$rows</span><span class="ot">,</span> <span class="va">$j</span>)<span class="ot">,</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    )<span class="ot">;</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> fit_ols(<span class="st">&#39;mpg ~ wt + factor(cyl)&#39;</span><span class="ot">,</span> <span class="va">$cars</span>)<span class="ot">;</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> summary(<span class="va">$fit</span>)<span class="ot">;</span></span></code></pre></div>
+<pre class="text"><code>Linear model fit by least squares
+Formula: mpg ~ wt + factor(cyl)
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)   33.9908     1.8878  18.006  &lt; 2e-16
+wt            -3.2056     0.7539  -4.252 0.000213
+factor(cyl)6  -4.2556     1.3861  -3.070 0.004718
+factor(cyl)8  -6.0709     1.6523  -3.674 0.000999
+
+Residual standard error: 2.557 on 28 degrees of freedom
+Multiple R-squared: 0.8374, Adjusted R-squared: 0.82
+F-statistic: 48.08 on 3 and 28 DF, p-value: 3.594e-11</code></pre>
+<p>The same code runs with the extension loaded. Without the extension,
+<code>Phit\read_csv</code> is undefined, so the script reads the CSV
+file itself.</p>
 </section>
 <section id="checking-what-is-available" class="level2">
-<h2>Checking what is available</h2>
+<h2>Availability</h2>
 <p><code>Phit\Polyfill\Polyfill</code> reports which functions the
 polyfill implements and whether the extension is loaded.</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode php"><code class="sourceCode php"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> Phit\Polyfill\Polyfill<span class="ot">;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>Polyfill::supports(<span class="st">&#39;Phit\fit_generalized_linear&#39;</span>)<span class="ot">;</span>  <span class="co">// true</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>Polyfill::supports(<span class="st">&#39;Phit\read_csv&#39;</span>)<span class="ot">;</span>                <span class="co">// false: needs the extension</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>Polyfill::nativeLoaded()<span class="ot">;</span>                           <span class="co">// whether phit is loaded</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode php"><code class="sourceCode php"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> Phit\Polyfill\Polyfill<span class="ot">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>Polyfill::supports(<span class="st">&#39;Phit\fit_generalized_linear&#39;</span>)<span class="ot">;</span> <span class="co">// true</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>Polyfill::supports(<span class="st">&#39;Phit\read_csv&#39;</span>)<span class="ot">;</span>               <span class="co">// false: extension only</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>Polyfill::nativeLoaded()<span class="ot">;</span>                          <span class="co">// whether phit is loaded</span></span></code></pre></div>
 <p><code>Polyfill::implementation('Phit\fit_ols')</code> returns the
 polyfill’s callable even when the extension is loaded, and it skips the
 JIT check. The parity tests and the benchmarks use it to run both
