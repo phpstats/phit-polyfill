@@ -198,8 +198,10 @@ multiply-add</a></li>
 </nav>
 <p>The polyfill is written in PHP from phit’s Rust code. It does not
 implement the methods independently. Each function keeps the extension’s
-algorithm, constants, branch order, and floating-point operation order,
-so the two return the same bits.</p>
+algorithm, constants, branch order, and floating-point operation order.
+The parity tests check bitwise agreement on their tested inputs. <a
+href="php-versions.qmd">Compatibility and limitations</a> describes the
+JIT restrictions and architecture differences.</p>
 <section id="least-squares" class="level2">
 <h2>Least squares</h2>
 <p><code>fit_ols_matrix</code> scales the design columns to unit norm

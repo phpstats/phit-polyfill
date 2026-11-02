@@ -9,8 +9,10 @@ exception codes. Code written against
 phit runs on hosts where the extension cannot be installed. When the extension
 is loaded, the polyfill defines nothing.
 
-The implementations follow phit's Rust code operation for operation. On every
-input in the test suites they return the same bits as the extension. The documentation is in
+The implementations follow phit's Rust code operation for operation. The
+parity tests compare their results bit for bit with the extension.
+[Compatibility and limitations](site/docs/php-versions.qmd) describes the
+JIT restrictions and architecture differences. The documentation is in
 [`site/docs`](site/docs): [overview](site/docs/index.qmd),
 [functions](site/docs/functions.qmd),
 [compatibility and limitations](site/docs/php-versions.qmd),

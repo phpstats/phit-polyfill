@@ -4,8 +4,10 @@ title: "Implementation"
 
 The polyfill is written in PHP from phit's Rust code. It does not implement
 the methods independently. Each function keeps the extension's algorithm,
-constants, branch order, and floating-point operation order, so the two
-return the same bits.
+constants, branch order, and floating-point operation order. The parity tests
+check bitwise agreement on their tested inputs. [Compatibility and
+limitations](php-versions.qmd) describes the JIT restrictions and architecture
+differences.
 
 ## Least squares
 

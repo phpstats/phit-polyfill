@@ -263,9 +263,11 @@ against phit runs on hosts where the extension cannot be installed, such
 as shared hosting or a managed platform without custom extensions. When
 the extension is loaded, the polyfill defines nothing.</p>
 <p>The implementations follow phit’s Rust code operation for operation.
-On every input in the test suites, the polyfill returns the same bits as
-the extension. It is slower: the recorded regression fits take 9 to 23
-times as long, and mixed models 13 to 78 times as long (see <a
+The parity tests compare their results bit for bit with the extension.
+<a href="php-versions.qmd">Compatibility and limitations</a> describes
+the JIT restrictions and architecture differences. In the benchmarks,
+the recorded regression fits take 9 to 23 times as long, and mixed
+models 13 to 78 times as long (see <a
 href="php-versions.qmd">Compatibility and limitations</a>).</p>
 <section id="installation" class="level2">
 <h2>Installation</h2>
