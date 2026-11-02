@@ -350,3 +350,146 @@ it('predicts exactly like the extension', function () {
     }
     expect(true)->toBeTrue();
 });
+
+it('prints summaries and tidies fits exactly like the extension', function () {
+    // Synthetic fits of every kind, with numbers chosen to hit R's formatting
+    // edges (ties, widening at a power of ten, tiny p-values, zeros, and
+    // non-finite values) and keys removed or given the wrong type.
+    randomParitySeed('summary');
+    $number = function (): mixed {
+        return match (mt_rand(0, 14)) {
+            0 => 0.0,
+            1 => -0.0,
+            2 => NAN,
+            3 => INF,
+            4 => null,
+            5 => [9999.6, 999.96, 99999.6, 99996.0, 0.00005, 0.125, 2.5, 1e-300, 1e300][mt_rand(0, 8)],
+            6 => mt_rand(-50, 50),
+            7 => randomUniform(-1, 1) * 10 ** mt_rand(-320, 300),
+            default => randomUniform(-1, 1) * 10 ** mt_rand(-12, 6),
+        };
+    };
+    $pvalue = fn (): mixed => match (mt_rand(0, 6)) {
+        0 => 10 ** -mt_rand(16, 300) * randomUniform(0, 1),
+        1 => NAN,
+        2 => 10 ** -mt_rand(3, 6) * randomUniform(0.5, 1),
+        default => randomUniform(0, 1),
+    };
+    // range(1, 0) counts down, so build lists with a loop.
+    $list = function (int $n, \Closure $f): array {
+        $out = [];
+        for ($i = 0; $i < $n; $i++) {
+            $out[] = $f($i);
+        }
+
+        return $out;
+    };
+    $maybe = fn (mixed $v): mixed => mt_rand(0, 25) === 0 ? ['x', true, '1', null][mt_rand(0, 3)] : $v;
+    for ($round = 0; $round < randomParityIterations() * 4; $round++) {
+        $p = mt_rand(0, 6);
+        $fit = [
+            'coefficients' => $list($p, fn () => $number()),
+            'std_errors' => $list($p, fn () => mt_rand(0, 3) === 0 ? $number() : abs(randomUniform(0, 1) * 10 ** mt_rand(-8, 4))),
+            (mt_rand(0, 1) ? 't_statistics' : 'z_statistics') => $list($p, fn () => $number()),
+            'p_values' => $list($p, fn () => $pvalue()),
+            'df_residual' => mt_rand(0, 9) === 0 ? (float) mt_rand(0, 40) : mt_rand(0, 400),
+            'n_observations' => mt_rand(1, 500),
+        ];
+        if (mt_rand(0, 2) > 0) {
+            $fit['columns'] = $list($p, fn ($i) => ['(Intercept)', 'wt', 'hp', 'factor(cyl)6', 'x:z', 'é'][$i % 6].($i >= 6 ? $i : ''));
+        }
+        foreach (['formula' => 'y ~ x + (1 | g)', 'family' => 'binomial', 'link' => 'logit'] as $key => $value) {
+            if (mt_rand(0, 2) > 0) {
+                $fit[$key] = $value;
+            }
+        }
+        if (mt_rand(0, 3) > 0) {
+            $fit['intercept'] = mt_rand(0, 1) === 1;
+        }
+        $kind = mt_rand(0, 3);
+        $fit['model'] = mt_rand(0, 30) === 0 ? ['quantile', null, 3][mt_rand(0, 2)]
+            : ['linear', 'generalized_linear', $fit['family'] ?? null ? 'mixed_logistic' : 'mixed_gaussian'][min($kind, 2)];
+        if ($kind === 0) {
+            $fit += ['sigma' => $number(), 'r_squared' => randomUniform(0, 1), 'adj_r_squared' => randomUniform(-0.1, 1)];
+        } elseif ($kind === 1) {
+            $fit += ['null_deviance' => abs(randomUniform(0, 1)) * 10 ** mt_rand(-2, 6), 'deviance' => abs(randomUniform(0, 1)) * 10 ** mt_rand(-2, 6),
+                'aic' => randomUniform(0, 1) * 10 ** mt_rand(0, 6), 'residual_variance' => $number()];
+        } elseif ($kind === 2) {
+            $fit += ['log_likelihood' => randomUniform(-1, 0) * 10 ** mt_rand(0, 5), 'method' => mt_rand(0, 1) ? 'REML' : 'ML',
+                'residual_variance' => abs($number() ?? 1.0), 'n_groups' => mt_rand(1, 30)];
+            foreach (['aic', 'bic'] as $key) {
+                if (mt_rand(0, 2) > 0) {
+                    $fit[$key] = randomUniform(0, 1) * 10 ** mt_rand(0, 5);
+                }
+            }
+            if (mt_rand(0, 2) === 0 || $fit['model'] === 'mixed_logistic') {
+                $fit['integration'] = mt_rand(0, 1) ? 'laplace' : 'agq';
+                $fit['quadrature_points'] = mt_rand(1, 25);
+            }
+            $fit[mt_rand(0, 1) ? 'singular' : 'boundary'] = mt_rand(0, 1) === 1;
+            if (mt_rand(0, 2) === 0) {
+                $fit['random_intercept_variance'] = abs(randomUniform(0, 2));
+            } else {
+                $fit['random'] = [];
+                for ($t = mt_rand(1, 3); $t > 0; $t--) {
+                    $q = mt_rand(1, 3);
+                    $covariance = randomCovariance($q);
+                    if (mt_rand(0, 15) === 0) {
+                        // A covariance smaller than its columns, or ragged.
+                        $covariance = mt_rand(0, 1) ? [[1.0]] : [...array_slice($covariance, 0, -1), [1.0]];
+                    }
+                    $term = ['covariance' => $covariance, 'group_labels' => $list(mt_rand(1, 20), fn ($i) => "g$i")];
+                    if (mt_rand(0, 3) > 0) {
+                        $term['group'] = ['Subject', 'herd', 'g'][mt_rand(0, 2)];
+                    }
+                    if (mt_rand(0, 2) > 0) {
+                        $term['columns'] = array_slice(['(Intercept)', 'Days', 'x'], 0, $q);
+                    }
+                    if (mt_rand(0, 2) === 0) {
+                        $term['correlated'] = mt_rand(0, 1) === 1;
+                    }
+                    $fit['random'][] = $term;
+                }
+            }
+        }
+        $key = array_rand($fit);
+        $fit[$key] = $maybe($fit[$key]);
+        randomParityCompare('Phit\summary', [$fit]);
+        randomParityCompare('Phit\tidy', [$fit, mt_rand(0, 1) === 1, [0.95, 0.5, 0.99, 1.0, 0.0, NAN][mt_rand(0, 5)]]);
+        if (mt_rand(0, 9) === 0) {
+            unset($fit['model']);
+            randomParityCompare('Phit\summary', [$fit]);
+        }
+    }
+
+    // Real fits from random designs.
+    randomParitySeed('summary-fits');
+    for ($round = 0; $round < randomParityIterations(); $round++) {
+        $n = mt_rand(8, 80);
+        [$x, $y, $binary, $counts, $labels] = randomDesign($n, mt_rand(1, 4), 4);
+        $intercept = mt_rand(0, 5) > 0;
+        set_error_handler(fn () => true);
+        try {
+            foreach ([
+                fn () => Phit\fit_ols_matrix($x, $y, intercept: $intercept),
+                fn () => Phit\fit_logistic_matrix($x, $binary, intercept: $intercept),
+                fn () => Phit\fit_poisson_matrix($x, $counts, intercept: $intercept),
+                fn () => Phit\fit_probit_matrix($x, $binary, intercept: $intercept),
+                fn () => Phit\fit_mixed_gaussian_intercept_matrix($x, $y, $labels),
+                fn () => Phit\fit_mixed_gaussian_matrix($x, $y, [['z' => array_map(fn ($row) => [1.0, $row[0]], $x), 'groups' => $labels]]),
+                fn () => Phit\fit_mixed_logistic_matrix($x, $binary, $labels),
+            ] as $make) {
+                try {
+                    $fit = $make();
+                } catch (\Exception) {
+                    continue;
+                }
+                randomParityCompare('Phit\summary', [$fit]);
+                randomParityCompare('Phit\tidy', [$fit, true, randomUniform(0.5, 0.999)]);
+            }
+        } finally {
+            restore_error_handler();
+        }
+    }
+    expect(true)->toBeTrue();
+});

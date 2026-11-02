@@ -37,8 +37,10 @@ files=(
     predict-r.json
     smoothing-r.json
     optimize-r.json
+    summary/summary.json
 )
 for file in "${files[@]}"; do
+    mkdir -p "$(dirname "$root/tests/fixtures/$file")"
     git -C "$source" show "$commit:tests/fixtures/$file" > "$root/tests/fixtures/$file"
     echo "fetched $file"
 done

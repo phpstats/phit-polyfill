@@ -245,8 +245,8 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#names-in-phit-0.4" id="toc-names-in-phit-0.4">Names in
-phit 0.4</a></li>
+<li><a href="#model-summaries" id="toc-model-summaries">Model
+summaries</a></li>
 <li><a href="#csv-input" id="toc-csv-input">CSV input</a></li>
 <li><a href="#distributions"
 id="toc-distributions">Distributions</a></li>
@@ -259,11 +259,10 @@ draws</a></li>
 id="toc-warnings-and-exceptions">Warnings and exceptions</a></li>
 </ul>
 </nav>
-<p>The polyfill implements 242 of phit 0.4.4’s 243 functions. Ten of the
-242 are the deprecated 0.3 model names, listed in <a
-href="#names-in-phit-0.4">Names in phit 0.4</a>. Signatures, parameter
-names, defaults, and result keys are the extension’s, so phit’s
-documentation describes each function’s arguments and results.</p>
+<p>The polyfill implements 234 of phit 0.5.0’s 235 functions.
+Signatures, parameter names, defaults, and result keys are the
+extension’s, so phit’s documentation describes each function’s arguments
+and results.</p>
 <table>
 <colgroup>
 <col style="width: 50%" />
@@ -310,12 +309,8 @@ policies; <code>fit_mixed_gaussian_matrix</code>,
 <code>fit_mixed_logistic_matrix</code></td>
 </tr>
 <tr>
-<td>Deprecated 0.3 model names</td>
-<td><code>fit_lm</code>, <code>fit_glm</code>, <code>fit_lmer</code>,
-<code>fit_glmer</code>, <code>fit_logistic</code>,
-<code>fit_probit</code>, <code>fit_poisson</code>,
-<code>fit_mixed</code>, <code>fit_mixed_intercept</code>,
-<code>fit_logistic_mixed</code></td>
+<td>Model summaries</td>
+<td><code>summary</code>, <code>tidy</code></td>
 </tr>
 <tr>
 <td>Distributions</td>
@@ -341,105 +336,35 @@ policies; <code>fit_mixed_gaussian_matrix</code>,
 </table>
 <p>All names are in the <code>Phit</code> namespace, for example
 <code>Phit\fit_ols</code>.</p>
-<section id="names-in-phit-0.4" class="level2">
-<h2>Names in phit 0.4</h2>
-<p>phit 0.4.0 renamed the model functions, and the polyfill follows it.
-The formula fits have the short names, and the matrix fits end in
-<code>_matrix</code>. Results are unchanged.</p>
-<table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
-<thead>
-<tr>
-<th>phit 0.3</th>
-<th>phit 0.4</th>
-<th>Input</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>fit_lm</code></td>
-<td><code>fit_ols</code></td>
-<td>formula</td>
-</tr>
-<tr>
-<td><code>fit_glm</code></td>
-<td><code>fit_generalized_linear</code></td>
-<td>formula</td>
-</tr>
-<tr>
-<td><code>fit_lmer</code></td>
-<td><code>fit_mixed_gaussian</code></td>
-<td>formula</td>
-</tr>
-<tr>
-<td><code>fit_glmer</code></td>
-<td><code>fit_mixed_logistic</code></td>
-<td>formula</td>
-</tr>
-<tr>
-<td><code>fit_ols</code> (matrix)</td>
-<td><code>fit_ols_matrix</code></td>
-<td>matrix</td>
-</tr>
-<tr>
-<td><code>fit_logistic</code></td>
-<td><code>fit_logistic_matrix</code></td>
-<td>matrix</td>
-</tr>
-<tr>
-<td><code>fit_probit</code></td>
-<td><code>fit_probit_matrix</code></td>
-<td>matrix</td>
-</tr>
-<tr>
-<td><code>fit_poisson</code></td>
-<td><code>fit_poisson_matrix</code></td>
-<td>matrix</td>
-</tr>
-<tr>
-<td><code>fit_mixed</code></td>
-<td><code>fit_mixed_gaussian_matrix</code></td>
-<td>matrix</td>
-</tr>
-<tr>
-<td><code>fit_mixed_intercept</code></td>
-<td><code>fit_mixed_gaussian_intercept_matrix</code></td>
-<td>matrix</td>
-</tr>
-<tr>
-<td><code>fit_logistic_mixed</code></td>
-<td><code>fit_mixed_logistic_matrix</code></td>
-<td>matrix</td>
-</tr>
-</tbody>
-</table>
-<p>Each 0.3 name still works. It raises one
-<code>E_USER_DEPRECATED</code> that names its replacement, for example
-<code>Phit\fit_lm(): Deprecated since phit 0.4.0; use Phit\fit_ols() instead</code>,
-and returns exactly the replacement’s result. Messages and warnings name
-the 0.4 functions, also when the call uses a 0.3 name. phit 0.5 will
-remove the 0.3 names.</p>
-<p><code>fit_ols</code> has two forms until phit 0.5, and its first
-argument chooses one.</p>
+<section id="model-summaries" class="level2">
+<h2>Model summaries</h2>
+<p><code>summary()</code> prints a fit from any model function in the
+layout of R’s <code>print(summary(fit))</code>: OLS and generalized
+linear fits, from a formula or a matrix, and Gaussian and logistic mixed
+fits. The coefficient table follows
+<code>printCoefmat(digits = 4)</code> without significance stars. Every
+model function sets a <code>model</code> key in its result
+(<code>linear</code>, <code>generalized_linear</code>,
+<code>mixed_gaussian</code>, or <code>mixed_logistic</code>), and both
+functions choose the layout from it. <code>tidy()</code> returns the
+coefficient table as columns named <code>term</code>,
+<code>estimate</code>, <code>std_error</code>, <code>statistic</code>,
+and <code>p_value</code>. With <code>confInt</code>, it adds
+<code>conf_low</code> and <code>conf_high</code>, which are Wald
+intervals at <code>level</code>. For mixed fits, <code>tidy()</code>
+gives the fixed effects only.</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode php"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\fit_ols<span class="ot">;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>fit_ols(<span class="st">&#39;rent ~ log(area)&#39;</span><span class="ot">,</span> <span class="va">$data</span>)<span class="ot">;</span>              <span class="co">// formula fit</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>fit_ols(formula<span class="ot">:</span> <span class="st">&#39;rent ~ log(area)&#39;</span><span class="ot">,</span> data<span class="ot">:</span> <span class="va">$data</span>)<span class="ot">;</span> <span class="co">// the same call, named</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>fit_ols(<span class="va">$x</span><span class="ot">,</span> <span class="va">$y</span>)<span class="ot">;</span>                                 <span class="co">// deprecated matrix fit</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fit_ols(x<span class="ot">:</span> <span class="va">$x</span><span class="ot">,</span> y<span class="ot">:</span> <span class="va">$y</span>)<span class="ot">;</span>                           <span class="co">// the same call, named</span></span></code></pre></div>
-<p>The matrix form raises a deprecation that points to
-<code>fit_ols_matrix()</code> and returns its result. Mixing the forms,
-such as a formula with <code>x:</code>, or a formula with
-<code>offset:</code> or <code>intercept:</code>, throws an exception
-with code 1001 before any deprecation. In a formula, write
-<code>offset()</code> or <code>- 1</code> instead. In both forms, and in
-<code>fit_ols_matrix</code>, <code>weights</code> gives weighted least
-squares.</p>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\summary<span class="ot">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\<span class="bu">tidy</span><span class="ot">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> fit_ols(<span class="st">&#39;mpg ~ wt + hp&#39;</span><span class="ot">,</span> <span class="va">$mtcars</span>)<span class="ot">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> summary(<span class="va">$fit</span>)<span class="ot">;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="va">$table</span> <span class="op">=</span> <span class="bu">tidy</span>(<span class="va">$fit</span><span class="ot">,</span> confInt<span class="ot">:</span> <span class="kw">true</span>)<span class="ot">;</span></span></code></pre></div>
+<p>The text is byte-identical to the extension’s on phit’s fixtures for
+mtcars, mroz, MASS Insurance, sleepstudy, and cbpp, and the randomized
+parity suite compares both functions with the extension on synthetic
+fits.</p>
 </section>
 <section id="csv-input" class="level2">
 <h2>CSV input</h2>
@@ -607,9 +532,7 @@ random intercept, <code>(1 | g)</code>, by the Laplace approximation
 (the default) or adaptive Gauss–Hermite quadrature with 2 to 61 points.
 <code>fit_mixed_logistic</code> takes no <code>family</code> or
 <code>link</code> argument, and it rejects random slopes and more than
-one term with code 1007. The deprecated <code>fit_glmer</code> accepts
-<code>family: 'binomial'</code> with the logit link and rejects other
-families and links with code 1007.</li>
+one term with code 1007.</li>
 </ul>
 <p>The lme4 reference fixtures cover each of these structures, and the
 polyfill agrees with them within the extension’s tolerances. The

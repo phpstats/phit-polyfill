@@ -81,27 +81,6 @@ final class MixedFormula
         return Frontend::finish($output, $design, 'Phit\fit_mixed_gaussian', $optimizer);
     }
 
-    /** Phit\fit_glmer, deprecated: Phit\fit_mixed_logistic with a family and link that must be binomial logit. */
-    public static function glmer(
-        string $formula,
-        mixed $data,
-        string $family = 'binomial',
-        string $link = '',
-        string $missing = 'drop',
-        mixed $weights = null,
-        int $quadraturePoints = 1,
-        int $maxEvaluations = 20000,
-        float $tolerance = 1e-7,
-    ): array {
-        Frontend::stringArgument($family, 'family');
-        Frontend::stringArgument($link, 'link');
-        if ($family !== 'binomial' || ($link !== '' && $link !== 'logit')) {
-            throw ErrorCode::exception(ErrorCode::UNSUPPORTED, "Phit\\fit_glmer supports family 'binomial' with the logit link only (got '$family'/'$link')");
-        }
-
-        return self::mixedLogistic($formula, $data, $missing, $weights, $quadraturePoints, $maxEvaluations, $tolerance);
-    }
-
     /** Phit\fit_mixed_logistic */
     public static function mixedLogistic(
         string $formula,

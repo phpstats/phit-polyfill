@@ -233,6 +233,19 @@ final class ModelData
         return new self($cx, $cy, $cw, $co, $n, $retained, $dropped, $cg);
     }
 
+    /** The `model` key of each model function's result: the kind of model, which picks its printer. */
+    private static function modelKind(string $function): string
+    {
+        return match ($function) {
+            'Phit\fit_ols', 'Phit\fit_ols_matrix' => 'linear',
+            'Phit\fit_generalized_linear', 'Phit\fit_logistic_matrix', 'Phit\fit_probit_matrix',
+            'Phit\fit_poisson_matrix' => 'generalized_linear',
+            'Phit\fit_mixed_gaussian', 'Phit\fit_mixed_gaussian_matrix',
+            'Phit\fit_mixed_gaussian_intercept_matrix' => 'mixed_gaussian',
+            'Phit\fit_mixed_logistic', 'Phit\fit_mixed_logistic_matrix' => 'mixed_logistic',
+        };
+    }
+
     /**
      * Add diagnostics and sample accounting, and raise the listwise-deletion warning.
      *
@@ -241,6 +254,7 @@ final class ModelData
      */
     public function finish(array $output, string $function, string $solver): array
     {
+        $output['model'] = self::modelKind($function);
         $diagnostics = ['converged' => true, 'solver' => $solver];
         foreach (['iterations', 'evaluations', 'gradient_max', 'boundary', 'singular'] as $key) {
             if (array_key_exists($key, $output)) {
@@ -267,11 +281,9 @@ final class ModelData
         $output['dropped_rows'] = $this->dropped;
         if ($dropped > 0) {
             // Userland code cannot raise E_WARNING itself; E_USER_WARNING is the closest
-            // equivalent. The "fn(): " prefix matches what PHP adds to native warnings:
-            // the name the caller used, which differs through an alias.
-            $caller = CalledAs::name() ?? $function;
+            // equivalent. The "fn(): " prefix matches what PHP adds to native warnings.
             trigger_error(
-                "{$caller}(): dropped $dropped of {$this->nInput} observations with missing values (listwise deletion)",
+                "{$function}(): dropped $dropped of {$this->nInput} observations with missing values (listwise deletion)",
                 E_USER_WARNING,
             );
         }

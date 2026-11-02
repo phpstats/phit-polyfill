@@ -2,8 +2,7 @@
 title: "Functions"
 ---
 
-The polyfill implements 242 of phit 0.4.4's 243 functions. Ten of the 242 are
-the deprecated 0.3 model names, listed in [Names in phit 0.4](#names-in-phit-0.4). Signatures,
+The polyfill implements 234 of phit 0.5.0's 235 functions. Signatures,
 parameter names, defaults, and result keys are the extension's, so phit's
 documentation describes each function's arguments and results.
 
@@ -14,7 +13,7 @@ documentation describes each function's arguments and results.
 | Optimization | `optimize`, `uniroot` |
 | Models from a formula | `fit_ols`, `fit_generalized_linear`, `fit_mixed_gaussian`, `fit_mixed_logistic`, `model_matrix`, `predict` |
 | Models from a matrix | `fit_ols_matrix`, `fit_logistic_matrix`, `fit_probit_matrix`, `fit_poisson_matrix`, with weights, offsets, the automatic intercept, and both missing-value policies; `fit_mixed_gaussian_matrix`, `fit_mixed_gaussian_intercept_matrix`, `fit_mixed_logistic_matrix` |
-| Deprecated 0.3 model names | `fit_lm`, `fit_glm`, `fit_lmer`, `fit_glmer`, `fit_logistic`, `fit_probit`, `fit_poisson`, `fit_mixed`, `fit_mixed_intercept`, `fit_logistic_mixed` |
+| Model summaries | `summary`, `tidy` |
 | Distributions | 13 families with 14 functions each, listed below |
 | Random numbers | `dist_<family>_rng` for each of the 13 families, `dist_uniform_rng`, `dist_categorical_rng`, `dist_categorical_rows_rng`, `permutation_rng` |
 | Posterior draws | `draws_moments`, `draws_covariance_map`, `draws_affine` |
@@ -22,48 +21,33 @@ documentation describes each function's arguments and results.
 
 All names are in the `Phit` namespace, for example `Phit\fit_ols`.
 
-## Names in phit 0.4
+## Model summaries
 
-phit 0.4.0 renamed the model functions, and the polyfill follows it. The
-formula fits have the short names, and the matrix fits end in `_matrix`.
-Results are unchanged.
-
-| phit 0.3 | phit 0.4 | Input |
-|---|---|---|
-| `fit_lm` | `fit_ols` | formula |
-| `fit_glm` | `fit_generalized_linear` | formula |
-| `fit_lmer` | `fit_mixed_gaussian` | formula |
-| `fit_glmer` | `fit_mixed_logistic` | formula |
-| `fit_ols` (matrix) | `fit_ols_matrix` | matrix |
-| `fit_logistic` | `fit_logistic_matrix` | matrix |
-| `fit_probit` | `fit_probit_matrix` | matrix |
-| `fit_poisson` | `fit_poisson_matrix` | matrix |
-| `fit_mixed` | `fit_mixed_gaussian_matrix` | matrix |
-| `fit_mixed_intercept` | `fit_mixed_gaussian_intercept_matrix` | matrix |
-| `fit_logistic_mixed` | `fit_mixed_logistic_matrix` | matrix |
-
-Each 0.3 name still works. It raises one `E_USER_DEPRECATED` that names its
-replacement, for example `Phit\fit_lm(): Deprecated since phit 0.4.0; use
-Phit\fit_ols() instead`, and returns exactly the replacement's result.
-Messages and warnings name the 0.4 functions, also when the call uses a 0.3
-name. phit 0.5 will remove the 0.3 names.
-
-`fit_ols` has two forms until phit 0.5, and its first argument chooses one.
+`summary()` prints a fit from any model function in the layout of R's
+`print(summary(fit))`: OLS and generalized linear fits, from a formula or a
+matrix, and Gaussian and logistic mixed fits. The coefficient table follows
+`printCoefmat(digits = 4)` without significance stars. Every model function
+sets a `model` key in its result (`linear`, `generalized_linear`,
+`mixed_gaussian`, or `mixed_logistic`), and both functions choose the layout
+from it. `tidy()` returns the
+coefficient table as columns named `term`, `estimate`, `std_error`,
+`statistic`, and `p_value`. With `confInt`, it adds `conf_low` and
+`conf_high`, which are Wald intervals at `level`. For mixed fits, `tidy()`
+gives the fixed effects only.
 
 ```php
 use function Phit\fit_ols;
+use function Phit\summary;
+use function Phit\tidy;
 
-fit_ols('rent ~ log(area)', $data);              // formula fit
-fit_ols(formula: 'rent ~ log(area)', data: $data); // the same call, named
-fit_ols($x, $y);                                 // deprecated matrix fit
-fit_ols(x: $x, y: $y);                           // the same call, named
+$fit = fit_ols('mpg ~ wt + hp', $mtcars);
+echo summary($fit);
+$table = tidy($fit, confInt: true);
 ```
 
-The matrix form raises a deprecation that points to `fit_ols_matrix()` and
-returns its result. Mixing the forms, such as a formula with `x:`, or a
-formula with `offset:` or `intercept:`, throws an exception with code 1001
-before any deprecation. In a formula, write `offset()` or `- 1` instead. In
-both forms, and in `fit_ols_matrix`, `weights` gives weighted least squares.
+The text is byte-identical to the extension's on phit's fixtures for mtcars,
+mroz, MASS Insurance, sleepstudy, and cbpp, and the randomized parity suite
+compares both functions with the extension on synthetic fits.
 
 ## CSV input
 
@@ -161,9 +145,7 @@ structures:
   random intercept, `(1 | g)`, by the Laplace approximation (the default) or
   adaptive Gauss–Hermite quadrature with 2 to 61 points. `fit_mixed_logistic`
   takes no `family` or `link` argument, and it rejects random slopes and more
-  than one term with code 1007. The deprecated `fit_glmer` accepts
-  `family: 'binomial'` with the logit link and rejects other families and
-  links with code 1007.
+  than one term with code 1007.
 
 The lme4 reference fixtures cover each of these structures, and the polyfill
 agrees with them within the extension's tolerances. The randomized parity

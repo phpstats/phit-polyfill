@@ -7,7 +7,7 @@ namespace Phit\Polyfill;
 use Phit\Polyfill\Formula\Frontend;
 
 /**
- * Linear model from a formula: the Phit\fit_ols_matrix core plus coefficient names (Phit\fit_ols).
+ * Phit\fit_ols: a linear model from a formula, the Phit\fit_ols_matrix core plus coefficient names.
  */
 final class Lm
 {

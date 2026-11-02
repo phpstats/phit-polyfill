@@ -203,46 +203,14 @@ expect()->extend('toBeClose', function (mixed $expected, float $abs = 1e-9, floa
     return $this;
 });
 
-// phit 0.4's deprecated aliases and Phit\fit_ols dispatch (tests/Unit/AliasesTest.php
+// The removed 0.3 names and Phit\fit_ols (tests/Unit/AliasesTest.php
 // and tests/Parity/AliasesParityTest.php), from the extension's tests/aliases.php.
 
-/** The cases: [old name, new name, positional arguments, named arguments]. */
-function aliasCases(): array
+/** The 0.3 names, deprecated in phit 0.4.0 and removed in 0.5.0. */
+function removedAliases(): array
 {
-    $d = aliasData();
-
-    return [
-        ['fit_lm', 'fit_ols', ['score ~ study_hours + prior_score', $d['schools']], ['weights' => $d['weights']]],
-        ['fit_glm', 'fit_generalized_linear', ['pass ~ study_hours + prior_score', $d['schools']], ['family' => 'binomial', 'link' => 'probit']],
-        ['fit_lmer', 'fit_mixed_gaussian', ['score ~ study_hours + (1 | school)', $d['schools']], ['reml' => false]],
-        ['fit_glmer', 'fit_mixed_logistic', ['cbind(incidence, healthy) ~ period + (1 | herd)', $d['herds']], ['quadraturePoints' => 5]],
-        ['fit_logistic', 'fit_logistic_matrix', [$d['x'], $d['pass']], ['offset' => array_fill(0, count($d['pass']), 0.1)]],
-        ['fit_probit', 'fit_probit_matrix', [$d['x'], $d['pass']], []],
-        ['fit_poisson', 'fit_poisson_matrix', [$d['x'], $d['count']], ['intercept' => true]],
-        ['fit_mixed_intercept', 'fit_mixed_gaussian_intercept_matrix', [$d['x'], $d['y'], $d['groups']], []],
-        ['fit_mixed', 'fit_mixed_gaussian_matrix', [$d['x'], $d['y'], $d['random']], ['reml' => true]],
-        ['fit_logistic_mixed', 'fit_mixed_logistic_matrix', [$d['hx'], $d['hy'], $d['herds']['herd']], ['weights' => $d['herds']['size']]],
-    ];
-}
-
-/** The fit_ols calls that must fail with code 1001: label => [arguments, message fragment]. */
-function fitOlsErrorCases(): array
-{
-    ['schools' => $schools, 'x' => $x, 'y' => $y] = aliasData();
-
-    return [
-        'formula with x' => [['score ~ study_hours', $schools, 'x' => $x], 'a formula and data, or a matrix x and y, not both'],
-        'array with x' => [[$x, 'x' => $x, 'y' => $y], 'a formula and data, or a matrix x and y, not both'],
-        'data with y' => [['x' => $x, 'data' => $y, 'y' => $y], 'a formula and data, or a matrix x and y, not both'],
-        'formula with offset' => [['score ~ study_hours', $schools, 'offset' => $y], 'no offset or intercept arguments'],
-        'formula without intercept' => [['score ~ study_hours', $schools, 'intercept' => false], 'no offset or intercept arguments'],
-        'formula without data' => [['score ~ study_hours'], 'with a formula needs data'],
-        'nothing' => [[], 'needs a formula and data'],
-        'x without y' => [[$x], 'needs a formula and data'],
-        'number' => [[5, $y], 'needs a formula string, or a matrix x as an array'],
-        'matrix with string y' => [[$x, 'score'], 'needs y as an array'],
-        'matrix with column-name weights' => [[$x, $y, 'weights' => 'w'], 'needs weights as an array'],
-    ];
+    return ['fit_lm', 'fit_glm', 'fit_lmer', 'fit_glmer', 'fit_logistic', 'fit_probit', 'fit_poisson',
+        'fit_mixed_intercept', 'fit_mixed', 'fit_logistic_mixed'];
 }
 
 /** The datasets of the extension's alias tests, read as Phit\read_csv reads them. */
@@ -288,24 +256,3 @@ function aliasData(): array
     ];
 }
 
-/** Runs $call and returns its result and the E_USER_DEPRECATED messages it raised. */
-function deprecations(callable $call): array
-{
-    $messages = [];
-    set_error_handler(function (int $level, string $message) use (&$messages): bool {
-        if ($level === E_USER_DEPRECATED) {
-            $messages[] = $message;
-
-            return true;
-        }
-
-        return false;
-    });
-    try {
-        $result = $call();
-    } finally {
-        restore_error_handler();
-    }
-
-    return [$result, $messages];
-}

@@ -26,18 +26,7 @@ final class Polyfill
      */
     public static function implementation(string $fn): callable
     {
-        $target = FunctionMap::MAP[$fn] ?? throw new \InvalidArgumentException("$fn is not provided by the polyfill");
-        $replacement = FunctionMap::DEPRECATED[$fn] ?? null;
-        if ($replacement === null) {
-            return $target;
-        }
-
-        // A deprecated alias raises its notice, as the bootstrap's function does.
-        return static function (mixed ...$arguments) use ($fn, $replacement, $target): mixed {
-            Internal\Deprecation::alias($fn, $replacement);
-
-            return Internal\CalledAs::run($fn, static fn (): mixed => $target(...$arguments));
-        };
+        return FunctionMap::MAP[$fn] ?? throw new \InvalidArgumentException("$fn is not provided by the polyfill");
     }
 
     /** @return list<string> */
