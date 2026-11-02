@@ -5,28 +5,32 @@ declare(strict_types=1);
 namespace Phit\Polyfill;
 
 /**
- * One-dimensional minimization and root finding, following the phit
- * extension (stats-core optimize.rs plus the PHP glue), which follows R's C
- * Brent_fmin (behind stats::optimize) and R_zeroin2 (behind stats::uniroot)
- * step for step, so the same function is evaluated at the same points.
+ * One-dimensional minimization and root finding, as R's stats::optimize and
+ * stats::uniroot, following the phit extension: stats-core optimize.rs (Brent's
+ * methods, written from the clean-room specification specs/cleanroom/brent.md
+ * and netlib's public-domain fmin.f and zeroin.f) and the PHP glue in
+ * php-extension optimize.rs.
  *
- * f is any callable taking one float and returning an int or float; an
- * exception thrown by f propagates unchanged. As in R, a nonfinite value of
- * f during the search is replaced (NAN and INF by PHP_FLOAT_MAX, and for
- * uniroot -INF by -PHP_FLOAT_MAX) with one warning per call; the returned
+ * f is any PHP callable taking one float and returning an int or float. An
+ * exception thrown by f stops the search and propagates unchanged. A nonfinite
+ * value of f during the search is replaced (NAN and INF by PHP_FLOAT_MAX, and
+ * for uniroot -INF by -PHP_FLOAT_MAX) with one warning per call; the returned
  * objective and f_root are f's own values.
  */
 final class Optimize
 {
-    /** R's default tolerance, .Machine$double.eps^0.25. */
+    /** R's default tolerance for optimize() and uniroot(): .Machine$double.eps^0.25. */
     private const float DEFAULT_TOL = 0.0001220703125;
+
+    /** f64::EPSILON. */
+    private const float EPSILON = 2.220446049250313e-16;
 
     private const string REPLACED = 'nonfinite function values were replaced by the largest finite value';
 
     /**
-     * Phit\optimize
+     * Minimize (or maximize) f on [lower, upper], as R's optimize().
      *
-     * @return array{minimum: float, objective: float}|array{maximum: float, objective: float}
+     * @return array{minimum?: float, maximum?: float, objective: float}
      */
     public static function optimize(callable $f, float $lower, float $upper, ?float $tol = null, bool $maximum = false): array
     {
@@ -35,22 +39,22 @@ final class Optimize
         $tol = self::tolerance($tol);
         $warned = false;
         $x = self::fmin($lower, $upper, $tol, static function (float $x) use ($f, $name, $maximum, &$warned): float {
-            $y = self::call($f, $x, $name);
+            $y = self::number($f, $x, $name);
             $y = $maximum ? -$y : $y;
             if (is_finite($y)) {
                 return $y;
             }
-            self::replaced($name, $warned);
+            self::note($warned, $name);
 
             return PHP_FLOAT_MAX;
         });
-        $objective = self::call($f, $x, $name);
+        $objective = self::number($f, $x, $name);
 
-        return [($maximum ? 'maximum' : 'minimum') => $x, 'objective' => $objective];
+        return [$maximum ? 'maximum' : 'minimum' => $x, 'objective' => $objective];
     }
 
     /**
-     * Phit\uniroot
+     * A root of f in [lower, upper], where f changes sign, as R's uniroot().
      *
      * @return array{root: float, f_root: float, iter: int, estim_prec: float}
      */
@@ -62,36 +66,43 @@ final class Optimize
         if ($maxiter < 1) {
             throw self::invalid('maxiter must be at least 1');
         }
-        // The extension evaluates both ends before it checks either result,
-        // so f(upper) runs even when f(lower) returned a non-number, and an
-        // exception thrown there takes precedence. An exception from
-        // f(lower) stops before f(upper).
-        $raw = $f($lower);
-        $fUpper = self::call($f, $upper, $name);
-        $fLower = self::number($raw, $name);
+        // The extension evaluates both ends before looking at either result. An
+        // exception from f at lower propagates at once; a non-numeric value there
+        // is reported only after f has been called at upper.
+        $fLower = self::call($f, $lower);
+        $fUpper = self::call($f, $upper);
+        if ($fLower === null || $fUpper === null) {
+            throw self::badReturn($name);
+        }
         if (is_nan($fLower) || is_nan($fUpper)) {
             throw self::invalid('f is NAN at lower or upper');
         }
         if (self::sign($fLower) * self::sign($fUpper) > 0.0) {
             throw self::invalid('f must have opposite signs at lower and upper');
         }
-        $truncate = static fn (float $v): float => $v < -PHP_FLOAT_MAX ? -PHP_FLOAT_MAX : ($v > PHP_FLOAT_MAX ? PHP_FLOAT_MAX : $v);
         $warned = false;
-        [$root, $iterations, $precision] = self::zeroin($lower, $upper, $truncate($fLower), $truncate($fUpper), $tol, $maxiter,
+        [$root, $iterations, $precision] = self::zeroin(
+            $lower,
+            $upper,
+            self::truncate($fLower),
+            self::truncate($fUpper),
+            $tol,
+            $maxiter,
             static function (float $x) use ($f, $name, &$warned): float {
-                $y = self::call($f, $x, $name);
+                $y = self::number($f, $x, $name);
                 if (is_finite($y)) {
                     return $y;
                 }
-                self::replaced($name, $warned);
+                self::note($warned, $name);
 
                 return $y === -INF ? -PHP_FLOAT_MAX : PHP_FLOAT_MAX;
-            });
+            },
+        );
         if ($iterations === null) {
-            self::warn($name, "not converged in $maxiter iterations");
+            trigger_error("$name(): not converged in $maxiter iterations", E_USER_WARNING);
             $iterations = $maxiter;
         }
-        $fRoot = self::call($f, $root, $name);
+        $fRoot = self::number($f, $root, $name);
 
         return ['root' => $root, 'f_root' => $fRoot, 'iter' => $iterations, 'estim_prec' => $precision];
     }
@@ -103,36 +114,37 @@ final class Optimize
         return ErrorCode::exception(ErrorCode::INVALID_INPUT, $message);
     }
 
-    /** f at x, which must be an int or float. */
-    private static function call(callable $f, float $x, string $name): float
+    private static function badReturn(string $name): \Exception
     {
-        return self::number($f($x), $name);
+        return self::invalid("$name(): f must return an int or float");
     }
 
-    private static function number(mixed $y, string $name): float
+    /** f(x) as a float, or null when f returned something other than an int or float. */
+    private static function call(callable $f, float $x): ?float
     {
-        if (! \is_int($y) && ! \is_float($y)) {
-            throw self::invalid("$name(): f must return an int or float");
+        $value = $f($x);
+        if (\is_float($value)) {
+            return $value;
+        }
+        if (\is_int($value)) {
+            return (float) $value;
         }
 
-        return (float) $y;
+        return null;
     }
 
-    /**
-     * Userland code cannot raise E_WARNING; E_USER_WARNING with the "fn(): "
-     * prefix PHP adds to native warnings is the closest.
-     */
-    private static function warn(string $name, string $message): void
+    /** f(x) as a float; anything other than an int or float is an error. */
+    private static function number(callable $f, float $x, string $name): float
     {
-        trigger_error("$name(): $message", E_USER_WARNING);
+        return self::call($f, $x) ?? throw self::badReturn($name);
     }
 
-    /** Warns once per search that nonfinite values were replaced, as R warns. */
-    private static function replaced(string $name, bool &$warned): void
+    /** Warns once per search that nonfinite values were replaced. */
+    private static function note(bool &$warned, string $name): void
     {
         if (! $warned) {
             $warned = true;
-            self::warn($name, self::REPLACED);
+            trigger_error("$name(): ".self::REPLACED, E_USER_WARNING);
         }
     }
 
@@ -158,95 +170,126 @@ final class Optimize
 
     private static function sign(float $v): float
     {
-        return $v > 0.0 ? 1.0 : ($v < 0.0 ? -1.0 : 0.0);
+        if ($v > 0.0) {
+            return 1.0;
+        }
+        if ($v < 0.0) {
+            return -1.0;
+        }
+
+        return 0.0;
+    }
+
+    /** v clamped to [-PHP_FLOAT_MAX, PHP_FLOAT_MAX]; v is not NAN. */
+    private static function truncate(float $v): float
+    {
+        if ($v < -PHP_FLOAT_MAX) {
+            return -PHP_FLOAT_MAX;
+        }
+        if ($v > PHP_FLOAT_MAX) {
+            return PHP_FLOAT_MAX;
+        }
+
+        return $v;
     }
 
     // ---- numerical core -------------------------------------------------
 
     /**
-     * The minimizer of f on [lower, upper] by Brent's golden-section and
-     * parabolic-interpolation search, as R's Brent_fmin.
+     * A minimizer of f on [lower, upper] by Brent's method (golden section with
+     * parabolic interpolation). Returns the final x. An exception from f stops
+     * the search.
      *
      * @param callable(float): float $f
      */
     private static function fmin(float $lower, float $upper, float $tol, callable $f): float
     {
-        // The squared inverse of the golden ratio.
-        $c = (3.0 - sqrt(5.0)) * 0.5;
-        $eps = sqrt(PHP_FLOAT_EPSILON);
-        $a = $lower;
-        $b = $upper;
-        $v = $a + $c * ($b - $a);
-        $w = $v;
-        $x = $v;
-        $d = 0.0;
-        $e = 0.0;
+        $golden = 0.5 * (3.0 - sqrt(5.0));
+        $eps = sqrt(self::EPSILON);
+        $third = $tol / 3.0;
+
+        $lo = $lower;
+        $hi = $upper;
+        $x = $lo + $golden * ($hi - $lo);
+        $w = $x;
+        $v = $x;
+        $step = 0.0; // d
+        $prevStep = 0.0; // e
         $fx = $f($x);
-        $fv = $fx;
         $fw = $fx;
-        $tol3 = $tol / 3.0;
+        $fv = $fx;
+
         while (true) {
-            $xm = ($a + $b) * 0.5;
-            $tol1 = $eps * abs($x) + $tol3;
-            $t2 = $tol1 * 2.0;
-            if (abs($x - $xm) <= $t2 - ($b - $a) * 0.5) {
-                break;
+            $mid = 0.5 * ($lo + $hi);
+            $tol1 = $eps * abs($x) + $third;
+            $tol2 = 2.0 * $tol1;
+            if (abs($x - $mid) <= $tol2 - 0.5 * ($hi - $lo)) {
+                return $x;
             }
+
             $p = 0.0;
             $q = 0.0;
             $r = 0.0;
-            if (abs($e) > $tol1) {
-                // Fit a parabola.
+            if (abs($prevStep) > $tol1) {
                 $r = ($x - $w) * ($fx - $fv);
                 $q = ($x - $v) * ($fx - $fw);
                 $p = ($x - $v) * $q - ($x - $w) * $r;
-                $q = ($q - $r) * 2.0;
+                $q = 2.0 * ($q - $r);
                 if ($q > 0.0) {
                     $p = -$p;
                 } else {
                     $q = -$q;
                 }
-                $r = $e;
-                $e = $d;
+                $r = $prevStep;
+                $prevStep = $step;
             }
-            if (abs($p) >= abs($q * 0.5 * $r) || $p <= $q * ($a - $x) || $p >= $q * ($b - $x)) {
-                // A golden-section step.
-                $e = $x < $xm ? $b - $x : $a - $x;
-                $d = $c * $e;
-            } else {
-                // A parabolic-interpolation step, kept away from the ends.
-                $d = $p / $q;
-                $u = $x + $d;
-                if ($u - $a < $t2 || $b - $u < $t2) {
-                    $d = $x >= $xm ? -$tol1 : $tol1;
+
+            // Parabolic interpolation is accepted unless one of the three tests
+            // holds; a NAN makes every test false, and so accepts it.
+            $parabolic = true;
+            if (abs($p) >= abs(0.5 * $q * $r) || $p <= $q * ($lo - $x) || $p >= $q * ($hi - $x)) {
+                $parabolic = false;
+            }
+            if ($parabolic) {
+                $step = fdiv($p, $q);
+                $u = $x + $step;
+                $below = $u - $lo;
+                $above = $hi - $u;
+                // Not (both at least tol2), with NAN counting as not.
+                if ($below < $tol2 || $above < $tol2 || is_nan($below) || is_nan($above)) {
+                    $step = $x >= $mid ? -$tol1 : $tol1;
                 }
-            }
-            // f is never evaluated within tol1 of x.
-            if (abs($d) >= $tol1) {
-                $u = $x + $d;
-            } elseif ($d > 0.0) {
-                $u = $x + $tol1;
             } else {
+                $prevStep = $x >= $mid ? $lo - $x : $hi - $x;
+                $step = $golden * $prevStep;
+            }
+
+            if (abs($step) >= $tol1) {
+                $u = $x + $step;
+            } elseif ($step <= 0.0) {
                 $u = $x - $tol1;
+            } else {
+                $u = $x + $tol1;
             }
             $fu = $f($u);
+
             if ($fu <= $fx) {
-                if ($u < $x) {
-                    $b = $x;
+                if ($u >= $x) {
+                    $lo = $x;
                 } else {
-                    $a = $x;
+                    $hi = $x;
                 }
                 $v = $w;
-                $w = $x;
-                $x = $u;
                 $fv = $fw;
+                $w = $x;
                 $fw = $fx;
+                $x = $u;
                 $fx = $fu;
             } else {
-                if ($u < $x) {
-                    $a = $u;
+                if ($u >= $x) {
+                    $hi = $u;
                 } else {
-                    $b = $u;
+                    $lo = $u;
                 }
                 if ($fu <= $fw || $w == $x) {
                     $v = $w;
@@ -259,36 +302,41 @@ final class Optimize
                 }
             }
         }
-
-        return $x;
     }
 
     /**
-     * A root of f in [lower, upper], given f at both ends with opposite
-     * signs, by Brent's method as R's R_zeroin2: the root, the iterations
-     * used (null when maxiter ran out first) and |c - b| at the end.
+     * A root of f in [lower, upper] by Brent's method, given f(lower) and
+     * f(upper), which have opposite signs or one of which is zero. Returns the
+     * root, the evaluations made before convergence (null when the search
+     * stopped without converging) and the final bracket width |c - b|.
      *
      * @param callable(float): float $f
      * @return array{float, ?int, float}
      */
     private static function zeroin(float $lower, float $upper, float $fLower, float $fUpper, float $tol, int $maxiter, callable $f): array
     {
+        if ($fLower == 0.0) {
+            return [$lower, 0, 0.0];
+        }
+        if ($fUpper == 0.0) {
+            return [$upper, 0, 0.0];
+        }
+
+        $eps = self::EPSILON;
+        $maxEvals = $maxiter + 1;
+        $evals = 0;
+
+        // b is the current best estimate, a the previous one, c the opposite end of the bracket.
         $a = $lower;
         $b = $upper;
         $fa = $fLower;
         $fb = $fUpper;
         $c = $a;
         $fc = $fa;
-        if ($fa == 0.0) {
-            return [$a, 0, 0.0];
-        }
-        if ($fb == 0.0) {
-            return [$b, 0, 0.0];
-        }
-        for ($used = 0; $used <= $maxiter; $used++) {
-            $prevStep = $b - $a;
+
+        while (true) {
+            // Keep b the point with the smaller |f|.
             if (abs($fc) < abs($fb)) {
-                // Make b the best approximation.
                 $a = $b;
                 $b = $c;
                 $c = $a;
@@ -296,51 +344,59 @@ final class Optimize
                 $fb = $fc;
                 $fc = $fa;
             }
-            $tolAct = 2.0 * PHP_FLOAT_EPSILON * abs($b) + $tol / 2.0;
-            $newStep = ($c - $b) / 2.0;
-            if (abs($newStep) <= $tolAct || $fb == 0.0) {
-                return [$b, $used, abs($c - $b)];
+
+            $tol1 = 2.0 * $eps * abs($b) + 0.5 * $tol;
+            $half = 0.5 * ($c - $b);
+            if (abs($half) <= $tol1 || $fb == 0.0) {
+                return [$b, $evals, abs($c - $b)];
             }
-            // Try interpolation when the previous step was large enough and
-            // in the right direction.
-            if (abs($prevStep) >= $tolAct && abs($fa) > abs($fb)) {
-                $cb = $c - $b;
+            if ($evals >= $maxEvals) {
+                return [$b, null, abs($c - $b)];
+            }
+
+            // The previous step is b - a, the step last taken (after the swap above).
+            $last = $b - $a;
+            $d = $half;
+            if (abs($last) >= $tol1 && abs($fa) > abs($fb)) {
+                $s = fdiv($fb, $fa);
                 if ($a == $c) {
-                    // Two distinct points: linear interpolation.
-                    $t1 = $fb / $fa;
-                    $p = $cb * $t1;
-                    $q = 1.0 - $t1;
+                    // secant step
+                    $p = 2.0 * $half * $s;
+                    $q = 1.0 - $s;
                 } else {
-                    // Inverse quadratic interpolation.
-                    $q = $fa / $fc;
-                    $t1 = $fb / $fc;
-                    $t2 = $fb / $fa;
-                    $p = $t2 * ($cb * $q * ($q - $t1) - ($b - $a) * ($t1 - 1.0));
-                    $q = ($q - 1.0) * ($t1 - 1.0) * ($t2 - 1.0);
+                    // inverse quadratic interpolation
+                    $qa = fdiv($fa, $fc);
+                    $rb = fdiv($fb, $fc);
+                    $p = $s * (2.0 * $half * $qa * ($qa - $rb) - ($b - $a) * ($rb - 1.0));
+                    $q = ($qa - 1.0) * ($rb - 1.0) * ($s - 1.0);
                 }
                 if ($p > 0.0) {
                     $q = -$q;
                 } else {
                     $p = -$p;
                 }
-                if ($p < 0.75 * $cb * $q - abs($tolAct * $q) / 2.0 && $p < abs($prevStep * $q / 2.0)) {
-                    $newStep = $p / $q;
+                // Accept the interpolated step only if it stays well inside the bracket and shrinks fast enough.
+                if (2.0 * $p < 3.0 * $half * $q - abs($tol1 * $q) && $p < abs(0.5 * $last * $q)) {
+                    $d = fdiv($p, $q);
                 }
             }
-            if (abs($newStep) < $tolAct) {
-                $newStep = $newStep > 0.0 ? $tolAct : -$tolAct;
-            }
+
             $a = $b;
             $fa = $fb;
-            $b += $newStep;
+            if (abs($d) > $tol1) {
+                $b += $d;
+            } elseif ($half > 0.0) {
+                $b += $tol1;
+            } else {
+                $b -= $tol1;
+            }
             $fb = $f($b);
-            if (($fb > 0.0 && $fc > 0.0) || ($fb < 0.0 && $fc < 0.0)) {
-                // Keep c on the other side of the root from b.
+            $evals++;
+
+            if ($fb * fdiv($fc, abs($fc)) > 0.0) {
                 $c = $a;
                 $fc = $fa;
             }
         }
-
-        return [$b, null, abs($c - $b)];
     }
 }

@@ -386,21 +386,56 @@ final class Descriptive
                 throw self::error(ErrorCode::INVALID_INPUT, 'probabilities must be in [0, 1]');
             }
         }
-        sort($values, SORT_NUMERIC);
-        $n = \count($values);
-        $out = [];
-        foreach ($probabilities as $p) {
-            $index = 1.0 + ($n - 1) * $p;
-            $lo = floor($index);
-            $h = $index - $lo;
-            $lo = (int) $lo - 1;
-            $low = $values[$lo];
-            $out[] = ($h > 0.0 && $values[$lo + 1] != $low)
-                ? (1.0 - $h) * $low + $h * $values[$lo + 1]
-                : $low;
+        $sorted = $values;
+        usort($sorted, self::totalOrder(...));
+
+        return array_map(static fn (float $p): float => self::quantileType7($sorted, $p), $probabilities);
+    }
+
+    /**
+     * Rust's f64::total_cmp on finite values: numeric order, with -0.0 before 0.0.
+     *
+     * @internal Also Smoothing's sort order.
+     */
+    public static function totalOrder(float $a, float $b): int
+    {
+        if ($a < $b) {
+            return -1;
+        }
+        if ($a > $b) {
+            return 1;
+        }
+        if ($a == 0.0 && $b == 0.0) {
+            return (fdiv(1.0, $b) > 0.0 ? 1 : 0) - (fdiv(1.0, $a) > 0.0 ? 1 : 0);
         }
 
-        return $out;
+        return 0;
+    }
+
+    /**
+     * The type-7 sample quantile (Hyndman and Fan's definition 7) of sorted,
+     * finite data (at least one value) at probability p in [0, 1], as stats-core
+     * numeric.rs quantile_type7.
+     *
+     * @param list<float> $sorted
+     */
+    private static function quantileType7(array $sorted, float $p): float
+    {
+        $n = \count($sorted);
+        $h = ((float) $n - 1.0) * $p + 1.0;
+        $j = floor($h);
+        $gamma = $h - $j;
+        $j = min(max((int) $j, 1), $n);
+        $xj = $sorted[$j - 1];
+        if ($gamma == 0.0 || $j >= $n) {
+            return $xj;
+        }
+        $xj1 = $sorted[$j];
+        if ($xj1 == $xj) {
+            return $xj;
+        }
+
+        return (1.0 - $gamma) * $xj + $gamma * $xj1;
     }
 
     /**
