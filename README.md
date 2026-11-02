@@ -239,4 +239,6 @@ under another one the extension does not load and the parity tests skip.
 
 ## License
 
-Released under the MIT license. See [LICENSE](LICENSE).
+Released under the MIT license. See [LICENSE](LICENSE). Code that follows other
+projects keeps their licenses, listed in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
