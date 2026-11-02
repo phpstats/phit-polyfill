@@ -288,15 +288,31 @@ final class Saddle
         if ($x == 0.0) {
             return -INF;
         }
+        $sum = self::lowerSeriesSum($a, $x);
+        if (is_nan($sum)) {
+            return NAN;
+        }
+
+        return self::lnGammaPrefactor($a, $x) + log($sum);
+    }
+
+    /**
+     * The series sum of lnGammaLowerSeries, compensated (Kahan), or NaN at the iteration cap.
+     *
+     * The function JIT on x86-64 (opcache.jit=1205 and 1235, PHP 8.4 and 8.5) computed a wrong sum when the loop read
+     * the class constants in its tests. This form, with both constants read into locals first and a return from inside
+     * the loop, gave the same bits as the run without OPcache there (docs/notes/function-jit.md). EPS / 2 is a power of
+     * two and the sum is at least 1, so $sum * $halfEps equals $sum * EPS * 0.5 exactly.
+     */
+    private static function lowerSeriesSum(float $a, float $x): float
+    {
         $term = 1.0;
         $sum = 1.0;
-        $comp = 0.0; // compensated (Kahan) summation
+        $comp = 0.0;
         $denom = $a;
-        $converged = false;
-        // EPS / 2 is a power of two, so $sum * $halfEps equals $sum * EPS * 0.5 exactly. Reading the class constant in
-        // the loop's test made the function JIT on x86-64 compute a wrong sum (docs/notes/function-jit.md).
         $halfEps = self::EPS * 0.5;
-        for ($i = 0; $i < self::MAX_ITER; $i++) {
+        $cap = self::MAX_ITER;
+        for ($i = 0; $i < $cap; $i++) {
             $denom += 1.0;
             $term *= $x / $denom;
             $y = $term - $comp;
@@ -304,15 +320,11 @@ final class Saddle
             $comp = ($t - $sum) - $y;
             $sum = $t;
             if ($term <= $sum * $halfEps) {
-                $converged = true;
-                break;
+                return $sum;
             }
         }
-        if ($converged === false) {
-            return NAN;
-        }
 
-        return self::lnGammaPrefactor($a, $x) + log($sum);
+        return NAN;
     }
 
     /**
