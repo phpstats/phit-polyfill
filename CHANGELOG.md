@@ -10,6 +10,31 @@ from it.
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-11-02
+
+Reproduces phit [v0.6.1](https://github.com/phpstats/phit/releases/tag/v0.6.1),
+commit [`1eee44a`](https://github.com/phpstats/phit/commit/1eee44af8734a90ba616a3344179f763e37a9cdf).
+Results are unchanged within the tested tolerances.
+
+### Changed
+
+- The routines that followed R's source are rewritten from phit's clean-room
+  specifications, as phit 0.6.1's are: one-dimensional optimization and root
+  finding (`src/Optimize.php`), printed number formatting
+  (`src/Summary/Format.php`), linear binning, interpolation and the normal
+  density (`src/Smoothing.php`), the type-7 quantile (`src/Descriptive.php`),
+  and the Stirling and deviance terms, the saddle-point Poisson and binomial
+  log probabilities, and the incomplete gamma and beta series and continued
+  fractions (`src/Distribution/Special.php` and `src/Distribution/Saddle.php`).
+  `THIRD_PARTY_NOTICES.md` names their sources.
+- The normal density with `sd = 1` uses the new standard normal density, as
+  phit 0.6.1 does.
+
+### Added
+
+- Tests that check the rewritten routines against the specifications' R
+  tables, which `bin/fetch-fixtures` now copies to `tests/fixtures/cleanroom/`.
+
 ## [0.6.0] - 2026-11-02
 
 Reproduces phit [v0.6.0](https://github.com/phpstats/phit/releases/tag/v0.6.0),
@@ -281,7 +306,8 @@ Requires PHP 8.3 or later.
   when the test suite runs the implementations directly, so that one CI job
   is informational; the `Phit\` functions refuse before any of that code runs.
 
-[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.6.1
 [0.6.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.6.0
 [0.5.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.5.1
 [0.5.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.5.0

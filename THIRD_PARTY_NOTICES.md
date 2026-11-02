@@ -102,3 +102,36 @@ notices say remains under PRIMA's license:
 - Copyright: Copyright (c) The Rust Project Contributors
 - Files: `src/Internal/RustSort.php`, which follows
   `slice::sort_unstable_by`
+
+## Routines written from specifications
+
+These routines are written from the specifications in phit's
+`specs/cleanroom/`, which cite published methods, public-domain code, and R's
+documentation and output, and from phit's routines written from the same
+specifications. They contain no third-party code.
+
+- One-dimensional minimization and root finding, in `src/Optimize.php`:
+  R. P. Brent, *Algorithms for Minimization without Derivatives* (1973),
+  chapters 4 and 5, and netlib's public-domain `fmin.f` and `zeroin.f`
+  (<https://www.netlib.org/go/>). Specification: `specs/cleanroom/brent.md`.
+- Printed number formatting, p-values, and coefficient table cells, in
+  `src/Summary/Format.php`: R's help for `format`, `formatC`, `format.pval`,
+  `printCoefmat`, and `options`, and R's output on the inputs in
+  `specs/cleanroom/data/`. Specification: `specs/cleanroom/format.md`.
+- Linear binning, linear and constant interpolation, and the standard normal
+  density, in `src/Smoothing.php`, and the type-7 sample quantile, in
+  `src/Descriptive.php`: M. P. Wand, "Fast computation of multivariate kernel
+  estimators", *Journal of Computational and Graphical Statistics* 3 (1994);
+  R. J. Hyndman and Y. Fan, "Sample quantiles in statistical packages",
+  *The American Statistician* 50 (1996), definition 7; and R's help for
+  `density`, `approx`, `dnorm`, and `quantile`. Specification:
+  `specs/cleanroom/smoothing.md`.
+- The Stirling error, the deviance term, the saddle-point Poisson and binomial
+  log probabilities, and the series and continued fractions for the
+  incomplete gamma and beta functions, in `src/Distribution/Special.php` and
+  `src/Distribution/Saddle.php`: C. Loader, "Fast and accurate computation of
+  binomial probabilities" (2000); M. Abramowitz and I. A. Stegun, *Handbook of
+  Mathematical Functions*, 6.5.29, 6.5.31, and 26.5.8; and the modified Lentz
+  method of W. J. Lentz, *Applied Optics* 15 (1976), and I. J. Thompson and
+  A. R. Barnett, *Journal of Computational Physics* 64 (1986). Specification:
+  `specs/cleanroom/special.md`.

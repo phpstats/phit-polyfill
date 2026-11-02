@@ -2,7 +2,7 @@
 title: "Functions"
 ---
 
-The polyfill implements 234 of phit 0.6.0's 235 functions. Signatures,
+The polyfill implements 234 of phit 0.6.1's 235 functions. Signatures,
 parameter names, defaults, and result keys are the extension's, so phit's
 documentation describes each function's arguments and results.
 
