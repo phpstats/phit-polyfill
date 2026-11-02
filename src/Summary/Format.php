@@ -394,4 +394,78 @@ final class Format
 
         return self::rustFixed($x, $decimals);
     }
+
+    /**
+     * A table of named columns in the layout of R's print.data.frame(): row numbers left-aligned in an unnamed first
+     * column, every other column right-aligned under its name, one space apart. A column is text when every value is
+     * a string or null, and numeric otherwise, formatted per column as format(x, digits = 7). A missing number prints
+     * NA and a missing string <NA>. As R does at its default width of 80, columns are split into blocks whose lines
+     * hold at most 79 characters, each block with its own header and row numbers.
+     *
+     * @param  array<string|int, mixed>  $columns
+     */
+    public static function dataFrame(array $columns): string
+    {
+        $names = [];
+        $texts = [];
+        foreach ($columns as $key => $column) {
+            $names[] = (string) $key;
+            if (! is_array($column)) {
+                throw \Phit\Polyfill\ErrorCode::exception(\Phit\Polyfill\ErrorCode::INVALID_INPUT, 'table columns must be arrays');
+            }
+            $values = array_values($column);
+            if (array_filter($values, fn (mixed $v): bool => $v !== null && ! is_string($v)) === []) {
+                // A string that is not UTF-8 is not text to the extension, so it prints as missing.
+                $texts[] = array_map(fn (mixed $v): string => is_string($v) && preg_match('//u', $v) === 1 ? $v : '<NA>', $values);
+
+                continue;
+            }
+            $numbers = array_map(fn (mixed $v): ?float => is_float($v) || is_int($v) ? (float) $v : null, $values);
+            $formatted = self::formatReal(array_values(array_filter($numbers, fn (?float $v): bool => $v !== null)), 7);
+            $cells = [];
+            foreach ($numbers as $v) {
+                $cells[] = $v === null ? 'NA' : array_shift($formatted) ?? '';
+            }
+            $texts[] = $cells;
+        }
+        $rows = count($texts[0] ?? []);
+        if ($rows === 0) {
+            return '<0 rows> '.implode(', ', $names)."\n";
+        }
+        $labelWidth = strlen((string) $rows);
+        $widths = [];
+        foreach ($names as $c => $name) {
+            $widths[$c] = max([self::width($name), ...array_map(self::width(...), $texts[$c])]);
+        }
+        // Blocks of columns, filled greedily while a line stays within 79 characters.
+        $blocks = [];
+        $start = 0;
+        while ($start < count($names)) {
+            $end = $start + 1;
+            $line = $labelWidth + 1 + $widths[$start];
+            while ($end < count($names) && $line + 1 + $widths[$end] <= 79) {
+                $line += 1 + $widths[$end];
+                $end++;
+            }
+            $blocks[] = [$start, $end];
+            $start = $end;
+        }
+        $out = '';
+        foreach ($blocks as [$from, $to]) {
+            $out .= str_repeat(' ', $labelWidth);
+            for ($c = $from; $c < $to; $c++) {
+                $out .= ' '.self::padLeft($names[$c], $widths[$c]);
+            }
+            $out .= "\n";
+            for ($r = 0; $r < $rows; $r++) {
+                $out .= str_pad((string) ($r + 1), $labelWidth);
+                for ($c = $from; $c < $to; $c++) {
+                    $out .= ' '.self::padLeft(trim($texts[$c][$r]), $widths[$c]);
+                }
+                $out .= "\n";
+            }
+        }
+
+        return $out;
+    }
 }

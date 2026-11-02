@@ -13,7 +13,7 @@ documentation describes each function's arguments and results.
 | Optimization | `optimize`, `uniroot` |
 | Models from a formula | `fit_ols`, `fit_generalized_linear`, `fit_mixed_gaussian`, `fit_mixed_logistic`, `model_matrix`, `predict` |
 | Models from a matrix | `fit_ols_matrix`, `fit_logistic_matrix`, `fit_probit_matrix`, `fit_poisson_matrix`, with weights, offsets, the automatic intercept, and both missing-value policies; `fit_mixed_gaussian_matrix`, `fit_mixed_gaussian_intercept_matrix`, `fit_mixed_logistic_matrix` |
-| Model summaries | `summary`, `tidy` |
+| Fit objects and summaries | `summary`, `tidy`, the `Phit\Fit` interface and its four fit classes, and `Phit\Table` |
 | Distributions | 13 families with 14 functions each, listed below |
 | Random numbers | `dist_<family>_rng` for each of the 13 families, `dist_uniform_rng`, `dist_categorical_rng`, `dist_categorical_rows_rng`, `permutation_rng` |
 | Posterior draws | `draws_moments`, `draws_covariance_map`, `draws_affine` |
@@ -21,36 +21,48 @@ documentation describes each function's arguments and results.
 
 All names are in the `Phit` namespace, for example `Phit\fit_ols`.
 
-## Model summaries
+## Fit objects and summaries
 
-`summary()` prints a fit from any model function in the layout of R's
-`print(summary(fit))`: OLS and generalized linear fits, from a formula or a
-matrix, and Gaussian and logistic mixed fits. The coefficient table follows
-`printCoefmat(digits = 4)` without significance stars. Every model function
-sets a `model` key in its result (`linear`, `generalized_linear`,
-`mixed_gaussian`, or `mixed_logistic`), and both functions choose the layout
-from it. `tidy()` returns the
-coefficient table as columns named `term`, `estimate`, `std_error`,
-`statistic`, and `p_value`. With `confInt`, it adds `conf_low` and
-`conf_high`, which are Wald intervals at `level`. For mixed fits, `tidy()`
+Every model function returns a fit object. The class follows the result's
+`model` key: `Phit\LinearFit`, `Phit\GeneralizedLinearFit`,
+`Phit\MixedGaussianFit`, or `Phit\MixedLogisticFit`, each implementing the
+interface `Phit\Fit`. A fit holds the result array and reads like it:
+`$fit['coefficients']`, `isset()`, `count()`, `foreach`, and `json_encode()`
+work as on the array, and nested values are plain arrays. Fits are read-only.
+Writing a key throws `LogicException`, and `toArray()` returns an array copy.
+Without the extension, the polyfill defines these classes with the
+extension's names, methods, and messages.
+
+`echo $fit` and `$fit->summary()` print the fit in the layout of R's
+`print(summary(fit))`. The coefficient table follows
+`printCoefmat(digits = 4)` without significance stars. `$fit->tidy()` and
+`$fit->predict()` work as `tidy()` and `predict()`, and the free functions
+`summary()`, `tidy()`, and `predict()` take a fit or an array in the same
+shape.
+
+`tidy()` returns a `Phit\Table` of columns named `term`, `estimate`,
+`std_error`, `statistic`, and `p_value`. With `confInt`, it adds `conf_low`
+and `conf_high`, which are Wald intervals at `level`. For mixed fits, `tidy()`
 gives the fixed effects by default. With `effects: 'ran_vals'`, it gives each
 group's conditional modes and their standard errors instead, in columns named
 `group`, `level`, `term`, `estimate`, and `std_error`, as lme4's
 `ranef(fit, condVar = TRUE)`. Their intervals use the normal distribution.
+`echo $table` prints the columns in the layout of R's `print.data.frame()`,
+and `$table->toColumns()` returns them as arrays.
 
 ```php
 use function Phit\fit_ols;
-use function Phit\summary;
-use function Phit\tidy;
 
 $fit = fit_ols('mpg ~ wt + hp', $mtcars);
-echo summary($fit);
-$table = tidy($fit, confInt: true);
+echo $fit;
+echo $fit->tidy(confInt: true);
+$columns = $fit->tidy()->toColumns();
 ```
 
 The text is byte-identical to the extension's on phit's fixtures for mtcars,
 mroz, MASS Insurance, sleepstudy, and cbpp, and the randomized parity suite
-compares both functions with the extension on synthetic fits.
+compares the summaries, the tables, and their printed text with the
+extension on synthetic fits.
 
 ## CSV input
 

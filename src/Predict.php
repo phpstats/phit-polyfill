@@ -20,7 +20,7 @@ final class Predict
 {
     /** Phit\predict */
     public static function predict(
-        array $fit,
+        mixed $fit,
         mixed $newdata,
         string $type = 'link',
         bool $seFit = false,
@@ -31,6 +31,7 @@ final class Predict
     ): array {
         Frontend::stringArgument($type, 'type');
         Frontend::stringArgument($interval, 'interval');
+        $fit = Objects\Wrap::data($fit) ?? throw self::malformed('not a fit object or array');
         $formula = $fit['formula'] ?? null;
         if (! is_string($formula)) {
             throw self::malformed('missing formula');

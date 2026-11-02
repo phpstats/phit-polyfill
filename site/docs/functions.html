@@ -245,8 +245,8 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#model-summaries" id="toc-model-summaries">Model
-summaries</a></li>
+<li><a href="#fit-objects-and-summaries"
+id="toc-fit-objects-and-summaries">Fit objects and summaries</a></li>
 <li><a href="#csv-input" id="toc-csv-input">CSV input</a></li>
 <li><a href="#distributions"
 id="toc-distributions">Distributions</a></li>
@@ -309,8 +309,9 @@ policies; <code>fit_mixed_gaussian_matrix</code>,
 <code>fit_mixed_logistic_matrix</code></td>
 </tr>
 <tr>
-<td>Model summaries</td>
-<td><code>summary</code>, <code>tidy</code></td>
+<td>Fit objects and summaries</td>
+<td><code>summary</code>, <code>tidy</code>, the <code>Phit\Fit</code>
+interface and its four fit classes, and <code>Phit\Table</code></td>
 </tr>
 <tr>
 <td>Distributions</td>
@@ -336,41 +337,54 @@ policies; <code>fit_mixed_gaussian_matrix</code>,
 </table>
 <p>All names are in the <code>Phit</code> namespace, for example
 <code>Phit\fit_ols</code>.</p>
-<section id="model-summaries" class="level2">
-<h2>Model summaries</h2>
-<p><code>summary()</code> prints a fit from any model function in the
-layout of R’s <code>print(summary(fit))</code>: OLS and generalized
-linear fits, from a formula or a matrix, and Gaussian and logistic mixed
-fits. The coefficient table follows
-<code>printCoefmat(digits = 4)</code> without significance stars. Every
-model function sets a <code>model</code> key in its result
-(<code>linear</code>, <code>generalized_linear</code>,
-<code>mixed_gaussian</code>, or <code>mixed_logistic</code>), and both
-functions choose the layout from it. <code>tidy()</code> returns the
-coefficient table as columns named <code>term</code>,
-<code>estimate</code>, <code>std_error</code>, <code>statistic</code>,
-and <code>p_value</code>. With <code>confInt</code>, it adds
-<code>conf_low</code> and <code>conf_high</code>, which are Wald
-intervals at <code>level</code>. For mixed fits, <code>tidy()</code>
-gives the fixed effects by default. With
-<code>effects: 'ran_vals'</code>, it gives each group’s conditional
+<section id="fit-objects-and-summaries" class="level2">
+<h2>Fit objects and summaries</h2>
+<p>Every model function returns a fit object. The class follows the
+result’s <code>model</code> key: <code>Phit\LinearFit</code>,
+<code>Phit\GeneralizedLinearFit</code>,
+<code>Phit\MixedGaussianFit</code>, or
+<code>Phit\MixedLogisticFit</code>, each implementing the interface
+<code>Phit\Fit</code>. A fit holds the result array and reads like it:
+<code>$fit['coefficients']</code>, <code>isset()</code>,
+<code>count()</code>, <code>foreach</code>, and
+<code>json_encode()</code> work as on the array, and nested values are
+plain arrays. Fits are read-only. Writing a key throws
+<code>LogicException</code>, and <code>toArray()</code> returns an array
+copy. Without the extension, the polyfill defines these classes with the
+extension’s names, methods, and messages.</p>
+<p><code>echo $fit</code> and <code>$fit-&gt;summary()</code> print the
+fit in the layout of R’s <code>print(summary(fit))</code>. The
+coefficient table follows <code>printCoefmat(digits = 4)</code> without
+significance stars. <code>$fit-&gt;tidy()</code> and
+<code>$fit-&gt;predict()</code> work as <code>tidy()</code> and
+<code>predict()</code>, and the free functions <code>summary()</code>,
+<code>tidy()</code>, and <code>predict()</code> take a fit or an array
+in the same shape.</p>
+<p><code>tidy()</code> returns a <code>Phit\Table</code> of columns
+named <code>term</code>, <code>estimate</code>, <code>std_error</code>,
+<code>statistic</code>, and <code>p_value</code>. With
+<code>confInt</code>, it adds <code>conf_low</code> and
+<code>conf_high</code>, which are Wald intervals at <code>level</code>.
+For mixed fits, <code>tidy()</code> gives the fixed effects by default.
+With <code>effects: 'ran_vals'</code>, it gives each group’s conditional
 modes and their standard errors instead, in columns named
 <code>group</code>, <code>level</code>, <code>term</code>,
 <code>estimate</code>, and <code>std_error</code>, as lme4’s
 <code>ranef(fit, condVar = TRUE)</code>. Their intervals use the normal
-distribution.</p>
+distribution. <code>echo $table</code> prints the columns in the layout
+of R’s <code>print.data.frame()</code>, and
+<code>$table-&gt;toColumns()</code> returns them as arrays.</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode php"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\fit_ols<span class="ot">;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\summary<span class="ot">;</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="kw">function</span> Phit\<span class="bu">tidy</span><span class="ot">;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> fit_ols(<span class="st">&#39;mpg ~ wt + hp&#39;</span><span class="ot">,</span> <span class="va">$mtcars</span>)<span class="ot">;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> summary(<span class="va">$fit</span>)<span class="ot">;</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="va">$table</span> <span class="op">=</span> <span class="bu">tidy</span>(<span class="va">$fit</span><span class="ot">,</span> confInt<span class="ot">:</span> <span class="kw">true</span>)<span class="ot">;</span></span></code></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="va">$fit</span> <span class="op">=</span> fit_ols(<span class="st">&#39;mpg ~ wt + hp&#39;</span><span class="ot">,</span> <span class="va">$mtcars</span>)<span class="ot">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$fit</span><span class="ot">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">echo</span> <span class="va">$fit</span>-&gt;<span class="bu">tidy</span>(confInt<span class="ot">:</span> <span class="kw">true</span>)<span class="ot">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="va">$columns</span> <span class="op">=</span> <span class="va">$fit</span>-&gt;<span class="bu">tidy</span>()-&gt;toColumns()<span class="ot">;</span></span></code></pre></div>
 <p>The text is byte-identical to the extension’s on phit’s fixtures for
 mtcars, mroz, MASS Insurance, sleepstudy, and cbpp, and the randomized
-parity suite compares both functions with the extension on synthetic
-fits.</p>
+parity suite compares the summaries, the tables, and their printed text
+with the extension on synthetic fits.</p>
 </section>
 <section id="csv-input" class="level2">
 <h2>CSV input</h2>

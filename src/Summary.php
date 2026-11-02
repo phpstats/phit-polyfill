@@ -33,13 +33,13 @@ final class Summary
     ];
 
     /** Phit\summary */
-    public static function summary(array $fit): string
+    public static function summary(mixed $fit): string
     {
-        return self::render(self::printer($fit));
+        return self::render(self::printer(self::fitArgument($fit)));
     }
 
     /** Phit\tidy */
-    public static function tidy(array $fit, bool $confInt = false, float $level = 0.95, string $effects = 'fixed'): array
+    public static function tidy(mixed $fit, bool $confInt = false, float $level = 0.95, string $effects = 'fixed'): array
     {
         // An explicit NaN test: opcache rewrites a negated float comparison (docs/notes/opcache-nan.md).
         if (is_nan($level) || $level <= 0.0 || $level >= 1.0) {
@@ -48,7 +48,7 @@ final class Summary
         if ($effects !== 'fixed' && $effects !== 'ran_vals') {
             throw ErrorCode::exception(ErrorCode::INVALID_INPUT, "effects must be 'fixed' or 'ran_vals'");
         }
-        $printer = self::printer($fit);
+        $printer = self::printer(self::fitArgument($fit));
 
         return $effects === 'fixed' ? self::tidyFixed($printer, $confInt, $level) : self::tidyRandom($printer, $confInt, $level);
     }
@@ -104,6 +104,12 @@ final class Summary
     {
         return $p->heading().$p->beforeCoefficients()."\n{$p->coefficientsTitle()}:\n"
             .Format::coefficientTable($p->coefficients()).$p->afterCoefficients();
+    }
+
+    /** The result array behind a Fit|array argument. */
+    private static function fitArgument(mixed $fit): array
+    {
+        return Objects\Wrap::data($fit) ?? throw FitReader::notAFit('not a fit object or array');
     }
 
     private static function printer(array $fit): Printer

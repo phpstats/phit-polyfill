@@ -229,9 +229,10 @@ needs the extension.</li>
 <ul>
 <li><code>Phit\read_csv</code> and <code>Phit\CsvReader</code> are not
 implemented.</li>
-<li>The listwise-deletion warning is raised with
-<code>E_USER_WARNING</code> because PHP code cannot raise
-<code>E_WARNING</code>. The text is identical.</li>
+<li>The listwise-deletion warning, and the warning for a missing key on
+a fit or table object, are raised with <code>E_USER_WARNING</code>
+because PHP code cannot raise <code>E_WARNING</code>. The text is
+identical.</li>
 <li>Scalar arguments of the wrong type follow PHP’s userland rules:
 coercion in non-strict files, otherwise <code>TypeError</code>. The
 extension raises an <code>\Exception</code>.</li>

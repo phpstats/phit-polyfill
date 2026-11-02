@@ -51,6 +51,25 @@ function summarySameTidy(array $ours, array $expected): bool
     return true;
 }
 
+// The same printed table: identical line lengths and labels, and numbers within a relative tolerance.
+function summarySameTable(string $ours, string $theirs, float $relative): bool
+{
+    $a = explode("\n", $ours);
+    $b = explode("\n", $theirs);
+    if (array_map('strlen', $a) !== array_map('strlen', $b)) {
+        return false;
+    }
+    foreach ($a as $i => $line) {
+        foreach (array_map(null, preg_split('/\s+/', trim($line)), preg_split('/\s+/', trim($b[$i]))) as [$x, $y]) {
+            if ($x !== $y && ! (is_numeric($x) && is_numeric($y) && abs($x - $y) <= $relative * max(abs((float) $y), 1e-300))) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 /** The fit of a fixture case, from the polyfill. */
 function summaryCaseFit(array $case): array
 {
@@ -71,6 +90,14 @@ describe('Phit\summary and Phit\tidy on the fixture models', function () {
         $text = pf('Phit\summary', $fit);
         expect($text)->toBe($case['summary']);
         expect(summarySameTidy(pf('Phit\tidy', $fit, confInt: true), $case['tidy']))->toBeTrue("{$case['name']}: tidy differs");
+
+        // The printed table: the fixture's layout and labels with numbers within 1e-5 (a fit printed to 7 digits can
+        // differ in its last digit across platforms), and the fixture against R's print.data.frame() within 1e-6.
+        $table = Format::dataFrame(pf('Phit\tidy', $fit, confInt: true));
+        expect(summarySameTable($table, $case['table'], 1e-5))->toBeTrue("{$case['name']}: table differs:\n$table");
+        if (isset($case['r_table'])) {
+            expect(summarySameTable($case['table'], $case['r_table'], 1e-6))->toBeTrue("{$case['name']}: table differs from R");
+        }
 
         // Random effects: the same rows as the fixture, and lme4's ranef(condVar = TRUE) to 1e-4 (scaled by
         // max(1, |x|)), which absorbs lme4's optimizer tolerance. Matrix fits name their groups and columns generically.
@@ -211,7 +238,22 @@ describe('summary number formatting', function () {
         [[9999.6, 1.0], 4, ['10000', '    1']],
     ]);
 
-    it('formats p-values as format.pval does', function (array $ps, int $digits, array $expected) {
+    it('prints tables as print.data.frame does', function () {
+        expect(Format::dataFrame(['term' => ['(Intercept)', 'wt'], 'estimate' => [37.28512616734203, -5.344471572722675]]))
+            ->toBe("         term  estimate\n1 (Intercept) 37.285126\n2          wt -5.344472\n")
+            ->and(Format::dataFrame(['a' => [], 'b' => []]))->toBe("<0 rows> a, b\n")
+            ->and(Format::dataFrame(['s' => ['x', null], 'n' => [1, null], 'f' => [NAN, INF]]))
+            ->toBe("     s  n   f\n1    x  1 NaN\n2 <NA> NA Inf\n");
+        $wide = [];
+        foreach (range(1, 12) as $i) {
+            $wide["column_$i"] = [1.5 * $i, 123456.789 * $i];
+        }
+        $lines = explode("\n", trim(Format::dataFrame($wide)));
+        expect(max(array_map('strlen', $lines)))->toBeLessThanOrEqual(79)
+            ->and(count($lines))->toBeGreaterThan(3);
+    });
+
+        it('formats p-values as format.pval does', function (array $ps, int $digits, array $expected) {
         expect(Format::formatPval($ps, $digits))->toBe($expected);
     })->with([
         [[1e-20, 0.000213, 0.004718, 0.000999], 3, ['< 2e-16', '0.000213', '0.004718', '0.000999']],

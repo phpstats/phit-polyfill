@@ -232,7 +232,7 @@ final class MixedModels
             'singular' => $result['singular'],
             'method' => $reml ? 'REML' : 'ML',
             'optimizer' => $result['optimizer'],
-            'optimizer_implementation' => $result['optimizer'] === 'bobyqa' ? 'bobyqa 0.3.2 / PRIMA Rust port' : 'argmin 0.11.0 / Nelder-Mead',
+            'optimizer_implementation' => $result['optimizer'] === 'bobyqa' ? 'bobyqa 0.3.2 (Rust implementation of PRIMA BOBYQA)' : 'argmin 0.11.0 / Nelder-Mead',
             'converged' => true,
             'evaluations' => $result['evaluations'],
             'random' => $terms,

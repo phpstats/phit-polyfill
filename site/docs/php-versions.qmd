@@ -25,8 +25,9 @@ runs the OPcache and `opcache.jit=1205` modes. No PHP extension is required.
 ## Differences from the extension
 
 - `Phit\read_csv` and `Phit\CsvReader` are not implemented.
-- The listwise-deletion warning is raised with `E_USER_WARNING` because PHP
-  code cannot raise `E_WARNING`. The text is identical.
+- The listwise-deletion warning, and the warning for a missing key on a fit
+  or table object, are raised with `E_USER_WARNING` because PHP code cannot
+  raise `E_WARNING`. The text is identical.
 - Scalar arguments of the wrong type follow PHP's userland rules: coercion in
   non-strict files, otherwise `TypeError`. The extension raises an
   `\Exception`.

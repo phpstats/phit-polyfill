@@ -10,6 +10,23 @@ from it.
 
 ## [Unreleased]
 
+### Changed
+
+- Every model function returns a fit object instead of an array, as phit
+  0.6.0 does: `Phit\LinearFit`, `Phit\GeneralizedLinearFit`,
+  `Phit\MixedGaussianFit`, or `Phit\MixedLogisticFit`, chosen by the
+  result's `model` key, each implementing `Phit\Fit`. A fit reads like its
+  array, through `ArrayAccess`, `Iterator`, `Countable`, and
+  `JsonSerializable`, and is read-only. `toArray()` returns the array.
+  `echo $fit` prints its summary, and it has `summary()`, `tidy()`,
+  `predict()`, and `toMimeBundle()` methods. Code that modified a result
+  array must call `toArray()` first.
+- `tidy()` returns a `Phit\Table`, which prints in the layout of R's
+  `print.data.frame()` and returns its columns from `toColumns()`.
+- `summary()`, `tidy()`, and `predict()` take a fit object or an array.
+- A mixed fit's `optimizer_implementation` for BOBYQA reads
+  `bobyqa 0.3.2 (Rust implementation of PRIMA BOBYQA)`.
+
 ## [0.5.1] - 2026-11-02
 
 Reproduces phit [v0.5.1](https://github.com/phpstats/phit/releases/tag/v0.5.1),

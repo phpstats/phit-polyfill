@@ -26,13 +26,13 @@ function loadFixture(string $name): array
 /** The functions of the API contract, without its classes. */
 function apiFunctions(): array
 {
-    return array_filter(loadFixture('php-api.json'), fn (array $spec) => ! isset($spec['methods']));
+    return array_filter(loadFixture('php-api.json'), fn (array $spec) => ! isset($spec['methods']) && ! isset($spec['interface']));
 }
 
 /** The classes of the API contract, which are all extension-only. */
 function apiClasses(): array
 {
-    return array_filter(loadFixture('php-api.json'), fn (array $spec) => isset($spec['methods']));
+    return array_filter(loadFixture('php-api.json'), fn (array $spec) => isset($spec['methods']) || isset($spec['interface']));
 }
 
 /** Call the polyfill implementation of a Phit\ function (named arguments allowed). */
@@ -44,7 +44,27 @@ function pf(string $fn, mixed ...$arguments): mixed
 /** Call the native extension's function; only valid when it is loaded. */
 function native(string $fn, mixed ...$arguments): mixed
 {
-    return $fn(...$arguments);
+    return nativeValue($fn(...$arguments));
+}
+
+/**
+ * The array behind the extension's fit and table objects, so that it compares
+ * with the polyfill implementation's array. The object's class must be the one
+ * its model key selects.
+ */
+function nativeValue(mixed $value): mixed
+{
+    if ($value instanceof \Phit\Fit) {
+        $array = $value->toArray();
+        $expected = \Phit\Polyfill\Objects\Wrap::FIT_CLASSES[$array['model'] ?? ''] ?? null;
+        if (get_class($value) !== $expected) {
+            throw new \RuntimeException('the extension returned '.get_class($value).' for model '.json_encode($array['model'] ?? null));
+        }
+
+        return $array;
+    }
+
+    return $value instanceof \Phit\Table ? $value->toArray() : $value;
 }
 
 /** |actual - expected| <= abs + rel * |expected|, elementwise, with matching NaN/INF. */

@@ -44,12 +44,26 @@ if (! function_exists('randomParityOutcome')) {
 
     function randomParityCompare(string $fn, array $arguments): void
     {
-        $native = randomParityOutcome(fn () => $fn(...$arguments));
+        $native = randomParityOutcome(fn () => nativeValue($fn(...$arguments)));
         $polyfill = randomParityOutcome(fn () => Polyfill::implementation($fn)(...$arguments));
         parityLog('randomized', $fn, $polyfill, $native, $native[0] === 'error' || $polyfill[0] === 'error');
         if (serialize($native) !== serialize($polyfill)) {
             $show = fn (mixed $v) => substr(json_encode($v, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION), 0, 400);
             throw new \RuntimeException("$fn differs at ".randomParityFirstDifference($native, $polyfill)."\nfor ".$show($arguments));
+        }
+    }
+
+    /** The extension's printed tidy() table against the polyfill's layout of the same columns. */
+    function randomParityTableText(array $arguments): void
+    {
+        try {
+            $native = (string) \Phit\tidy(...$arguments);
+        } catch (\Exception) {
+            return;
+        }
+        $polyfill = \Phit\Polyfill\Summary\Format::dataFrame(Polyfill::implementation('Phit\tidy')(...$arguments));
+        if ($native !== $polyfill) {
+            throw new \RuntimeException("tidy table text differs:\n$native\nvs\n$polyfill");
         }
     }
 
@@ -471,6 +485,7 @@ it('prints summaries and tidies fits exactly like the extension', function () {
         $fit[$key] = $maybe($fit[$key]);
         randomParityCompare('Phit\summary', [$fit]);
         randomParityCompare('Phit\tidy', [$fit, mt_rand(0, 1) === 1, [0.95, 0.5, 0.99, 1.0, 0.0, NAN][mt_rand(0, 5)]]);
+        randomParityTableText([$fit, true, 0.9, mt_rand(0, 3) === 0 ? 'ran_vals' : 'fixed']);
         randomParityCompare('Phit\tidy', [$fit, mt_rand(0, 1) === 1, [0.95, 0.5, 1.0][mt_rand(0, 2)], ['ran_vals', 'ran_vals', 'fixed', 'random'][mt_rand(0, 3)]]);
         if (mt_rand(0, 9) === 0) {
             unset($fit['model']);
@@ -503,6 +518,7 @@ it('prints summaries and tidies fits exactly like the extension', function () {
                 randomParityCompare('Phit\summary', [$fit]);
                 randomParityCompare('Phit\tidy', [$fit, true, randomUniform(0.5, 0.999)]);
                 randomParityCompare('Phit\tidy', [$fit, true, randomUniform(0.5, 0.999), 'ran_vals']);
+                randomParityTableText([$fit, true, randomUniform(0.5, 0.999), mt_rand(0, 1) ? 'ran_vals' : 'fixed']);
             }
         } finally {
             restore_error_handler();

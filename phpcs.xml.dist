@@ -4,6 +4,7 @@
 
     <file>benchmarks</file>
     <file>bootstrap.php</file>
+    <file>classes</file>
     <file>site</file>
     <file>src</file>
     <file>tests</file>

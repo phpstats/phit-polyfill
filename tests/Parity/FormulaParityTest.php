@@ -23,7 +23,7 @@ function formulaOutcome(callable $f, array $arguments): array
         return true;
     });
     try {
-        return ['result' => $f(...$arguments), 'warnings' => $warnings];
+        return ['result' => nativeValue($f(...$arguments)), 'warnings' => $warnings];
     } catch (\Throwable $e) {
         return ['code' => $e->getCode(), 'class' => $e::class, 'message' => $e->getMessage(), 'warnings' => $warnings];
     } finally {

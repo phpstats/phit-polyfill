@@ -28,7 +28,7 @@ The polyfill implements 234 of phit 0.5.1's 235 functions.
 | Optimization | `optimize`, `uniroot` | Provided |
 | Models from a formula | `fit_ols`, `fit_generalized_linear`, `fit_mixed_gaussian`, `fit_mixed_logistic`, `model_matrix`, `predict` | Provided |
 | Models from a matrix | `fit_ols_matrix`, `fit_logistic_matrix`, `fit_probit_matrix`, `fit_poisson_matrix`, `fit_mixed_gaussian_matrix`, `fit_mixed_gaussian_intercept_matrix`, `fit_mixed_logistic_matrix` | Provided |
-| Model summaries | `summary`, `tidy` | Provided |
+| Fit objects and summaries | `summary`, `tidy`, the `Phit\Fit` interface and its four fit classes, and `Phit\Table` | Provided |
 | Distributions | 13 families with 14 functions each | Provided |
 | Random numbers | `dist_<family>_rng` for the 13 families, `dist_uniform_rng`, `dist_categorical_rng`, `dist_categorical_rows_rng`, `permutation_rng` | Provided |
 | Posterior draws | `draws_moments`, `draws_covariance_map`, `draws_affine` | Provided |
@@ -159,8 +159,9 @@ extension.
 
 ## Differences from the extension
 
-- The listwise-deletion warning uses `E_USER_WARNING` because PHP code cannot
-  raise `E_WARNING`. The text is identical.
+- The listwise-deletion warning, and the warning for a missing key on a fit
+  or table object, use `E_USER_WARNING` because PHP code cannot raise
+  `E_WARNING`. The text is identical.
 - Scalar arguments of the wrong type follow PHP's userland rules: coercion in
   non-strict files, otherwise `TypeError`. The extension raises an
   `\Exception`.

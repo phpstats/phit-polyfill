@@ -105,7 +105,7 @@ function assertModelParity(string $fn, array $arguments, float $tolerance, strin
             return true;
         });
         try {
-            return ['result' => $f(...$arguments), 'warnings' => $warnings];
+            return ['result' => nativeValue($f(...$arguments)), 'warnings' => $warnings];
         } catch (\Exception $e) {
             return ['code' => $e->getCode(), 'message' => $e->getMessage(), 'warnings' => $warnings];
         } finally {
