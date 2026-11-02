@@ -10,6 +10,13 @@ from it.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-02
+
+Reproduces phit [v0.6.0](https://github.com/phpstats/phit/releases/tag/v0.6.0),
+commit [`00c0297`](https://github.com/phpstats/phit/commit/00c029715aaecd039a40f5a2571d989e99de5534).
+Model functions now return objects, so code that changed a result array must
+call `toArray()` first.
+
 ### Changed
 
 - Every model function returns a fit object instead of an array, as phit
@@ -274,7 +281,8 @@ Requires PHP 8.3 or later.
   when the test suite runs the implementations directly, so that one CI job
   is informational; the `Phit\` functions refuse before any of that code runs.
 
-[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.6.0
 [0.5.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.5.1
 [0.5.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.5.0
 [0.4.2]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.4.2

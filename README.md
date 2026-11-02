@@ -19,7 +19,7 @@ input in the test suites they return the same bits as the extension. The documen
 
 ## Features
 
-The polyfill implements 234 of phit 0.5.1's 235 functions.
+The polyfill implements 234 of phit 0.6.0's 235 functions.
 
 | Area | Functions | Polyfill |
 |---|---|---|
@@ -145,6 +145,7 @@ extension.
 
 | Polyfill | phit |
 |---|---|
+| 0.6.0 | [v0.6.0](https://github.com/phpstats/phit/releases/tag/v0.6.0) (`00c0297`) |
 | 0.5.1 | [v0.5.1](https://github.com/phpstats/phit/releases/tag/v0.5.1) (`c60fb9b`) |
 | 0.5.0 | [v0.5.0](https://github.com/phpstats/phit/releases/tag/v0.5.0) (`17729a8`) |
 | 0.4.2 | [v0.4.4](https://github.com/phpstats/phit/releases/tag/v0.4.4) (`066e2e1`) |
