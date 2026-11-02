@@ -288,11 +288,24 @@ final class Saddle
         if ($x == 0.0) {
             return -INF;
         }
+        // The sum comes back from a call, so it is in a slot of the call frame when lnGammaPrefactor() returns: the
+        // function JIT on x86-64 resumes after that call without restoring a value held only in a register, and read
+        // a wrong sum when the loop was inline (php-src #24214; docs/notes/function-jit.md).
+        $sum = self::lowerSeriesSum($a, $x);
+        if (is_nan($sum)) {
+            return NAN;
+        }
+
+        return self::lnGammaPrefactor($a, $x) + log($sum);
+    }
+
+    /** The series sum of lnGammaLowerSeries, compensated (Kahan), or NaN at the iteration cap. */
+    private static function lowerSeriesSum(float $a, float $x): float
+    {
         $term = 1.0;
         $sum = 1.0;
-        $comp = 0.0; // compensated (Kahan) summation
+        $comp = 0.0;
         $denom = $a;
-        $converged = false;
         for ($i = 0; $i < self::MAX_ITER; $i++) {
             $denom += 1.0;
             $term *= $x / $denom;
@@ -301,15 +314,11 @@ final class Saddle
             $comp = ($t - $sum) - $y;
             $sum = $t;
             if ($term <= $sum * self::EPS * 0.5) {
-                $converged = true;
-                break;
+                return $sum;
             }
         }
-        if ($converged === false) {
-            return NAN;
-        }
 
-        return self::lnGammaPrefactor($a, $x) + log($sum);
+        return NAN;
     }
 
     /**
