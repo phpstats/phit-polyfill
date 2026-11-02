@@ -10,6 +10,20 @@ from it.
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-11-02
+
+Reproduces phit [v0.5.1](https://github.com/phpstats/phit/releases/tag/v0.5.1),
+commit [`c60fb9b`](https://github.com/phpstats/phit/commit/c60fb9b9238ea9b128f22b0e5ef31802336d31f5).
+
+### Added
+
+- `Phit\tidy($fit, effects: 'ran_vals')` returns a mixed fit's random
+  effects: each group's conditional modes and their conditional standard
+  errors, one row per term, column, and group, as lme4's
+  `ranef(fit, condVar = TRUE)`. `confInt` adds normal intervals. The default,
+  `effects: 'fixed'`, is unchanged. `summary()` now rejects random effects,
+  variances, and group labels that differ in size.
+
 ## [0.5.0] - 2026-11-01
 
 Reproduces phit [v0.5.0](https://github.com/phpstats/phit/releases/tag/v0.5.0),
@@ -243,7 +257,8 @@ Requires PHP 8.3 or later.
   when the test suite runs the implementations directly, so that one CI job
   is informational; the `Phit\` functions refuse before any of that code runs.
 
-[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.5.1
 [0.5.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.5.0
 [0.4.2]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.4.2
 [0.4.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.4.1
