@@ -134,6 +134,9 @@ it exposed three more miscompiles (in `betaFrac`, `Dense::multiply`, and
   (`$next = \fdiv(...); $r0 = $r; $r = $next;`). Without the reordering the
   qualified version computed wrong values on arm64, because the JIT let the
   copy `$r0` see the call result written into `$r`.
+- `Saddle::lnGammaLowerSeries` reads `self::EPS * 0.5` into a local before its
+  loop instead of in the loop's stopping test. See
+  [A class constant in a loop test](#a-class-constant-in-a-loop-test-x86-64).
 - `tests/Unit/BobyqaTest.php` checks the reference in two tests. "it agrees
   with the crate on the status and the finiteness" asserts the status, its
   label and the finiteness flag, which survive a different search path, and
@@ -149,7 +152,32 @@ it exposed three more miscompiles (in `betaFrac`, `Dense::multiply`, and
   except PHP 8.3 with `1235`, which segfaults for a reason of its own; see
   [php83-jit.md](php83-jit.md).
 
-## Finding affected code
+## A class constant in a loop test (x86-64)
+
+Recorded 2026-11-02 on GitHub's `ubuntu-latest` x86-64 runners, PHP 8.4.27 and
+8.5.12, under `opcache.jit=1205` and `1235`. arm64 (PHP 8.5.10) and the tracing
+JIT were not affected. No `live var` line was printed.
+
+The clean-room `Saddle::lnGammaLowerSeries` summed its series with a stopping
+test `if ($term <= $sum * self::EPS * 0.5)` inside the loop. Under the function
+JIT the sum came out wrong on every row of the `ln_gamma_lower` table (1.3531
+instead of 1.0322, for example), which failed `CleanroomSpecialTest`,
+`DistributionsStressTest`, and `DistributionsTest` on main. A probe on a
+temporary pull request ran copies of the loop, each in its own file:
+
+- Every copy that read `self::EPS` in the loop's test was wrong, whether the
+  loop used `for` or `while`, broke or returned, or kept the compensation in
+  fresh temporaries.
+- Every copy that read the constant into a local before the loop
+  (`$halfEps = self::EPS * 0.5`) matched the run without OPcache bit for bit.
+- The same copies in the main script were all right, so the probe has to load
+  the code from a separate file to reproduce it.
+- Moving the loop into its own function did not help.
+
+`EPS / 2` is a power of two and the sum is at least 1, so `$sum * $halfEps`
+equals `$sum * EPS * 0.5` exactly, and the results are unchanged.
+
+
 
 - `opcache.jit_debug=0x1000000` prints each function's IR before compiling it,
   headed `JIT$<function>: ; after folding`. The most recent header before an

@@ -293,6 +293,9 @@ final class Saddle
         $comp = 0.0; // compensated (Kahan) summation
         $denom = $a;
         $converged = false;
+        // EPS / 2 is a power of two, so $sum * $halfEps equals $sum * EPS * 0.5 exactly. Reading the class constant in
+        // the loop's test made the function JIT on x86-64 compute a wrong sum (docs/notes/function-jit.md).
+        $halfEps = self::EPS * 0.5;
         for ($i = 0; $i < self::MAX_ITER; $i++) {
             $denom += 1.0;
             $term *= $x / $denom;
@@ -300,7 +303,7 @@ final class Saddle
             $t = $sum + $y;
             $comp = ($t - $sum) - $y;
             $sum = $t;
-            if ($term <= $sum * self::EPS * 0.5) {
+            if ($term <= $sum * $halfEps) {
                 $converged = true;
                 break;
             }
