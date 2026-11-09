@@ -239,6 +239,7 @@ final class ModelData
         return match ($function) {
             'Phit\fit_ols', 'Phit\fit_ols_matrix' => 'linear',
             'Phit\fit_iv' => 'iv',
+            'Phit\fit_ridge' => 'ridge',
             'Phit\fit_generalized_linear', 'Phit\fit_logistic_matrix', 'Phit\fit_probit_matrix',
             'Phit\fit_poisson_matrix' => 'generalized_linear',
             'Phit\fit_mixed_gaussian', 'Phit\fit_mixed_gaussian_matrix',

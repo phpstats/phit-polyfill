@@ -28,6 +28,7 @@ final class Summary
     public const array PRINTERS = [
         'linear' => Summary\Linear::class,
         'iv' => Summary\Linear::class,
+        'ridge' => Summary\Ridge::class,
         'generalized_linear' => Summary\GeneralizedLinear::class,
         'mixed_gaussian' => Summary\MixedGaussian::class,
         'mixed_logistic' => Summary\MixedLogistic::class,
@@ -68,7 +69,11 @@ final class Summary
         }
         $printer = self::printer(self::fitArgument($fit));
 
-        return $effects === 'fixed' ? self::tidyFixed($printer, $confInt, $level) : self::tidyRandom($printer, $confInt, $level);
+        $out = $effects === 'fixed' ? self::tidyFixed($printer, $confInt, $level) : self::tidyRandom($printer, $confInt, $level);
+        if ($printer instanceof Summary\Ridge) foreach (['std_error','statistic','p_value','conf_low','conf_high'] as $key) {
+            if (isset($out[$key])) $out[$key] = array_map(fn ($v) => is_nan($v) ? null : $v, $out[$key]);
+        }
+        return $out;
     }
 
     /** The fixed effects, as broom's tidy(). */

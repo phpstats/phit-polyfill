@@ -11,8 +11,19 @@ if (\extension_loaded('phit')) {
 }
 
 // The fit and table classes, which the extension otherwise defines.
-foreach (['Fit', 'LinearFit', 'IvFit', 'GeneralizedLinearFit', 'MixedGaussianFit', 'MixedLogisticFit', 'Table'] as $class) {
+foreach (['Fit', 'LinearFit', 'IvFit', 'RidgeFit', 'GeneralizedLinearFit', 'MixedGaussianFit', 'MixedLogisticFit', 'Table'] as $class) {
     require_once __DIR__.'/classes/'.$class.'.php';
+}
+
+if (! function_exists('Phit\cv_ridge')) {
+    function cv_ridge(string $formula, mixed $data, ?array $lambda = null, ?array $foldid = null, int $nfolds = 10, int $seed = 0, array $penaltyFactor = array (
+), bool $standardize = true, array $bounds = array (
+), string $missing = 'drop', mixed $weights = null): array
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\Objects\Wrap::cv(\Phit\Polyfill\Ridge::cv($formula, $data, $lambda, $foldid, $nfolds, $seed, $penaltyFactor, $standardize, $bounds, $missing, $weights));
+    }
 }
 
 if (! function_exists('Phit\dist_beta_cdf')) {
@@ -1929,6 +1940,17 @@ if (! function_exists('Phit\fit_probit_matrix')) {
         \Phit\Polyfill\Internal\Jit::refuse();
 
         return \Phit\Polyfill\Objects\Wrap::fit(\Phit\Polyfill\Probit::fit($x, $y, $missing, $weights, $offset, $intercept));
+    }
+}
+
+if (! function_exists('Phit\fit_ridge')) {
+    function fit_ridge(string $formula, mixed $data, float $lambda, array $penaltyFactor = array (
+), bool $standardize = true, array $bounds = array (
+), string $missing = 'drop', mixed $weights = null): mixed
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\Objects\Wrap::fit(\Phit\Polyfill\Ridge::fit($formula, $data, $lambda, $penaltyFactor, $standardize, $bounds, $missing, $weights));
     }
 }
 

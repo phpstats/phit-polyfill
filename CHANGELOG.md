@@ -10,6 +10,16 @@ from it.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-09
+
+Reproduces phit [v0.8.0](https://github.com/phpstats/phit/releases/tag/v0.8.0),
+commit [`f38a120`](https://github.com/phpstats/phit/commit/f38a120e3bdec3a207dc34b2f7e19c7730cbee30).
+
+- Add `fit_ridge()` and `RidgeFit` with glmnet Gaussian scaling, penalty factors, standardization, original-scale bounds, and conditional uncertainty.
+- Add `cv_ridge()` with weighted folds, lambda selection, and the full-data selected fit. Day folds with age-decaying weights are covered explicitly.
+- Validate twelve fits and six CV cases against glmnet, MASS, lmridge, and independent matrix formulas. Save ridge-only benchmarks and validation results.
+
+
 ## [0.7.0] - 2026-11-09
 
 Reproduces phit [v0.7.0](https://github.com/phpstats/phit/releases/tag/v0.7.0),

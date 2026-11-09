@@ -16,6 +16,7 @@ final class Wrap
     public const array FIT_CLASSES = [
         'linear' => 'Phit\LinearFit',
         'iv' => 'Phit\IvFit',
+        'ridge' => 'Phit\RidgeFit',
         'generalized_linear' => 'Phit\GeneralizedLinearFit',
         'mixed_gaussian' => 'Phit\MixedGaussianFit',
         'mixed_logistic' => 'Phit\MixedLogisticFit',
@@ -27,6 +28,12 @@ final class Wrap
         $class = self::FIT_CLASSES[$data['model'] ?? null] ?? throw new \LogicException('model functions set a known model key');
 
         return self::holding($class, $data);
+    }
+
+    public static function cv(array $result): array
+    {
+        $result['fit'] = self::fit($result['fit']);
+        return $result;
     }
 
     public static function table(array $columns): object

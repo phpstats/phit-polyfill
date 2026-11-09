@@ -34,7 +34,7 @@ describe('fit objects', function () {
             skipMixedFitsUnderJit();
         }
         $fixture = loadFixture('summary/summary.json');
-        $classes = ['iv' => 'Phit\IvFit', 'linear' => 'Phit\LinearFit', 'generalized_linear' => 'Phit\GeneralizedLinearFit',
+        $classes = ['ridge'=>'Phit\RidgeFit','iv' => 'Phit\IvFit', 'linear' => 'Phit\LinearFit', 'generalized_linear' => 'Phit\GeneralizedLinearFit',
             'mixed_gaussian' => 'Phit\MixedGaussianFit', 'mixed_logistic' => 'Phit\MixedLogisticFit'];
         $readOnly = 'A Phit fit is read-only; call toArray() for an array copy';
         $args = $case['args'];

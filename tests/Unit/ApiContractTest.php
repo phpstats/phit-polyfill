@@ -67,7 +67,7 @@ it('leaves Phit\\CsvReader to the extension', function () {
 
 it('defines the fit and table classes with the extension\'s shape', function () {
     $classes = array_filter(apiClasses(), fn (string $class) => $class !== 'Phit\CsvReader', ARRAY_FILTER_USE_KEY);
-    expect(array_keys($classes))->toEqualCanonicalizing(['Phit\Fit', 'Phit\IvFit', 'Phit\LinearFit', 'Phit\GeneralizedLinearFit',
+    expect(array_keys($classes))->toEqualCanonicalizing(['Phit\Fit', 'Phit\RidgeFit', 'Phit\IvFit', 'Phit\LinearFit', 'Phit\GeneralizedLinearFit',
         'Phit\MixedGaussianFit', 'Phit\MixedLogisticFit', 'Phit\Table']);
     foreach ($classes as $class => $spec) {
         $reflection = new ReflectionClass($class);

@@ -37,6 +37,8 @@ final class Predict
             throw self::malformed('missing formula');
         }
         $mixed = array_key_exists('random', $fit);
+        $ridge = ($fit['model'] ?? null) === 'ridge';
+        if ($ridge && $interval === 'prediction') throw ErrorCode::exception(1007, 'ridge prediction intervals are unavailable');
         $link = $fit['link'] ?? null;
         if (is_string($link)) {
             if (! in_array($link, ['identity', 'logit', 'probit', 'log'], true)) {
@@ -75,7 +77,7 @@ final class Predict
         }
         $covariance = [];
         foreach ($rows as $row) {
-            $covariance[] = self::floatList($row, 'covariance');
+            $covariance[] = self::floatList($ridge ? array_map(fn ($v) => $v ?? 0.0, $row) : $row, 'covariance');
         }
         $p = count($columns);
         $shapes = count($coefficients) === $p && count($covariance) === $p;
@@ -138,7 +140,9 @@ final class Predict
             if ($uncertainty) {
                 $quadratic = self::quadForm($x, $covariance);
                 // f64::max: a NaN form becomes 0.
-                $se[$row] = sqrt(is_nan($quadratic) || $quadratic < 0.0 ? 0.0 : $quadratic);
+                $unavailable = false;
+                if ($ridge) foreach ($fit['at_bound'] as $j=>$bound) if ($bound && $x[$j] != 0.0) $unavailable = true;
+                $se[$row] = $unavailable ? null : sqrt(is_nan($quadratic) || $quadratic < 0.0 ? 0.0 : $quadratic);
             }
         }
         if ($newLevels !== []) {
@@ -159,7 +163,7 @@ final class Predict
         if ($seFit) {
             $out['se_fit'] = $se;
         }
-        $df = is_int($fit['df_residual'] ?? null) ? $fit['df_residual'] : null;
+        $df = is_numeric($fit['df_residual'] ?? null) ? $fit['df_residual'] : null;
         if ($isLm && $uncertainty) {
             $out['df'] = $df;
         }

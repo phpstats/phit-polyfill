@@ -260,6 +260,7 @@ id="toc-warnings-and-exceptions">Warnings and exceptions</a></li>
 <li><a href="#instrumental-variable-regression"
 id="toc-instrumental-variable-regression">Instrumental-variable
 regression</a></li>
+<li><a href="#ridge-models" id="toc-ridge-models">Ridge models</a></li>
 </ul>
 </nav>
 <p>The polyfill implements 235 of phit 0.7.0’s 236 functions.
@@ -631,6 +632,17 @@ The formula is
 covariance is supported. See the <a
 href="https://phit.phpstats.org/docs/models#instrumental-variable-models">IV
 documentation</a>.</p>
+</section>
+<section id="ridge-models" class="level2">
+<h2>Ridge models</h2>
+<p><code>Phit\fit_ridge()</code> returns a <code>RidgeFit</code>;
+<code>Phit\cv_ridge()</code> returns weighted CV errors, selected
+lambdas, and a nested <code>RidgeFit</code>. Both support zero penalty
+factors, standardization, bounds, and weights. Explicit lambda paths and
+fold ids reproduce glmnet output. Conditional intervals hold lambda
+fixed and are not coverage-valid. See the <a
+href="https://phit.phpstats.org/docs/models#ridge-regression">native
+ridge guide</a>.</p>
 </section>
 </body>
 </html>

@@ -8,6 +8,7 @@ namespace Phit\Polyfill;
 final class FunctionMap
 {
     public const array MAP = [
+        'Phit\cv_ridge' => [Ridge::class, 'cv'],
         'Phit\dist_beta_cdf' => [Distribution\Beta::class, 'cdf'],
         'Phit\dist_beta_cdf_array' => [Distribution\Beta::class, 'cdfArray'],
         'Phit\dist_beta_logcdf' => [Distribution\Beta::class, 'logcdf'],
@@ -221,6 +222,7 @@ final class FunctionMap
         'Phit\fit_ols_matrix' => [Ols::class, 'fit'],
         'Phit\fit_poisson_matrix' => [Poisson::class, 'fit'],
         'Phit\fit_probit_matrix' => [Probit::class, 'fit'],
+        'Phit\fit_ridge' => [Ridge::class, 'fit'],
         'Phit\model_matrix' => [ModelMatrix::class, 'build'],
         'Phit\optimize' => [Optimize::class, 'optimize'],
         'Phit\permutation_rng' => [Sampling::class, 'permutation'],

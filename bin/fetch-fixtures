@@ -21,6 +21,7 @@ files=(
     distributions-scipy.json
     distributions-mpmath.json
     iv-r.json
+    ridge-r.json
     ols-r.json
     logistic-r.json
     probit-r.json
