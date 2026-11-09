@@ -10,6 +10,15 @@ from it.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-09
+
+Reproduces phit [v0.7.0](https://github.com/phpstats/phit/releases/tag/v0.7.0),
+commit [`d98d508`](https://github.com/phpstats/phit/commit/d98d5087204a6fa26770fb3096963289b7b3d150).
+
+- Add `fit_iv()` and `IvFit`, matching phit 0.7.0: weighted two-stage least squares, structural inference, first-stage and Sanderson–Windmeijer F tests, Wu–Hausman, Sargan, prediction, and summaries.
+- Share twelve R reference fixtures and IV validation with the extension. IV-only benchmarks include weighted heating models with 720 and 2,160 rows.
+- Record public mathematical references and observed no-intercept diagnostic differences in `docs/iv.md`.
+
 ## [0.6.2] - 2026-11-02
 
 Reproduces phit [v0.6.2](https://github.com/phpstats/phit/releases/tag/v0.6.2),

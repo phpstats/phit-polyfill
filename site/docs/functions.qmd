@@ -2,7 +2,7 @@
 title: "Functions"
 ---
 
-The polyfill implements 234 of phit 0.6.2's 235 functions. Signatures,
+The polyfill implements 235 of phit 0.7.0's 236 functions. Signatures,
 parameter names, defaults, and result keys are the extension's, so phit's
 documentation describes each function's arguments and results.
 
@@ -13,7 +13,7 @@ documentation describes each function's arguments and results.
 | Optimization | `optimize`, `uniroot` |
 | Models from a formula | `fit_ols`, `fit_generalized_linear`, `fit_mixed_gaussian`, `fit_mixed_logistic`, `model_matrix`, `predict` |
 | Models from a matrix | `fit_ols_matrix`, `fit_logistic_matrix`, `fit_probit_matrix`, `fit_poisson_matrix`, with weights, offsets, the automatic intercept, and both missing-value policies; `fit_mixed_gaussian_matrix`, `fit_mixed_gaussian_intercept_matrix`, `fit_mixed_logistic_matrix` |
-| Fit objects and summaries | `summary`, `tidy`, the `Phit\Fit` interface and its four fit classes, and `Phit\Table` |
+| Fit objects and summaries | `summary`, `tidy`, the `Phit\Fit` interface and its five fit classes, and `Phit\Table` |
 | Distributions | 13 families with 14 functions each, listed below |
 | Random numbers | `dist_<family>_rng` for each of the 13 families, `dist_uniform_rng`, `dist_categorical_rng`, `dist_categorical_rows_rng`, `permutation_rng` |
 | Posterior draws | `draws_moments`, `draws_covariance_map`, `draws_affine` |
@@ -194,3 +194,7 @@ category, as in the extension.
 | 1006 | Non-convergence (including separation) |
 | 1007 | Unsupported input size |
 | 1008 | Internal error |
+
+## Instrumental-variable regression
+
+`Phit\fit_iv()` and `Phit\IvFit` provide weighted two-stage least squares, structural inference, first-stage diagnostics including Sanderson–Windmeijer F, Wu–Hausman, and Sargan. The formula is `y ~ exogenous | endogenous ~ excluded instruments`. Only iid covariance is supported. See the [IV documentation](https://phit.phpstats.org/docs/models#instrumental-variable-models).

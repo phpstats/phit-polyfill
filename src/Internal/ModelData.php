@@ -238,6 +238,7 @@ final class ModelData
     {
         return match ($function) {
             'Phit\fit_ols', 'Phit\fit_ols_matrix' => 'linear',
+            'Phit\fit_iv' => 'iv',
             'Phit\fit_generalized_linear', 'Phit\fit_logistic_matrix', 'Phit\fit_probit_matrix',
             'Phit\fit_poisson_matrix' => 'generalized_linear',
             'Phit\fit_mixed_gaussian', 'Phit\fit_mixed_gaussian_matrix',
@@ -261,7 +262,10 @@ final class ModelData
                 $diagnostics[$key] = $output[$key];
             }
         }
-        $warnings = [];
+        $warnings = $output['iv_warnings'] ?? [];
+        foreach (['wu_hausman', 'sargan'] as $key) {
+            if (array_key_exists($key, $output)) $diagnostics[$key] = $output[$key];
+        }
         $dropped = count($this->dropped);
         if ($dropped > 0) {
             $warnings[] = "listwise deletion removed $dropped of {$this->nInput} original rows";
@@ -273,6 +277,7 @@ final class ModelData
             $warnings[] = 'Laplace integration is approximate; assess quadrature sensitivity for rare events or small groups';
         }
         $diagnostics['warnings'] = $warnings;
+        unset($output['wu_hausman'], $output['sargan'], $output['iv_warnings']);
         $output['diagnostics'] = $diagnostics;
         $output['n_input'] = $this->nInput;
         $output['n_observations'] = count($this->retained);

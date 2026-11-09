@@ -21,7 +21,7 @@ JIT restrictions and architecture differences. The documentation is in
 
 ## Features
 
-The polyfill implements 234 of phit 0.6.2's 235 functions.
+The polyfill implements 235 of phit 0.7.0's 236 functions.
 
 | Area | Functions | Polyfill |
 |---|---|---|
@@ -30,7 +30,7 @@ The polyfill implements 234 of phit 0.6.2's 235 functions.
 | Optimization | `optimize`, `uniroot` | Provided |
 | Models from a formula | `fit_ols`, `fit_generalized_linear`, `fit_mixed_gaussian`, `fit_mixed_logistic`, `model_matrix`, `predict` | Provided |
 | Models from a matrix | `fit_ols_matrix`, `fit_logistic_matrix`, `fit_probit_matrix`, `fit_poisson_matrix`, `fit_mixed_gaussian_matrix`, `fit_mixed_gaussian_intercept_matrix`, `fit_mixed_logistic_matrix` | Provided |
-| Fit objects and summaries | `summary`, `tidy`, the `Phit\Fit` interface and its four fit classes, and `Phit\Table` | Provided |
+| Fit objects and summaries | `summary`, `tidy`, the `Phit\Fit` interface and its five fit classes, and `Phit\Table` | Provided |
 | Distributions | 13 families with 14 functions each | Provided |
 | Random numbers | `dist_<family>_rng` for the 13 families, `dist_uniform_rng`, `dist_categorical_rng`, `dist_categorical_rows_rng`, `permutation_rng` | Provided |
 | Posterior draws | `draws_moments`, `draws_covariance_map`, `draws_affine` | Provided |
@@ -148,6 +148,7 @@ reproduces v0.6.2, which fixes a hang in v0.6.1.
 
 | Polyfill | phit |
 |---|---|
+| 0.7.0 | [v0.7.0](https://github.com/phpstats/phit/releases/tag/v0.7.0) (`d98d508`) |
 | 0.6.2 | [v0.6.2](https://github.com/phpstats/phit/releases/tag/v0.6.2) (`d8caf83`) |
 | 0.6.0 | [v0.6.0](https://github.com/phpstats/phit/releases/tag/v0.6.0) (`00c0297`) |
 | 0.5.1 | [v0.5.1](https://github.com/phpstats/phit/releases/tag/v0.5.1) (`c60fb9b`) |
@@ -248,3 +249,5 @@ under another one the extension does not load and the parity tests skip.
 Released under the MIT license. See [LICENSE](LICENSE). Code that follows other
 projects keeps their licenses, listed in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+`Phit\fit_iv()` fits weighted two-stage least squares with structural-residual inference and weak-instrument diagnostics, including Sanderson–Windmeijer F. See [the IV model contract](https://phit.phpstats.org/docs/models#instrumental-variable-models).

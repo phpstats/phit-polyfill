@@ -32,7 +32,7 @@ final class Predict
         Frontend::stringArgument($type, 'type');
         Frontend::stringArgument($interval, 'interval');
         $fit = Objects\Wrap::data($fit) ?? throw self::malformed('not a fit object or array');
-        $formula = $fit['formula'] ?? null;
+        $formula = $fit['structural_formula'] ?? $fit['formula'] ?? null;
         if (! is_string($formula)) {
             throw self::malformed('missing formula');
         }

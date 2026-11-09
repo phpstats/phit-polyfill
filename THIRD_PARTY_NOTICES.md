@@ -135,3 +135,7 @@ specifications. They contain no third-party code.
   method of W. J. Lentz, *Applied Optics* 15 (1976), and I. J. Thompson and
   A. R. Barnett, *Journal of Computational Physics* 64 (1986). Specification:
   `specs/cleanroom/special.md`.
+
+## IV behavior references
+
+Two-stage least squares and diagnostics follow public mathematical definitions and public API output only. No reference-package source was used. See `docs/iv.md` for references, finite-sample conventions, and the no-intercept Sargan difference.

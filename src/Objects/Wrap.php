@@ -15,6 +15,7 @@ final class Wrap
     /** The fit classes, by the result's `model` key. */
     public const array FIT_CLASSES = [
         'linear' => 'Phit\LinearFit',
+        'iv' => 'Phit\IvFit',
         'generalized_linear' => 'Phit\GeneralizedLinearFit',
         'mixed_gaussian' => 'Phit\MixedGaussianFit',
         'mixed_logistic' => 'Phit\MixedLogisticFit',

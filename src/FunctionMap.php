@@ -210,6 +210,7 @@ final class FunctionMap
         'Phit\draws_covariance_map' => [Draws::class, 'covarianceMap'],
         'Phit\draws_moments' => [Draws::class, 'moments'],
         'Phit\fit_generalized_linear' => [Glm::class, 'fit'],
+        'Phit\fit_iv' => [Iv::class, 'fit'],
         'Phit\fit_logistic_matrix' => [Logistic::class, 'fit'],
         'Phit\fit_mixed_gaussian' => [MixedFormula::class, 'lmer'],
         'Phit\fit_mixed_gaussian_intercept_matrix' => [MixedModels::class, 'lmm'],

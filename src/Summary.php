@@ -27,6 +27,7 @@ final class Summary
      */
     public const array PRINTERS = [
         'linear' => Summary\Linear::class,
+        'iv' => Summary\Linear::class,
         'generalized_linear' => Summary\GeneralizedLinear::class,
         'mixed_gaussian' => Summary\MixedGaussian::class,
         'mixed_logistic' => Summary\MixedLogistic::class,
@@ -35,7 +36,24 @@ final class Summary
     /** Phit\summary */
     public static function summary(mixed $fit): string
     {
-        return self::render(self::printer(self::fitArgument($fit)));
+        $data = self::fitArgument($fit);
+        $text = self::render(self::printer($data));
+        if (($data['model'] ?? null) !== 'iv') return $text;
+        $text = str_replace('Linear model fit by least squares', 'Instrumental-variable model fit by two-stage least squares', $text);
+        $text = preg_replace('/^F-statistic:.*\n/m', '', $text);
+        $text .= "\nDiagnostic tests (iid covariance):\nTest  df1  df2  statistic  p-value\n";
+        $fmt = fn ($v) => $v === null ? 'NA' : Format::formatG((float)$v, 4);
+        $row = function ($label, $a, $b, $stat, $p) use (&$text, $fmt) {
+            $text .= "$label  ".$fmt($a).'  '.$fmt($b).'  '.$fmt($stat).'  '.$fmt($p)."\n";
+        };
+        foreach ($data['first_stage'] as $name => $stage) {
+            $row("Weak instruments ($name)", $stage['df1'], $stage['df2'], $stage['f_statistic'], $stage['p_value']);
+            $row("Sanderson-Windmeijer ($name)", $stage['sw_df1'], $stage['sw_df2'], $stage['sw_f_statistic'], $stage['sw_p_value']);
+        }
+        $wu = $data['diagnostics']['wu_hausman'];
+        $row('Wu-Hausman', $wu['df1'], $wu['df2'], $wu['statistic'], $wu['p_value']);
+        if (($sargan = $data['diagnostics']['sargan']) !== null) $row('Sargan', $sargan['df'], null, $sargan['statistic'], $sargan['p_value']);
+        return $text;
     }
 
     /** Phit\tidy */

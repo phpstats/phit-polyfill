@@ -116,6 +116,7 @@ reproduces v0.6.2, which fixes a hang in v0.6.1.
 
 | Polyfill | phit |
 |---|---|
+| 0.7.0 | [v0.7.0](https://github.com/phpstats/phit/releases/tag/v0.7.0) (`d98d508`) |
 | 0.6.2 | v0.6.2 (`d8caf83`) |
 | 0.6.0 | v0.6.0 (`00c0297`) |
 | 0.5.1 | v0.5.1 (`c60fb9b`) |

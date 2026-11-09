@@ -20,6 +20,7 @@ files=(
     distributions-r.json
     distributions-scipy.json
     distributions-mpmath.json
+    iv-r.json
     ols-r.json
     logistic-r.json
     probit-r.json

@@ -322,9 +322,9 @@ final class Design
      *
      * @param  list<list<?float>>  $extra  aligned vectors (weights) that take part in deletion
      */
-    public static function build(string $formula, Data $data, bool $dropMissing, bool $dropUnusedLevels, array $extra = []): self
+    public static function build(string $formula, Data $data, bool $dropMissing, bool $dropUnusedLevels, array $extra = [], bool $allowEmpty = false): self
     {
-        return self::design($formula, $data, $dropMissing, $dropUnusedLevels, $extra, null, false);
+        return self::design($formula, $data, $dropMissing, $dropUnusedLevels, $extra, null, false, $allowEmpty);
     }
 
     /**
@@ -339,18 +339,18 @@ final class Design
         return self::design($formula, $data, true, false, [], $predvars, $random);
     }
 
-    private static function design(string $formula, Data $data, bool $dropMissing, bool $dropUnusedLevels, array $extra, ?array $predvars, bool $random): self
+    private static function design(string $formula, Data $data, bool $dropMissing, bool $dropUnusedLevels, array $extra, ?array $predvars, bool $random, bool $allowEmpty = false): self
     {
         $predict = $predvars !== null;
         Evaluator::beginDesign($predict ? $predvars['poly'] : null);
         try {
-            return self::designWith($formula, $data, $dropMissing, $dropUnusedLevels, $extra, $predvars, $random);
+            return self::designWith($formula, $data, $dropMissing, $dropUnusedLevels, $extra, $predvars, $random, $allowEmpty);
         } finally {
             Evaluator::beginDesign(null);
         }
     }
 
-    private static function designWith(string $formula, Data $data, bool $dropMissing, bool $dropUnusedLevels, array $extra, ?array $predvars, bool $random): self
+    private static function designWith(string $formula, Data $data, bool $dropMissing, bool $dropUnusedLevels, array $extra, ?array $predvars, bool $random, bool $allowEmpty = false): self
     {
         $predict = $predvars !== null;
         $levelsOf = fn (string $name): ?array => $predict ? ($predvars['levels'][$name] ?? null) : null;
@@ -457,7 +457,7 @@ final class Design
             };
         }
         $block = self::buildBlock($fixed, $coded, $m);
-        if ($block['columns'] === []) {
+        if ($block['columns'] === [] && !$allowEmpty) {
             throw self::error('the formula has no predictor columns; keep the intercept or add a term');
         }
         $x = self::rowsOf($block['columns'], $m);

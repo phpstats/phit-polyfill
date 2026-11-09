@@ -11,7 +11,7 @@ if (\extension_loaded('phit')) {
 }
 
 // The fit and table classes, which the extension otherwise defines.
-foreach (['Fit', 'LinearFit', 'GeneralizedLinearFit', 'MixedGaussianFit', 'MixedLogisticFit', 'Table'] as $class) {
+foreach (['Fit', 'LinearFit', 'IvFit', 'GeneralizedLinearFit', 'MixedGaussianFit', 'MixedLogisticFit', 'Table'] as $class) {
     require_once __DIR__.'/classes/'.$class.'.php';
 }
 
@@ -1830,6 +1830,15 @@ if (! function_exists('Phit\fit_generalized_linear')) {
         \Phit\Polyfill\Internal\Jit::refuse();
 
         return \Phit\Polyfill\Objects\Wrap::fit(\Phit\Polyfill\Glm::fit($formula, $data, $family, $link, $missing, $weights));
+    }
+}
+
+if (! function_exists('Phit\fit_iv')) {
+    function fit_iv(string $formula, mixed $data, string $missing = 'drop', mixed $weights = null, mixed $vcov = 'iid'): mixed
+    {
+        \Phit\Polyfill\Internal\Jit::refuse();
+
+        return \Phit\Polyfill\Objects\Wrap::fit(\Phit\Polyfill\Iv::fit($formula, $data, $missing, $weights, $vcov));
     }
 }
 

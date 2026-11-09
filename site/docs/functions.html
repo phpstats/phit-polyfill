@@ -257,9 +257,12 @@ interface</a></li>
 draws</a></li>
 <li><a href="#warnings-and-exceptions"
 id="toc-warnings-and-exceptions">Warnings and exceptions</a></li>
+<li><a href="#instrumental-variable-regression"
+id="toc-instrumental-variable-regression">Instrumental-variable
+regression</a></li>
 </ul>
 </nav>
-<p>The polyfill implements 234 of phit 0.6.2’s 235 functions.
+<p>The polyfill implements 235 of phit 0.7.0’s 236 functions.
 Signatures, parameter names, defaults, and result keys are the
 extension’s, so phit’s documentation describes each function’s arguments
 and results.</p>
@@ -311,7 +314,7 @@ policies; <code>fit_mixed_gaussian_matrix</code>,
 <tr>
 <td>Fit objects and summaries</td>
 <td><code>summary</code>, <code>tidy</code>, the <code>Phit\Fit</code>
-interface and its four fit classes, and <code>Phit\Table</code></td>
+interface and its five fit classes, and <code>Phit\Table</code></td>
 </tr>
 <tr>
 <td>Distributions</td>
@@ -617,6 +620,17 @@ identifies the category, as in the extension.</p>
 </tr>
 </tbody>
 </table>
+</section>
+<section id="instrumental-variable-regression" class="level2">
+<h2>Instrumental-variable regression</h2>
+<p><code>Phit\fit_iv()</code> and <code>Phit\IvFit</code> provide
+weighted two-stage least squares, structural inference, first-stage
+diagnostics including Sanderson–Windmeijer F, Wu–Hausman, and Sargan.
+The formula is
+<code>y ~ exogenous | endogenous ~ excluded instruments</code>. Only iid
+covariance is supported. See the <a
+href="https://phit.phpstats.org/docs/models#instrumental-variable-models">IV
+documentation</a>.</p>
 </section>
 </body>
 </html>
