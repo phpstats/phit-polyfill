@@ -204,7 +204,7 @@ final class Ridge
         foreach ($bounds as $j=>[$lo,$hi]) {
             $lower[$j] = $lo === null ? -INF : $lo*$scales[$j]; $upper[$j] = $hi === null ? INF : $hi*$scales[$j];
             $bounded = $bounded || $lo !== null || $hi !== null;
-            if ($constant[$j] && !($lower[$j] <= 0 && $upper[$j] >= 0)) throw self::invalid('bounds for constant predictors must include zero');
+            if ($constant[$j] && ($lower[$j] > 0 || $upper[$j] < 0)) throw self::invalid('bounds for constant predictors must include zero');
             if ($lower[$j] === $upper[$j]) $theta[$j] = $lower[$j];
             elseif (!$constant[$j]) $available[] = $j;
         }
