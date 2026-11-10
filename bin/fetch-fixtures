@@ -22,6 +22,7 @@ files=(
     distributions-mpmath.json
     iv-r.json
     ridge-r.json
+    vcov-r.json
     ols-r.json
     logistic-r.json
     probit-r.json

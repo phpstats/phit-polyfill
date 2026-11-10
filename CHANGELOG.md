@@ -10,6 +10,16 @@ from it.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-09
+
+Reproduces phit [v0.9.0](https://github.com/phpstats/phit/releases/tag/v0.9.0),
+commit [`3db457e`](https://github.com/phpstats/phit/commit/3db457e0a5eeecfc3662efc0598f291f7afe5183).
+
+- Add HC0–HC3, one-way clustered HC0/HC1, and Newey–West covariance to formula `fit_ols()` and `fit_iv()`, with weights and original-row cluster labels.
+- Use G-1 df for clustered coefficient inference. Propagate covariance and inference df through prediction, tidy tables, and summaries. IV diagnostics retain iid definitions.
+- Match 107 sandwich reference cases, including weighted heating day clusters and Newey–West lags 6/24. Save complete numerical validation and focused benchmarks.
+
+
 ## [0.8.0] - 2026-11-09
 
 Reproduces phit [v0.8.0](https://github.com/phpstats/phit/releases/tag/v0.8.0),
@@ -334,7 +344,7 @@ Requires PHP 8.3 or later.
   when the test suite runs the implementations directly, so that one CI job
   is informational; the `Phit\` functions refuse before any of that code runs.
 
-[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.6.2...HEAD
+[Unreleased]: https://github.com/phpstats/phit-polyfill/compare/v0.9.0...HEAD
 [0.6.2]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.6.2
 [0.6.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.6.0
 [0.5.1]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.5.1
@@ -346,3 +356,5 @@ Requires PHP 8.3 or later.
 [0.3.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.3.0
 [0.2.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.2.0
 [0.1.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.1.0
+
+[0.9.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.9.0

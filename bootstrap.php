@@ -1908,11 +1908,11 @@ if (! function_exists('Phit\fit_mixed_logistic_matrix')) {
 }
 
 if (! function_exists('Phit\fit_ols')) {
-    function fit_ols(string $formula, mixed $data, string $missing = 'drop', mixed $weights = null): mixed
+    function fit_ols(string $formula, mixed $data, string $missing = 'drop', mixed $weights = null, mixed $vcov = 'iid'): mixed
     {
         \Phit\Polyfill\Internal\Jit::refuse();
 
-        return \Phit\Polyfill\Objects\Wrap::fit(\Phit\Polyfill\Lm::fit($formula, $data, $missing, $weights));
+        return \Phit\Polyfill\Objects\Wrap::fit(\Phit\Polyfill\Lm::fit($formula, $data, $missing, $weights, $vcov));
     }
 }
 

@@ -73,12 +73,13 @@ final class Frontend
     }
 
     /** @return array{0: Design, 1: list<float>} the design and the retained weights */
-    public static function prepare(string $formula, mixed $data, string $missing, mixed $weights, bool $dropUnusedLevels, bool $allowEmpty = false): array
+    public static function prepare(string $formula, mixed $data, string $missing, mixed $weights, bool $dropUnusedLevels, bool $allowEmpty = false, array $additional = []): array
     {
         $dropMissing = self::missingPolicy($missing);
         $frame = Data::from($data);
         $weights = self::weights($weights, $frame);
-        $design = Design::build($formula, $frame, $dropMissing, $dropUnusedLevels, $weights === null ? [] : [$weights], $allowEmpty);
+        if ($additional !== [] && $weights === null) $weights=array_fill(0,$frame->rows,1.0);
+        $design = Design::build($formula, $frame, $dropMissing, $dropUnusedLevels, [...($weights === null ? [] : [$weights]),...$additional], $allowEmpty);
 
         return [$design, $design->extra[0] ?? array_fill(0, count($design->x), 1.0)];
     }

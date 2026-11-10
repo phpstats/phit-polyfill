@@ -54,7 +54,7 @@ final class Iv
     public static function fit(string $formula, mixed $data, string $missing = 'drop', mixed $weights = null, mixed $vcov = 'iid'): array
     {
         Frontend::stringArgument($formula, 'formula');
-        if ($vcov !== 'iid') throw ErrorCode::exception(1007, "fit_iv currently supports only vcov: 'iid'");
+        $spec=Vcov::spec($vcov,$data);
         [$left, $endog, $instruments] = self::split($formula);
         $structuralFormula = "$left + $endog";
         [$a, $w] = Frontend::prepare($structuralFormula, $data, 'drop', $weights, true);
@@ -63,9 +63,9 @@ final class Iv
         Frontend::rejectRandom($b, 'Phit\\fit_iv');
         $shared = array_fill(0, $a->nInput, null);
         foreach ($a->retainedRows as $i => $row) {
-            if (in_array($row, $b->retainedRows, true)) $shared[$row] = $w[$i];
+            if (in_array($row, $b->retainedRows, true) && ($spec['cluster']===null || $spec['cluster'][$row]!==null)) $shared[$row] = $w[$i];
         }
-        [$design, $w] = Frontend::prepare($structuralFormula, $data, $missing, $shared, true);
+        [$design, $w] = Frontend::prepare($structuralFormula, $data, $missing, $shared, true, additional:$spec['cluster']===null?[]:[$spec['cluster']]);
         [$exog] = Frontend::prepare($left, $data, $missing, $shared, true, true);
         [$excluded] = Frontend::prepare("$left + ($instruments) + ".($exog->intercept ? '1' : '0'), $data, $missing, $shared, true);
         foreach ([$design, $exog, $excluded] as $d) {
@@ -98,12 +98,12 @@ final class Iv
         $output['structural_formula'] = $structuralFormula;
         $output['endogenous'] = array_map(fn ($j) => $design->columns[$j], $endogenous);
         $output['instruments'] = $instrumentNames;
-        $output['vcov'] = 'iid';
+        $output=Vcov::apply($output,$design,$z,$w,$spec);
         return Frontend::finish($output, $design, 'Phit\\fit_iv', 'scaled_qr_2sls');
     }
 
     /** Scaled QR solve, unit covariance, fitted values, and residuals. */
-    private static function leastSquares(array $x, array $y): array
+    public static function leastSquares(array $x, array $y): array
     {
         $n = count($x);
         $p = count($x[0]);

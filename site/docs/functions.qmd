@@ -202,3 +202,7 @@ category, as in the extension.
 ## Ridge models
 
 `Phit\fit_ridge()` returns a `RidgeFit`; `Phit\cv_ridge()` returns weighted CV errors, selected lambdas, and a nested `RidgeFit`. Both support zero penalty factors, standardization, bounds, and weights. Explicit lambda paths and fold ids reproduce glmnet output. Conditional intervals hold lambda fixed and are not coverage-valid. See the [native ridge guide](https://phit.phpstats.org/docs/models#ridge-regression).
+
+## Robust covariance
+
+`Phit\fit_ols()` and `Phit\fit_iv()` accept `vcov:` for HC0–HC3, one-way clustering, and Newey–West. The choice propagates to coefficient inference, prediction uncertainty, tidy tables, and summaries. Cluster inference uses G-1 df. See the [model guide](https://phit.phpstats.org/docs/models#robust-covariance).

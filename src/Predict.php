@@ -163,7 +163,8 @@ final class Predict
         if ($seFit) {
             $out['se_fit'] = $se;
         }
-        $df = is_numeric($fit['df_residual'] ?? null) ? $fit['df_residual'] : null;
+        $dfValue=$fit['inference_df']??$fit['df_residual']??null;
+        $df = is_numeric($dfValue) ? $dfValue : null;
         if ($isLm && $uncertainty) {
             $out['df'] = $df;
         }

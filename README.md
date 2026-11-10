@@ -21,7 +21,7 @@ JIT restrictions and architecture differences. The documentation is in
 
 ## Features
 
-The polyfill implements 237 of phit 0.8.0's 238 functions.
+The polyfill implements 237 of phit 0.9.0's 238 functions.
 
 | Area | Functions | Polyfill |
 |---|---|---|
@@ -148,6 +148,7 @@ reproduces v0.6.2, which fixes a hang in v0.6.1.
 
 | Polyfill | phit |
 |---|---|
+| 0.9.0 | [v0.9.0](https://github.com/phpstats/phit/releases/tag/v0.9.0) (`3db457e`) |
 | 0.8.0 | [v0.8.0](https://github.com/phpstats/phit/releases/tag/v0.8.0) (`f38a120`) |
 | 0.7.0 | [v0.7.0](https://github.com/phpstats/phit/releases/tag/v0.7.0) (`d98d508`) |
 | 0.6.2 | [v0.6.2](https://github.com/phpstats/phit/releases/tag/v0.6.2) (`d8caf83`) |
@@ -261,3 +262,7 @@ Ridge-only benchmarks compare native phit, pure PHP, and glmnet with identical
 inputs and explicit paths. See [the record](benchmarks/ridge-results.json),
 including the additional covariance work done by phit. The saved
 [validation record](docs/ridge-validation.json) contains actual numerical results.
+
+## Robust covariance
+
+`fit_ols()` and `fit_iv()` support HC0–HC3, one-way clustered HC0/HC1, and Newey–West covariance, including weights. Cluster labels follow original input rows and participate in joint missing-row handling. Cluster inference uses G-1 df. See [the specification](docs/vcov.md), [saved validation](docs/vcov-validation.json), and [focused benchmarks](benchmarks/vcov-results.json).

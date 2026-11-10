@@ -140,7 +140,8 @@ final class Summary
         $kind = FitReader::text($fit, 'model') ?? throw FitReader::notAFit('missing model');
         $class = self::PRINTERS[$kind] ?? throw FitReader::notAFit("unknown model '$kind'");
 
-        return $class::fromFit($fit);
+        $base=$class::fromFit($fit);
+        return isset($fit['vcov_label']) && $fit['vcov_label']!=='iid' ? new Summary\Robust($base,$fit['vcov_label'],(float)$fit['inference_df']) : $base;
     }
 
     /**

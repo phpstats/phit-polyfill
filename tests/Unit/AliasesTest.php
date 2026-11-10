@@ -37,7 +37,7 @@ describe('fit_ols', function () {
     it('has the extension\'s parameters', function () {
         $parameters = array_map(fn ($p) => $p->getName(), (new ReflectionMethod(...Polyfill::implementation('Phit\fit_ols')))->getParameters());
 
-        expect($parameters)->toBe(['formula', 'data', 'missing', 'weights']);
+        expect($parameters)->toBe(['formula', 'data', 'missing', 'weights', 'vcov']);
     });
 
     it('gives the same numbers as fit_ols_matrix on the formula\'s model matrix', function () {
