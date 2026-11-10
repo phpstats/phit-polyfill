@@ -358,3 +358,5 @@ Requires PHP 8.3 or later.
 [0.1.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.1.0
 
 [0.9.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.9.0
+[0.7.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.7.0
+[0.8.0]: https://github.com/phpstats/phit-polyfill/releases/tag/v0.8.0
